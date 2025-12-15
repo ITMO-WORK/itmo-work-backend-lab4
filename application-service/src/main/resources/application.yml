@@ -1,0 +1,11 @@
+server:
+  port: 0
+spring:
+  application:
+    name: application-service
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+  config:
+    import: configserver:${CONFIG_SERVER_URL:http://localhost:9991}

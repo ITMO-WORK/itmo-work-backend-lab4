@@ -1,0 +1,12 @@
+server:
+  port: ${PORT:8765}
+
+spring:
+  application:
+    name: itmo-work-gateway
+
+  profiles:
+    active: ${PROFILE:dev}
+
+  config:
+    import: configserver:http://config-server:9991
