@@ -38,7 +38,7 @@ public class VacancyKafkaListener {
             return;
         }
 
-        final String opRaw = request.vacancyOperation();
+        final String opRaw = request.type();
         final VacancyOperations op;
         try {
             op = VacancyOperations.valueOf(opRaw);

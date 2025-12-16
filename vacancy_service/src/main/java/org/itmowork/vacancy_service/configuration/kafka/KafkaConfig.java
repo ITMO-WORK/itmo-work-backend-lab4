@@ -38,7 +38,6 @@ public class KafkaConfig {
         return new KafkaTemplate<>(vacancyResponseProducerFactory());
     }
 
-    // Consumer: VacancyRequest
     @Bean
     public ConsumerFactory<String, VacancyRequest> vacancyRequestConsumerFactory(
             @Value("${spring.kafka.consumer.group-id}") String groupId
