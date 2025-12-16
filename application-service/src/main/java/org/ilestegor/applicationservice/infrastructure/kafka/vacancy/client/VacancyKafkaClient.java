@@ -79,7 +79,7 @@ public class VacancyKafkaClient implements VacancyClient {
         return sendAndAwait(VacancyOperations.VACANCY_IS_PUBLISHED, vacancyId)
                 .flatMap(this::ensureOk)
                 .flatMap(resp -> decodePayload(resp, VacancyPublishedResponse.class))
-                .map(VacancyPublishedResponse::isVacancyPublished);
+                .map(VacancyPublishedResponse::published);
     }
 
     @Override

@@ -1,4 +1,6 @@
 package org.ilestegor.applicationservice.infrastructure.kafka.vacancy.dto.response;
 
-public record VacancyPublishedResponse (Boolean isVacancyPublished) {
+import java.util.UUID;
+
+public record VacancyPublishedResponse (Boolean published, UUID vacancyId) {
 }
