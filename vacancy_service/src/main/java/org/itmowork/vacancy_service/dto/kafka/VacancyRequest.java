@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.util.UUID;
 
 public record VacancyRequest(
-        String vacancyOperation,
+        String type,
         UUID correlationId,
         JsonNode payload
 ) {}
