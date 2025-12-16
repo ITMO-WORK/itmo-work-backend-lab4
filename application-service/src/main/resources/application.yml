@@ -9,3 +9,28 @@ spring:
     property-naming-strategy: SNAKE_CASE
   config:
     import: configserver:${CONFIG_SERVER_URL:http://localhost:9991}
+
+  kafka:
+    bootstrap-servers: localhost:9092,localhost:9093,localhost:9094
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false
+
+    consumer:
+      group-id: application-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.json.use.type.headers: false
+
+app:
+  kafka:
+    vacancy:
+      request-topic: vacancy.request
+      reply-topic: vacancy.response
+  request-timeout: 5s

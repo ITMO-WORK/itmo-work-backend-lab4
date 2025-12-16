@@ -50,9 +50,12 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     private final VacancyClient vacancyClient;
 
+    private final org.ilestegor.applicationservice.infrastructure.kafka.vacancy.client.interfaces.VacancyClient vacancyKafkaClient;
+
     @Override
     public Mono<ApplicationCreateResponseDto> createApplication(UUID vacancyId, ApplicationCreateRequestDto applicationCreateRequestDto) {
-        return getUserDetailsFromContext().flatMap(userPrincipal -> checkUserExists(userPrincipal.userId()).then(checkVacancyExists(vacancyId)).then(checkVacancyIsPublished(vacancyId)).then(checkUserHasNotApplied(userPrincipal.userId(), vacancyId)).then(createAndSaveApplication(userPrincipal.userId(), vacancyId, applicationCreateRequestDto)));
+//        return getUserDetailsFromContext().flatMap(userPrincipal -> checkUserExists(userPrincipal.userId()).then(checkVacancyExists(vacancyId)).then(checkVacancyIsPublished(vacancyId)).then(checkUserHasNotApplied(userPrincipal.userId(), vacancyId)).then(createAndSaveApplication(userPrincipal.userId(), vacancyId, applicationCreateRequestDto)));
+        return getUserDetailsFromContext().flatMap(userPrincipal -> vacancyKafkaClient.exists(vacancyId).then(vacancyKafkaClient.isPublished(vacancyId)).then(checkUserHasNotApplied(userPrincipal.userId(), vacancyId)).then(createAndSaveApplication(userPrincipal.userId(), vacancyId, applicationCreateRequestDto)));
     }
 
     @Override
