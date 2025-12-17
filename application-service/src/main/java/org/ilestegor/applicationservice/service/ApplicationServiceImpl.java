@@ -13,6 +13,8 @@ import org.ilestegor.applicationservice.infrastructure.feign.company.CompanyClie
 import org.ilestegor.applicationservice.infrastructure.feign.user.UserClient;
 import org.ilestegor.applicationservice.infrastructure.feign.user.dto.UserResponseDto;
 import org.ilestegor.applicationservice.infrastructure.feign.vacancy.VacancyClient;
+import org.ilestegor.applicationservice.infrastructure.kafka.application.ApplicationEventPublisher;
+import org.ilestegor.applicationservice.infrastructure.kafka.dto.events.ApplicationStatusChangeEvent;
 import org.ilestegor.applicationservice.mapper.ApplicationMapper;
 import org.ilestegor.applicationservice.model.Application;
 import org.ilestegor.applicationservice.model.ApplicationStatusName;
@@ -50,12 +52,11 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     private final VacancyClient vacancyClient;
 
-    private final org.ilestegor.applicationservice.infrastructure.kafka.vacancy.client.interfaces.VacancyClient vacancyKafkaClient;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     public Mono<ApplicationCreateResponseDto> createApplication(UUID vacancyId, ApplicationCreateRequestDto applicationCreateRequestDto) {
-//        return getUserDetailsFromContext().flatMap(userPrincipal -> checkUserExists(userPrincipal.userId()).then(checkVacancyExists(vacancyId)).then(checkVacancyIsPublished(vacancyId)).then(checkUserHasNotApplied(userPrincipal.userId(), vacancyId)).then(createAndSaveApplication(userPrincipal.userId(), vacancyId, applicationCreateRequestDto)));
-        return getUserDetailsFromContext().flatMap(userPrincipal -> checkVacancyExists(vacancyId).then(checkVacancyIsPublished(vacancyId)).then(checkUserHasNotApplied(userPrincipal.userId(), vacancyId)).then(createAndSaveApplication(userPrincipal.userId(), vacancyId, applicationCreateRequestDto)));
+        return getUserDetailsFromContext().flatMap(userPrincipal -> checkUserExists(userPrincipal.userId()).then(checkVacancyExists(vacancyId)).then(checkVacancyIsPublished(vacancyId)).then(checkUserHasNotApplied(userPrincipal.userId(), vacancyId)).then(createAndSaveApplication(userPrincipal.userId(), vacancyId, applicationCreateRequestDto)));
     }
 
     @Override
@@ -76,7 +77,8 @@ public class ApplicationServiceImpl implements ApplicationService {
                                             .then(checkUserBelongsToCompany(vacancyId, userId))
                                             .then(updateApplicationStatusInternal(
                                                     applicationId,
-                                                    applicationStatusUpdateRequestDto
+                                                    applicationStatusUpdateRequestDto,
+                                                    vacancyId, userId
                                             ))
                             );
                 });
@@ -105,27 +107,46 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     private Mono<ApplicationStatusUpdateResponseDto> updateApplicationStatusInternal(
             UUID applicationId,
-            ApplicationStatusUpdateRequestDto applicationStatusUpdateRequestDto
+            ApplicationStatusUpdateRequestDto req,
+            UUID vacancyId,
+            UUID userId
     ) {
         return applicationRepository.findById(applicationId)
                 .switchIfEmpty(Mono.error(new UserApplicationNotFoundException()))
-                .flatMap(application ->
-                        applicationStatusService
-                                .findApplicationStatusByApplicationStatusName(
-                                        applicationStatusUpdateRequestDto.applicationStatusName()
-                                )
-                                .switchIfEmpty(Mono.error(new ApplicationStatusNotFoundException()))
-                                .flatMap(status -> {
-                                    application.setStatus(status.getId());
-                                    application.setUpdatedAt(LocalDateTime.now());
+                .flatMap(application -> {
 
-                                    return applicationRepository.save(application)
-                                            .map(saved -> new ApplicationStatusUpdateResponseDto(
-                                                    status.getApplicationStatusName().getValue(),
+                    Long oldStatusId = application.getStatus();
+
+                    return Mono.zip(
+                            applicationStatusService.findApplicationStatusByApplicationStatusId(oldStatusId)
+                                    .switchIfEmpty(Mono.error(new ApplicationStatusNotFoundException())),
+                            applicationStatusService.findApplicationStatusByApplicationStatusName(req.applicationStatusName())
+                                    .switchIfEmpty(Mono.error(new ApplicationStatusNotFoundException()))
+                    ).flatMap(tuple -> {
+                        var oldStatus = tuple.getT1();
+                        var newStatus = tuple.getT2();
+
+                        application.setStatus(newStatus.getId());
+                        application.setUpdatedAt(LocalDateTime.now());
+
+                        return applicationRepository.save(application)
+                                .flatMap(saved -> {
+                                    var event = new ApplicationStatusChangeEvent(
+                                            saved.getId(),
+                                            vacancyId,
+                                            userId,
+                                            oldStatus.getApplicationStatusName().getValue(),
+                                            newStatus.getApplicationStatusName().getValue()
+                                    );
+
+                                    return applicationEventPublisher.publishStatusChanged(event)
+                                            .thenReturn(new ApplicationStatusUpdateResponseDto(
+                                                    newStatus.getApplicationStatusName().getValue(),
                                                     saved.getUpdatedAt()
                                             ));
-                                })
-                );
+                                });
+                    });
+                });
     }
 
     private Mono<UUID> getCompanyIdByVacancyId(UUID vacancyId){
@@ -140,12 +161,12 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     private Mono<Void> checkUserBelongsToCompany(UUID vacancyId,  UUID userId) {
         return Mono.deferContextual(ctx -> {
-            String token = ctx.getOrDefault("authToken", null);
-            if (token == null)
-                return Mono.error(new BadCredentialsException("Not authorized"));
-            return getCompanyIdByVacancyId(vacancyId).flatMap(companyId ->
-                    Mono.fromCallable(() -> companyClient.isUserBelongsToCompany(companyId, userId, token)).subscribeOn(Schedulers.boundedElastic()));
-        }).onErrorMap(FeignException.NotFound.class, ex -> new UserNotFoundException())
+                    String token = ctx.getOrDefault("authToken", null);
+                    if (token == null)
+                        return Mono.error(new BadCredentialsException("Not authorized"));
+                    return getCompanyIdByVacancyId(vacancyId).flatMap(companyId ->
+                            Mono.fromCallable(() -> companyClient.isUserBelongsToCompany(companyId, userId, token)).subscribeOn(Schedulers.boundedElastic()));
+                }).onErrorMap(FeignException.NotFound.class, ex -> new UserNotFoundException())
                 .flatMap(belongs -> {
                     if (Boolean.TRUE.equals(belongs))
                         return Mono.empty();
@@ -164,7 +185,23 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     private Mono<Boolean> checkVacancyIsPublished(UUID vacancyId) {
-       return vacancyKafkaClient.isPublished(vacancyId).flatMap(isPublished -> Boolean.TRUE.equals(isPublished) ? Mono.empty() : Mono.error(new VacancyNotPublishedException()));
+        return Mono.deferContextual(ctx -> {
+                    String token = ctx.getOrDefault("authToken", null);
+                    if (token == null) {
+                        return Mono.error(new BadCredentialsException("Authorization token not found in context"));
+                    }
+                    return Mono.fromCallable(() ->
+                                    vacancyClient.isVacancyPublished(vacancyId, token)
+                            )
+                            .subscribeOn(Schedulers.boundedElastic());
+                })
+                .onErrorMap(FeignException.NotFound.class, ex -> new VacancyNotFoundException())
+                .flatMap(isPublished -> {
+                    if (Boolean.TRUE.equals(isPublished)) {
+                        return Mono.just(true);
+                    }
+                    return Mono.error(new VacancyNotPublishedException());
+                });
     }
 
     private Mono<ApplicationCreateResponseDto> updateAndSaveApplication(UUID vacancyId, UUID userId, ApplicationCreateRequestDto applicationCreateRequestDto){
@@ -174,19 +211,35 @@ public class ApplicationServiceImpl implements ApplicationService {
                     application.setUpdatedAt(LocalDateTime.now());
                     return applicationRepository.save(application);
                 }).flatMap(savedApplication ->
-                    applicationStatusService.findApplicationStatusByApplicationStatusId(savedApplication.getStatus())
-                            .switchIfEmpty(Mono.error(new ApplicationStatusNotFoundException()))
-                            .flatMap(status -> {
-                                if (!status.getApplicationStatusName().equals(ApplicationStatusName.NEW))
-                                    return Mono.error(new InvalidApplicationStatusForApplicationUpdate());
-                                var res =  new ApplicationCreateResponseDto(savedApplication.getId(), status.getApplicationStatusName().getValue(), savedApplication.getCreatedAt(), savedApplication.getUpdatedAt(), savedApplication.getCoverLetter());
-                                return Mono.just(res);
-                            })
+                        applicationStatusService.findApplicationStatusByApplicationStatusId(savedApplication.getStatus())
+                                .switchIfEmpty(Mono.error(new ApplicationStatusNotFoundException()))
+                                .flatMap(status -> {
+                                    if (!status.getApplicationStatusName().equals(ApplicationStatusName.NEW))
+                                        return Mono.error(new InvalidApplicationStatusForApplicationUpdate());
+                                    var res =  new ApplicationCreateResponseDto(savedApplication.getId(), status.getApplicationStatusName().getValue(), savedApplication.getCreatedAt(), savedApplication.getUpdatedAt(), savedApplication.getCoverLetter());
+                                    return Mono.just(res);
+                                })
                 );
     }
 
     private Mono<Void> checkVacancyExists(UUID vacancyId) {
-        return vacancyKafkaClient.exists(vacancyId).flatMap(exists -> Boolean.TRUE.equals(exists) ? Mono.empty() : Mono.error(new VacancyNotFoundException()));
+        return Mono.deferContextual(ctx -> {
+                    String token = ctx.getOrDefault("authToken", null);
+                    if (token == null) {
+                        return Mono.error(new BadCredentialsException("Authorization token not found in context"));
+                    }
+                    return Mono.fromCallable(() ->
+                                    vacancyClient.isVacancyExists(vacancyId, token)
+                            )
+                            .subscribeOn(Schedulers.boundedElastic());
+                })
+                .onErrorMap(FeignException.NotFound.class, ex -> new VacancyNotFoundException())
+                .flatMap(exists -> {
+                    if (Boolean.TRUE.equals(exists)) {
+                        return Mono.empty();
+                    }
+                    return Mono.error(new VacancyNotFoundException());
+                });
     }
 
     private Mono<UUID> getVacancyIdByApplicationId(UUID applicationId){

@@ -4,9 +4,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.time.Duration;
 
-@ConfigurationProperties(prefix = "app")
-public record KafkaProps(Kafka kafka, Duration requestTimeout)
+@ConfigurationProperties(prefix = "app.kafka")
+public record KafkaProps(Topics topics)
 {
-    public record Kafka(Vacancy vacancy){}
-    public record Vacancy (String requestTopic, String replyTopic){}
+    public record Topics(String applicationsEvents) {}
 }
