@@ -139,8 +139,8 @@ public class VacancyKafkaListener {
         }
 
         try {
-            boolean published = vacancyService.isVacancyPublished(vacancyIdFromKey);
-            JsonNode resultNode = objectMapper.valueToTree(new IsPublishedOrExistsResult(vacancyIdFromKey, published));
+            boolean result = vacancyService.isVacancyPublished(vacancyIdFromKey);
+            JsonNode resultNode = objectMapper.valueToTree(new IsPublishedOrExistsResult(vacancyIdFromKey, result));
             producer.sendResponse(vacancyIdKey, new VacancyResponse(op, request.correlationId(), true, resultNode, null));
         } catch (VacancyNotFoundException e) {
             sendError(vacancyIdKey, request, op, "NOT_FOUND", e.getMessage());
