@@ -134,7 +134,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                                     var event = new ApplicationStatusChangeEvent(
                                             saved.getId(),
                                             vacancyId,
-                                            userId,
+                                            saved.getUserId(),
                                             oldStatus.getApplicationStatusName().getValue(),
                                             newStatus.getApplicationStatusName().getValue()
                                     );
