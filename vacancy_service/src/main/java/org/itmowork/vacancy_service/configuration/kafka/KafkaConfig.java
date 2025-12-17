@@ -1,11 +1,11 @@
 package org.itmowork.vacancy_service.configuration.kafka;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.itmowork.vacancy_service.dto.kafka.VacancyRequest;
-import org.itmowork.vacancy_service.dto.kafka.VacancyResponse;
+import org.itmowork.vacancy_service.dto.kafka.EventMessage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,45 +21,39 @@ import java.util.Map;
 public class KafkaConfig {
 
     @Value("${spring.kafka.bootstrap-servers}")
-    private String bootstrap;
+    private String bootstrapServers;
+
+    @Value("${spring.application.name:vacancy-service}")
+    private String appName;
 
     @Bean
-    public ProducerFactory<String, VacancyResponse> vacancyResponseProducerFactory() {
+    public ProducerFactory<String, EventMessage> eventProducerFactory(ObjectMapper objectMapper) {
         Map<String, Object> props = new HashMap<>();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrap);
+
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        props.put(ProducerConfig.CLIENT_ID_CONFIG, appName);
+        props.put(ProducerConfig.ACKS_CONFIG, "all");
+        props.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
+        props.put(ProducerConfig.RETRIES_CONFIG, Integer.MAX_VALUE);
+        props.put(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, 5);
+        props.put(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, 120_000);
+        props.put(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, 30_000);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
         props.put(JsonSerializer.ADD_TYPE_INFO_HEADERS, false);
-        return new DefaultKafkaProducerFactory<>(props);
-    }
 
-    @Bean
-    public KafkaTemplate<String, VacancyResponse> kafkaTemplate() {
-        return new KafkaTemplate<>(vacancyResponseProducerFactory());
-    }
+        DefaultKafkaProducerFactory<String, EventMessage> factory =
+                new DefaultKafkaProducerFactory<>(props);
 
-    @Bean
-    public ConsumerFactory<String, VacancyRequest> vacancyRequestConsumerFactory(
-            @Value("${spring.kafka.consumer.group-id}") String groupId
-    ) {
-        JsonDeserializer<VacancyRequest> deserializer = new JsonDeserializer<>(VacancyRequest.class);
-        deserializer.addTrustedPackages("org.itmowork.vacancy_service.dto.kafka");
+        factory.setValueSerializer(new JsonSerializer<>(objectMapper));
 
-        Map<String, Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrap);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, deserializer);
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-
-        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), deserializer);
-    }
-
-    @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, VacancyRequest> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, VacancyRequest> factory =
-                new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(vacancyRequestConsumerFactory("vacancy-service"));
         return factory;
+    }
+
+    @Bean
+    public KafkaTemplate<String, EventMessage> eventKafkaTemplate(
+            ProducerFactory<String, EventMessage> eventProducerFactory
+    ) {
+        return new KafkaTemplate<>(eventProducerFactory);
     }
 }

@@ -2,10 +2,12 @@ package org.itmowork.vacancy_service.dto.kafka;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import java.time.Instant;
 import java.util.UUID;
 
-public record VacancyRequest(
-        String type,
-        UUID correlationId,
+public record EventMessage(
+        UUID eventId,
+        EventType eventType,
+        Instant occurredAt,
         JsonNode payload
-) {}
+) { }

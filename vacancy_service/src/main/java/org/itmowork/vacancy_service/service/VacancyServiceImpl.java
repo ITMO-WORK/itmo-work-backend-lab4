@@ -2,6 +2,7 @@ package org.itmowork.vacancy_service.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.itmowork.vacancy_service.infrastructure.kafka.VacancyKafkaProducer;
 import org.itmowork.vacancy_service.utils.SecurityUtils;
 import org.itmowork.vacancy_service.dto.request.VacancyCreateRequestDto;
 import org.itmowork.vacancy_service.dto.request.VacancyUpdateRequestDto;
@@ -34,6 +35,7 @@ public class VacancyServiceImpl implements VacancyService {
     private final VacancyStatusService vacancyStatusService;
     private final CurrencyService currencyService;
     private final CompanyClient companyClient;
+    private final VacancyKafkaProducer vacancyKafkaProducer;
 
     private final VacancyMapper vacancyMapper;
 
@@ -107,6 +109,7 @@ public class VacancyServiceImpl implements VacancyService {
         UUID userId = SecurityUtils.getCurrentUserId();
 
         Vacancy vacancy = getAndValidateVacancy(vacancyId);
+        VacancyStatusName oldStatus = vacancy.getStatus().getVacancyStatusName();
         UUID companyId = vacancy.getCompanyId();
 
         Boolean exists = companyClient.existsCompany(companyId);
@@ -134,6 +137,14 @@ public class VacancyServiceImpl implements VacancyService {
         vacancy.setStatus(statusEntity);
         validateSalaryBounds(vacancy.getSalaryFrom(), vacancy.getSalaryTo());
         Vacancy saved = vacancyRepository.save(vacancy);
+
+        vacancyKafkaProducer.publishVacancyStatusChanged(
+                saved.getId(),
+                saved.getCompanyId(),
+                userId,
+                oldStatus.name(),
+                newStatus.name()
+        );
 
         return buildResponse(saved);
     }
@@ -189,6 +200,7 @@ public class VacancyServiceImpl implements VacancyService {
         UUID userId = SecurityUtils.getCurrentUserId();
 
         Vacancy vacancy = getAndValidateVacancy(vacancyId);
+        VacancyStatusName oldStatus = vacancy.getStatus().getVacancyStatusName();
         UUID companyId = vacancyRepository.findCompanyId(vacancyId);
 
         Boolean companyExists = companyClient.existsCompany(companyId);
@@ -230,6 +242,14 @@ public class VacancyServiceImpl implements VacancyService {
         VacancyStatus statusEntity = vacancyStatusService.findByVacancyStatusName(newStatus);
         vacancy.setStatus(statusEntity);
         Vacancy saved = vacancyRepository.save(vacancy);
+
+        vacancyKafkaProducer.publishVacancyStatusChanged(
+                saved.getId(),
+                saved.getCompanyId(),
+                userId,
+                oldStatus.name(),
+                newStatus.name()
+        );
 
         return buildResponse(saved);
     }
