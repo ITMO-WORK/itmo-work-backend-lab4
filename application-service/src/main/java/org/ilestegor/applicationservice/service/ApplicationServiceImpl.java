@@ -55,7 +55,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Override
     public Mono<ApplicationCreateResponseDto> createApplication(UUID vacancyId, ApplicationCreateRequestDto applicationCreateRequestDto) {
 //        return getUserDetailsFromContext().flatMap(userPrincipal -> checkUserExists(userPrincipal.userId()).then(checkVacancyExists(vacancyId)).then(checkVacancyIsPublished(vacancyId)).then(checkUserHasNotApplied(userPrincipal.userId(), vacancyId)).then(createAndSaveApplication(userPrincipal.userId(), vacancyId, applicationCreateRequestDto)));
-        return getUserDetailsFromContext().flatMap(userPrincipal -> vacancyKafkaClient.isPublished(vacancyId).then(checkUserHasNotApplied(userPrincipal.userId(), vacancyId)).then(createAndSaveApplication(userPrincipal.userId(), vacancyId, applicationCreateRequestDto)));
+        return getUserDetailsFromContext().flatMap(userPrincipal -> checkVacancyExists(vacancyId).then(checkVacancyIsPublished(vacancyId)).then(checkUserHasNotApplied(userPrincipal.userId(), vacancyId)).then(createAndSaveApplication(userPrincipal.userId(), vacancyId, applicationCreateRequestDto)));
     }
 
     @Override
@@ -164,23 +164,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     private Mono<Boolean> checkVacancyIsPublished(UUID vacancyId) {
-        return Mono.deferContextual(ctx -> {
-                    String token = ctx.getOrDefault("authToken", null);
-                    if (token == null) {
-                        return Mono.error(new BadCredentialsException("Authorization token not found in context"));
-                    }
-                    return Mono.fromCallable(() ->
-                                    vacancyClient.isVacancyPublished(vacancyId, token)
-                            )
-                            .subscribeOn(Schedulers.boundedElastic());
-                })
-                .onErrorMap(FeignException.NotFound.class, ex -> new VacancyNotFoundException())
-                .flatMap(isPublished -> {
-                    if (Boolean.TRUE.equals(isPublished)) {
-                        return Mono.just(true);
-                    }
-                    return Mono.error(new VacancyNotPublishedException());
-                });
+       return vacancyKafkaClient.isPublished(vacancyId).flatMap(isPublished -> Boolean.TRUE.equals(isPublished) ? Mono.empty() : Mono.error(new VacancyNotPublishedException()));
     }
 
     private Mono<ApplicationCreateResponseDto> updateAndSaveApplication(UUID vacancyId, UUID userId, ApplicationCreateRequestDto applicationCreateRequestDto){
@@ -202,23 +186,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     private Mono<Void> checkVacancyExists(UUID vacancyId) {
-        return Mono.deferContextual(ctx -> {
-                    String token = ctx.getOrDefault("authToken", null);
-                    if (token == null) {
-                        return Mono.error(new BadCredentialsException("Authorization token not found in context"));
-                    }
-                    return Mono.fromCallable(() ->
-                                    vacancyClient.isVacancyExists(vacancyId, token)
-                            )
-                            .subscribeOn(Schedulers.boundedElastic());
-                })
-                .onErrorMap(FeignException.NotFound.class, ex -> new VacancyNotFoundException())
-                .flatMap(exists -> {
-                    if (Boolean.TRUE.equals(exists)) {
-                        return Mono.empty();
-                    }
-                    return Mono.error(new VacancyNotFoundException());
-                });
+        return vacancyKafkaClient.exists(vacancyId).flatMap(exists -> Boolean.TRUE.equals(exists) ? Mono.empty() : Mono.error(new VacancyNotFoundException()));
     }
 
     private Mono<UUID> getVacancyIdByApplicationId(UUID applicationId){

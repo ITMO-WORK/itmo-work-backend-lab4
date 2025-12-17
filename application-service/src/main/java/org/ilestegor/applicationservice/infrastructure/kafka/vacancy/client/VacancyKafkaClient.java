@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.ilestegor.applicationservice.exception.exceptions.VacancyNotFoundException;
+import org.ilestegor.applicationservice.infrastructure.kafka.common.error.RemoteErrorMapRegistry;
 import org.ilestegor.applicationservice.infrastructure.kafka.config.KafkaProps;
 import org.ilestegor.applicationservice.infrastructure.kafka.common.pending.PendingRequest;
 import org.ilestegor.applicationservice.infrastructure.kafka.common.producer.KafkaProducer;
@@ -13,10 +13,9 @@ import org.ilestegor.applicationservice.infrastructure.kafka.vacancy.client.inte
 import org.ilestegor.applicationservice.infrastructure.kafka.vacancy.dto.VacancyOperations;
 import org.ilestegor.applicationservice.infrastructure.kafka.vacancy.dto.request.VacancyIdPayload;
 import org.ilestegor.applicationservice.infrastructure.kafka.vacancy.dto.request.VacancyRequest;
-import org.ilestegor.applicationservice.infrastructure.kafka.vacancy.dto.response.ErrorPayload;
-import org.ilestegor.applicationservice.infrastructure.kafka.vacancy.dto.response.VacancyExistsResponse;
-import org.ilestegor.applicationservice.infrastructure.kafka.vacancy.dto.response.VacancyPublishedResponse;
+import org.ilestegor.applicationservice.infrastructure.kafka.common.error.ErrorPayload;
 import org.ilestegor.applicationservice.infrastructure.kafka.vacancy.dto.response.VacancyResponse;
+import org.ilestegor.applicationservice.infrastructure.kafka.vacancy.dto.response.VacancyResultResponse;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -32,6 +31,7 @@ public class VacancyKafkaClient implements VacancyClient {
     private final PendingRequest pendingRequest;
     private final ObjectMapper objectMapper;
     private final KafkaProps kafkaProps;
+    private final RemoteErrorMapRegistry errorMapRegistry;
 
 
     private Mono<VacancyResponse> sendAndAwait(VacancyOperations operations, JsonNode payload, String key){
@@ -62,6 +62,7 @@ public class VacancyKafkaClient implements VacancyClient {
         }
     }
 
+
     private Mono<VacancyResponse> ensureOk(VacancyResponse response){
         if (response == null)
             return Mono.error(new RuntimeException("Response is null"));
@@ -70,23 +71,22 @@ public class VacancyKafkaClient implements VacancyClient {
         ErrorPayload errorPayload = response.errorPayload();
         if (errorPayload == null)
             return Mono.error(new RuntimeException("Error Payload is null"));
-        log.error("ERROR IN ENSURE OK");
-        return Mono.error(new VacancyNotFoundException());
+        return Mono.error(errorMapRegistry.map(response.errorPayload()));
     }
 
     @Override
     public Mono<Boolean> isPublished(UUID vacancyId) {
         return sendAndAwait(VacancyOperations.VACANCY_IS_PUBLISHED, vacancyId)
                 .flatMap(this::ensureOk)
-                .flatMap(resp -> decodePayload(resp, VacancyPublishedResponse.class))
-                .map(VacancyPublishedResponse::published);
+                .flatMap(resp -> decodePayload(resp, VacancyResultResponse.class))
+                .map(VacancyResultResponse::result);
     }
 
     @Override
     public Mono<Boolean> exists(UUID vacancyId) {
         return sendAndAwait(VacancyOperations.VACANCY_IS_EXISTS, vacancyId)
                 .flatMap(this::ensureOk)
-                .flatMap(resp -> decodePayload(resp, VacancyExistsResponse.class))
-                .map(VacancyExistsResponse::vacancyExists);
+                .flatMap(resp -> decodePayload(resp, VacancyResultResponse.class))
+                .map(VacancyResultResponse::result);
     }
 }
