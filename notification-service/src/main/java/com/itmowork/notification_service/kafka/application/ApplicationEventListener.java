@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-import tools.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Slf4j
 @Component
@@ -28,7 +28,7 @@ public class ApplicationEventListener {
         log.info("Received event: type={}, id={}",
                 message.eventType(), message.eventId());
 
-        if (message.eventType() == EventType.APPLICATION_STATUS_CHANGED) {
+        if (message.eventType() == EventType.APPLICATION_STATUS_CHANGE) {
 
             ApplicationStatusUpdateEvent payload =
                     objectMapper.convertValue(

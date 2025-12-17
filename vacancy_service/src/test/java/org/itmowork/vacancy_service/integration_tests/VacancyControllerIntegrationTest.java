@@ -377,7 +377,7 @@ class VacancyControllerIntegrationTest {
         String token = generateJwt(userId, "owner@example.com", "ROLE_COMPANY_OWNER");
 
         Map<String, Object> body = Map.of(
-                "title", "Updated & result"
+                "title", "Updated & published"
         );
 
         mockMvc.perform(
@@ -389,7 +389,7 @@ class VacancyControllerIntegrationTest {
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(vacancy.getId().toString()))
-                .andExpect(jsonPath("$.title").value("Updated & result"))
+                .andExpect(jsonPath("$.title").value("Updated & published"))
                 .andExpect(jsonPath("$.status_id").value(publishedStatus.getId()));
     }
 
@@ -400,7 +400,7 @@ class VacancyControllerIntegrationTest {
         Vacancy vacancy = prepareVacancy(companyId, VacancyStatusName.DRAFT);
 
         Map<String, Object> body = Map.of(
-                "title", "Updated & result"
+                "title", "Updated & published"
         );
 
         mockMvc.perform(

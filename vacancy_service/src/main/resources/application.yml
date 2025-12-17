@@ -11,12 +11,3 @@ spring:
   config:
     activate:
       on-profile: ${PROFILE:dev}
-  kafka:
-    bootstrap-servers: localhost:9092,localhost:9093,localhost:9094
-    consumer:
-      group-id: vacancy-service
-      properties:
-        spring.json.trusted.packages: "org.itmowork.vacancy_service.dto.kafka"
-    producer:
-      properties:
-        spring.json.add.type.headers: false
