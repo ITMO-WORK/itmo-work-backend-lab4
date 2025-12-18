@@ -19,7 +19,6 @@ import org.ilestegor.applicationservice.model.ApplicationStatusName;
 import org.ilestegor.applicationservice.repository.ApplicationRepository;
 import org.ilestegor.applicationservice.service.interfaces.ApplicationStatusService;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,7 +28,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -145,7 +143,7 @@ class ApplicationServiceUnitTest {
                     .thenReturn(Mono.just(savedApp));
 
             Mono<ApplicationCreateResponseDto> result =
-                    withAuth(applicationService.createApplication(vacancyId, request));
+                    withAuth(applicationService.createApplication(vacancyId, , request, , ));
 
             StepVerifier.create(result)
                     .assertNext(dto -> {
@@ -180,7 +178,7 @@ class ApplicationServiceUnitTest {
 
 
             Mono<ApplicationCreateResponseDto> result =
-                    withAuth(applicationService.createApplication(vacancyId, request));
+                    withAuth(applicationService.createApplication(vacancyId, , request, , ));
 
             StepVerifier.create(result)
                     .expectError(UserNotFoundException.class)
@@ -218,7 +216,7 @@ class ApplicationServiceUnitTest {
 
 
             Mono<ApplicationCreateResponseDto> result =
-                    withAuth(applicationService.createApplication(vacancyId, request));
+                    withAuth(applicationService.createApplication(vacancyId, , request, , ));
 
 
             StepVerifier.create(result)
@@ -261,7 +259,7 @@ class ApplicationServiceUnitTest {
 
 
             Mono<ApplicationCreateResponseDto> result =
-                    withAuth(applicationService.createApplication(vacancyId, request));
+                    withAuth(applicationService.createApplication(vacancyId, , request, , ));
 
 
             StepVerifier.create(result)
@@ -304,7 +302,7 @@ class ApplicationServiceUnitTest {
 
 
             Mono<ApplicationCreateResponseDto> result =
-                   withAuth( applicationService.createApplication(vacancyId, request));
+                   withAuth( applicationService.createApplication(vacancyId, , request, , ));
 
 
             StepVerifier.create(result)
@@ -344,7 +342,7 @@ class ApplicationServiceUnitTest {
 
 
             Mono<ApplicationCreateResponseDto> result =
-                    withAuth(applicationService.createApplication(vacancyId, request));
+                    withAuth(applicationService.createApplication(vacancyId, , request, , ));
 
 
             StepVerifier.create(result)

@@ -38,4 +38,7 @@ public class Application {
     @Column("user_id")
     private UUID userId;
 
+    @Column("file_id")
+    private UUID fileId;
+
 }

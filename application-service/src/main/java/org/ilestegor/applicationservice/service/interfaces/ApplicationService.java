@@ -7,13 +7,20 @@ import org.ilestegor.applicationservice.dto.response.ApplicationCreateResponseDt
 import org.ilestegor.applicationservice.dto.response.ApplicationStatusUpdateResponseDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.codec.multipart.FilePart;
+import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
 public interface ApplicationService {
 
-    Mono<ApplicationCreateResponseDto> createApplication(UUID vacancyId, ApplicationCreateRequestDto applicationCreateRequestDto);
+     Mono<ApplicationCreateResponseDto> createApplication(
+            UUID vacancyId,
+            ApplicationCreateRequestDto dto,
+            FilePart resume,
+            UUID replacedField
+    );
 
     Mono<ApplicationCreateResponseDto> updateApplication(UUID vacancyId, ApplicationCreateRequestDto applicationCreateRequestDto);
 

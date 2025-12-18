@@ -1,17 +1,16 @@
-package org.ilestegor.applicationservice.infrastructure.kafka.dto;
+package org.itmo.work.fileservice.infrastructure.dto;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Builder;
 
 import java.time.Instant;
 import java.util.UUID;
 
-@Builder(toBuilder = true)
+@Builder
 public record EventMessage(
         UUID eventId,
         EventType eventType,
         Instant occurredAt,
         JsonNode payload
-) { }
+) {
+}

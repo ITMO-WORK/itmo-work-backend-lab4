@@ -10,6 +10,8 @@ import org.ilestegor.applicationservice.dto.response.ApplicationCreateResponseDt
 import org.ilestegor.applicationservice.dto.response.ApplicationStatusUpdateResponseDto;
 import org.ilestegor.applicationservice.exception.exceptions.*;
 import org.ilestegor.applicationservice.infrastructure.feign.company.CompanyClient;
+import org.ilestegor.applicationservice.infrastructure.feign.file.FileWebClient;
+import org.ilestegor.applicationservice.infrastructure.feign.file.dto.UploadResumeResponse;
 import org.ilestegor.applicationservice.infrastructure.feign.user.UserClient;
 import org.ilestegor.applicationservice.infrastructure.feign.user.dto.UserResponseDto;
 import org.ilestegor.applicationservice.infrastructure.feign.vacancy.VacancyClient;
@@ -24,7 +26,7 @@ import org.ilestegor.applicationservice.service.interfaces.ApplicationStatusServ
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -34,6 +36,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -54,9 +57,31 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     private final ApplicationEventPublisher applicationEventPublisher;
 
+    private final FileWebClient fileWebClient;
+
     @Override
-    public Mono<ApplicationCreateResponseDto> createApplication(UUID vacancyId, ApplicationCreateRequestDto applicationCreateRequestDto) {
-        return getUserDetailsFromContext().flatMap(userPrincipal -> checkUserExists(userPrincipal.userId()).then(checkVacancyExists(vacancyId)).then(checkVacancyIsPublished(vacancyId)).then(checkUserHasNotApplied(userPrincipal.userId(), vacancyId)).then(createAndSaveApplication(userPrincipal.userId(), vacancyId, applicationCreateRequestDto)));
+    public Mono<ApplicationCreateResponseDto> createApplication(
+            UUID vacancyId,
+            ApplicationCreateRequestDto dto,
+            FilePart resume,
+            UUID replacedField
+    ) {
+        return getUserDetailsFromContext()
+                .flatMap(userPrincipal ->
+                        checkUserExists(userPrincipal.userId())
+                                .then(checkVacancyExists(vacancyId))
+                                .then(checkVacancyIsPublished(vacancyId))
+                                .then(checkUserHasNotApplied(userPrincipal.userId(), vacancyId))
+                                .then(uploadResumeIfPresent(resume, replacedField))
+                        .flatMap(optional ->
+                                createAndSaveApplication(
+                                        userPrincipal.userId(),
+                                        vacancyId,
+                                        dto,
+                                        optional.map(UploadResumeResponse::fieldId).orElse(null)
+                                )
+                        )
+                );
     }
 
     @Override
@@ -103,6 +128,19 @@ public class ApplicationServiceImpl implements ApplicationService {
                             .zipWith(applicationRepository.countApplicationByVacancyId(vacancyId))
                             .map(application -> new PageImpl<>(application.getT1(), pageable, application.getT2())));
         });
+    }
+
+    private Mono<Optional<UploadResumeResponse>> uploadResumeIfPresent(
+            FilePart resume,
+            UUID replacedField
+    ) {
+        if (resume == null) {
+            return Mono.just(Optional.empty());
+        }
+
+        return fileWebClient
+                .uploadResume(resume, replacedField)
+                .map(Optional::of);
     }
 
     private Mono<ApplicationStatusUpdateResponseDto> updateApplicationStatusInternal(
@@ -298,7 +336,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         );
     }
 
-    private Mono<ApplicationCreateResponseDto> createAndSaveApplication(UUID userId, UUID vacancyId, ApplicationCreateRequestDto applicationCreateRequestDto){
+    private Mono<ApplicationCreateResponseDto> createAndSaveApplication(UUID userId, UUID vacancyId, ApplicationCreateRequestDto applicationCreateRequestDto, UUID fieldId){
         return applicationStatusService.findApplicationStatusByApplicationStatusName(ApplicationStatusName.NEW)
                 .switchIfEmpty(Mono.error(new ApplicationStatusNotFoundException()))
                 .flatMap(status -> {
@@ -307,7 +345,9 @@ public class ApplicationServiceImpl implements ApplicationService {
                             .updatedAt(LocalDateTime.now())
                             .status(status.getId())
                             .userId(userId)
-                            .vacancyId(vacancyId).build();
+                            .vacancyId(vacancyId)
+                            .fileId(fieldId)
+                            .build();
 
                     return applicationRepository.save(application).map(saved -> new ApplicationCreateResponseDto(
                             saved.getId(),

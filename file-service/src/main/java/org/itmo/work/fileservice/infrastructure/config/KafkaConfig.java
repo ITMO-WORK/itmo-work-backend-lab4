@@ -1,4 +1,4 @@
-package org.ilestegor.applicationservice.infrastructure.kafka.config;
+package org.itmo.work.fileservice.infrastructure.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -19,19 +19,14 @@ public class KafkaConfig {
     private final KafkaProps kafkaProps;
 
     @Bean
-    public NewTopic vacancyRequestsTopic() {
-        return TopicBuilder.name(kafkaProps.topics().applicationsEvents())
+    public NewTopic fileRequestsTopic() {
+        return TopicBuilder.name(kafkaProps.topics().filesEvents())
                 .partitions(1)
                 .replicas(3)
                 .build();
     }
-
-
     @Bean
-    public ProducerFactory<String, Object> producerFactory(
-            KafkaProperties kafkaProperties,
-            ObjectMapper objectMapper
-    ) {
+    public ProducerFactory<String, Object> producerFactory(KafkaProperties kafkaProperties, ObjectMapper objectMapper) {
         var factory = new DefaultKafkaProducerFactory<String, Object>(
                 kafkaProperties.buildProducerProperties()
         );
@@ -44,7 +39,7 @@ public class KafkaConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, Object> kafkaTemplate(ProducerFactory<String, Object> pf) {
-        return new KafkaTemplate<>(pf);
+    public KafkaTemplate<String, Object> kafkaTemplate(ProducerFactory<String, Object> producerFactory) {
+        return new KafkaTemplate<>(producerFactory);
     }
 }
