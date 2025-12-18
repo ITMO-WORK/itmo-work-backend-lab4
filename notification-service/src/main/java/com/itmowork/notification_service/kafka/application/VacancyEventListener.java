@@ -1,27 +1,27 @@
 package com.itmowork.notification_service.kafka.application;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itmowork.notification_service.dto.event.EventMessage;
 import com.itmowork.notification_service.dto.event.EventType;
-import com.itmowork.notification_service.dto.event.application.ApplicationStatusUpdateEvent;
+import com.itmowork.notification_service.dto.event.vacancy.VacancyStatusChangeEvent;
 import com.itmowork.notification_service.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class ApplicationEventListener {
+public class VacancyEventListener {
 
     private final NotificationService notificationService;
     private final ObjectMapper objectMapper;
 
 
     @KafkaListener(
-            topics = "applications.events",
+            topics = "vacancy.events",
             groupId = "notification.service"
     )
     public void listen(EventMessage message) {
@@ -29,11 +29,11 @@ public class ApplicationEventListener {
         log.info("Received event: type={}, id={}",
                 message.eventType(), message.eventId());
 
-        if (message.eventType() == EventType.APPLICATION_STATUS_CHANGE) {
+        if (message.eventType() == EventType.VACANCY_STATUS_CHANGE) {
 
-            ApplicationStatusUpdateEvent payload = parsePayload(message, ApplicationStatusUpdateEvent.class);
+            VacancyStatusChangeEvent payload = parsePayload(message, VacancyStatusChangeEvent.class);
 
-            notificationService.notifyApplicationStatusUpdated(payload);
+            notificationService.notifyVacancyStatusUpdated(payload);
         }
     }
 
@@ -44,5 +44,4 @@ public class ApplicationEventListener {
             throw new IllegalStateException("Cannot parse payload", e);
         }
     }
-
 }
