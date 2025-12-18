@@ -1,6 +1,6 @@
 plugins {
     java
-    id("org.springframework.boot") version "4.0.0"
+    id("org.springframework.boot") version "3.5.7"
     id("io.spring.dependency-management") version "1.1.7"
 }
 
@@ -24,11 +24,13 @@ repositories {
     mavenCentral()
 }
 
-extra["springCloudVersion"] = "2025.1.0"
+extra["springCloudVersion"] = "2025.0.0"
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-webmvc")
+    implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.cloud:spring-cloud-starter-config")
+    implementation("org.liquibase:liquibase-core:5.0.1")
+    implementation("org.apache.commons:commons-lang3:3.18.0")
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     compileOnly("org.projectlombok:lombok")
@@ -37,7 +39,6 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     implementation("io.minio:minio:8.6.0")
-    implementation("org.liquibase:liquibase-core")
 }
 
 dependencyManagement {

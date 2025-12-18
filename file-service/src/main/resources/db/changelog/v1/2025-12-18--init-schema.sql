@@ -1,4 +1,4 @@
-create table stored_files (
+create table if not exists stored_files (
     id uuid primary key default gen_random_uuid(),
     owner_id uuid not null,
     entity_type text not null,
