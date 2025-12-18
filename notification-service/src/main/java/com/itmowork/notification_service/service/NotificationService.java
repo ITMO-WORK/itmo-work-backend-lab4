@@ -1,6 +1,7 @@
 package com.itmowork.notification_service.service;
 
 import com.itmowork.notification_service.dto.event.application.ApplicationStatusUpdateEvent;
+import com.itmowork.notification_service.dto.event.file.ResumeUploadEvent;
 import com.itmowork.notification_service.dto.event.vacancy.VacancyStatusChangeEvent;
 import com.itmowork.notification_service.dto.notification.NotificationDto;
 import lombok.RequiredArgsConstructor;
@@ -54,5 +55,23 @@ public class NotificationService {
                  "/topic/notifications/vacancy/" + event.vacancyId(),
                  notification
          );
+    }
+
+    public void notifyResumeUploaded(ResumeUploadEvent event) {
+        String message = String.format(
+                "Ваше резюме %s было успешно загружено",
+                event.originalFileName()
+        );
+        NotificationDto notification = new NotificationDto(
+                "Загрузка резюме",
+                message,
+                Instant.now()
+        );
+
+
+        messagingTemplate.convertAndSend(
+                "/topic/notifications/resume/" + event.userId(),
+                notification
+        );
     }
 }

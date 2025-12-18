@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.itmowork.notification_service.dto.event.EventMessage;
 import com.itmowork.notification_service.dto.event.EventType;
 import com.itmowork.notification_service.dto.event.vacancy.VacancyStatusChangeEvent;
-import com.itmowork.notification_service.kafka.application.VacancyEventListener;
+import com.itmowork.notification_service.kafka.vacancy.VacancyEventListener;
 import com.itmowork.notification_service.service.NotificationService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

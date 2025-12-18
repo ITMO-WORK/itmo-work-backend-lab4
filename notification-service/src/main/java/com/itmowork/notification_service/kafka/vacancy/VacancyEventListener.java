@@ -1,4 +1,4 @@
-package com.itmowork.notification_service.kafka.application;
+package com.itmowork.notification_service.kafka.vacancy;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
