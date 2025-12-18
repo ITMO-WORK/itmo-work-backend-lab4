@@ -25,6 +25,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.itmowork.vacancy_service.infrastructure.kafka.VacancyKafkaProducer;
 
 import javax.crypto.SecretKey;
 import java.time.LocalDateTime;
@@ -42,6 +43,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -71,23 +76,13 @@ class VacancyControllerIntegrationTest {
         registry.add("jwt.secret", () -> TEST_JWT_SECRET);
     }
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private VacancyRepository vacancyRepository;
-
-    @Autowired
-    private CurrencyService currencyService;
-
-    @Autowired
-    private VacancyStatusService vacancyStatusService;
-
-    @MockitoBean
-    private CompanyClient companyClient;
+    @Autowired private MockMvc mockMvc;
+    @Autowired private ObjectMapper objectMapper;
+    @Autowired private VacancyRepository vacancyRepository;
+    @Autowired private CurrencyService currencyService;
+    @Autowired private VacancyStatusService vacancyStatusService;
+    @MockitoBean private CompanyClient companyClient;
+    @MockitoBean private VacancyKafkaProducer vacancyKafkaProducer;
 
     private String generateJwt(UUID userId, String email, String... roles) {
         SecretKey key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(TEST_JWT_SECRET));
@@ -345,6 +340,14 @@ class VacancyControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(vacancy.getId().toString()))
                 .andExpect(jsonPath("$.status_id").value(publishedStatus.getId()));
+
+        verify(vacancyKafkaProducer, times(1)).publishVacancyStatusChanged(
+                eq(vacancy.getId()),
+                eq(companyId),
+                eq(userId),
+                eq(VacancyStatusName.DRAFT.name()),
+                eq(VacancyStatusName.PUBLISHED.name())
+        );
     }
 
     @Test
@@ -358,6 +361,8 @@ class VacancyControllerIntegrationTest {
                                 .param("newStatus", VacancyStatusName.PUBLISHED.name())
                 )
                 .andExpect(status().isUnauthorized());
+
+        verifyNoInteractions(vacancyKafkaProducer);
     }
 
     @Test
@@ -391,7 +396,16 @@ class VacancyControllerIntegrationTest {
                 .andExpect(jsonPath("$.id").value(vacancy.getId().toString()))
                 .andExpect(jsonPath("$.title").value("Updated & result"))
                 .andExpect(jsonPath("$.status_id").value(publishedStatus.getId()));
+
+        verify(vacancyKafkaProducer, times(1)).publishVacancyStatusChanged(
+                eq(vacancy.getId()),
+                eq(companyId),
+                eq(userId),
+                eq(VacancyStatusName.DRAFT.name()),
+                eq(VacancyStatusName.PUBLISHED.name())
+        );
     }
+
 
     @Test
     @DisplayName("PATCH /api/vacancies/{id}/update-and-change-status без JWT -> 401 UNAUTHORIZED")
@@ -410,6 +424,8 @@ class VacancyControllerIntegrationTest {
                                 .content(objectMapper.writeValueAsString(body))
                 )
                 .andExpect(status().isUnauthorized());
+
+        verifyNoInteractions(vacancyKafkaProducer);
     }
 
     @Test

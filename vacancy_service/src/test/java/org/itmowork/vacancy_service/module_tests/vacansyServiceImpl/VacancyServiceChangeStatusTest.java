@@ -3,6 +3,7 @@ package org.itmowork.vacancy_service.module_tests.vacansyServiceImpl;
 import org.itmowork.vacancy_service.dto.response.VacancyResponseDto;
 import org.itmowork.vacancy_service.exception.exceptions.*;
 import org.itmowork.vacancy_service.infrastructure.feign.CompanyClient;
+import org.itmowork.vacancy_service.infrastructure.kafka.VacancyKafkaProducer;
 import org.itmowork.vacancy_service.mappers.VacancyMapper;
 import org.itmowork.vacancy_service.model.Currency;
 import org.itmowork.vacancy_service.model.Vacancy;
@@ -32,16 +33,10 @@ import static org.mockito.ArgumentMatchers.any;
 @ExtendWith(MockitoExtension.class)
 class VacancyServiceChangeStatusTest {
 
-    @Mock
-    private VacancyRepository vacancyRepository;
-    @Mock
-    private VacancyStatusService vacancyStatusService;
-    @Mock
-    private CurrencyService currencyService;
-    @Mock
-    private CompanyClient companyClient;
-    @Mock
-    private VacancyMapper vacancyMapper;
+    @Mock private VacancyRepository vacancyRepository;
+    @Mock private VacancyStatusService vacancyStatusService;
+    @Mock private CompanyClient companyClient;
+    @Mock private VacancyKafkaProducer vacancyKafkaProducer;
 
     @InjectMocks
     private VacancyServiceImpl vacancyService;
@@ -81,8 +76,7 @@ class VacancyServiceChangeStatusTest {
     }
 
     @Test
-    void changeStatusSuccess() {
-
+    void changeStatusSuccess_shouldPublishEvent() {
         VacancyStatus statusPublished = VacancyStatus.builder()
                 .id(2L)
                 .vacancyStatusName(VacancyStatusName.PUBLISHED)
@@ -97,14 +91,24 @@ class VacancyServiceChangeStatusTest {
         Mockito.when(vacancyStatusService.findByVacancyStatusName(VacancyStatusName.PUBLISHED))
                 .thenReturn(statusPublished);
 
-        Mockito.when(vacancyRepository.save(any())).thenAnswer(a -> a.getArgument(0));
+        Mockito.when(vacancyRepository.save(Mockito.any(Vacancy.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
 
-        VacancyResponseDto result = vacancyService.changeStatus(
-                vacancyId, VacancyStatusName.PUBLISHED
-        );
+        VacancyResponseDto result = vacancyService.changeStatus(vacancyId, VacancyStatusName.PUBLISHED);
 
-        Assertions.assertEquals(VacancyStatusName.PUBLISHED, statusPublished.getVacancyStatusName());
         Assertions.assertEquals(statusPublished.getId(), result.statusId());
+
+        Mockito.verify(vacancyKafkaProducer, Mockito.times(1))
+                .publishVacancyStatusChanged(
+                        Mockito.eq(vacancyId),
+                        Mockito.eq(companyId),
+                        Mockito.eq(userId),
+                        Mockito.eq("DRAFT"),
+                        Mockito.eq("PUBLISHED")
+                );
+
+        Mockito.verify(vacancyRepository).save(Mockito.any(Vacancy.class));
+        Mockito.verifyNoMoreInteractions(vacancyKafkaProducer);
     }
 
     @Test
