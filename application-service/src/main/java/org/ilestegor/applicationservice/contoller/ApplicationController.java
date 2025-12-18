@@ -15,9 +15,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -30,10 +33,17 @@ public class ApplicationController {
 
     private final ApplicationService applicationService;
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @SecurityRequirement(name = "bearerAuth")
-    public Mono<ResponseEntity<ApplicationCreateResponseDto>> createApplication(@RequestParam UUID vacancyId, @Valid @RequestBody ApplicationCreateRequestDto applicationCreateRequestDto){
-        return applicationService.createApplication(vacancyId, applicationCreateRequestDto).map(body -> new ResponseEntity<>(body, HttpStatus.CREATED));
+    public Mono<ResponseEntity<ApplicationCreateResponseDto>> createApplication(
+            @RequestParam UUID vacancyId,
+            @RequestPart("data") @Valid ApplicationCreateRequestDto dto,
+            @RequestPart(value = "resume", required = false) FilePart resume,
+            @RequestParam(value = "replacedField", required = false) UUID replacedField
+    ) {
+        return applicationService
+                .createApplication(vacancyId, dto, resume, replacedField)
+                .map(body -> new ResponseEntity<>(body, HttpStatus.CREATED));
     }
 
     @PatchMapping("/{vacancyId}")

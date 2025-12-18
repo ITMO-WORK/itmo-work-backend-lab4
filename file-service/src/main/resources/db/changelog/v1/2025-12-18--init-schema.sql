@@ -5,9 +5,9 @@ create table if not exists stored_files (
     entity_id uuid not null,
     purpose text not null,
     bucket text not null,
-    object_key text not null unique,
+    object_key text not null,
     original_file_name text not null,
     content_type text not null,
     size_bytes bigint not null,
-    created_at timestamptz not null default now()
+    created_at timestamptz default now()
 );

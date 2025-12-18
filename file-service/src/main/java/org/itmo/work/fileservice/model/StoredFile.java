@@ -9,12 +9,12 @@ import lombok.NoArgsConstructor;
 import java.time.Instant;
 import java.util.UUID;
 
+@Data
 @Entity
 @Table(name = "stored_files")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Data
 public class StoredFile {
 
     @Id
@@ -22,30 +22,34 @@ public class StoredFile {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false)
+    @Column(name = "owner_id", nullable = false)
     private UUID ownerId;
 
-    @Column(nullable = false)
+    @Column(name = "entity_type", nullable = false)
+    private String entityType;
+
+    @Column(name = "entity_id", nullable = false)
     private UUID entityId;
 
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
+    @Column(name = "purpose", nullable = false)
     private FilePurpose purpose;
 
-    @Column(nullable = false)
+    @Column(name = "bucket", nullable = false)
     private String bucket;
 
-    @Column(nullable = false)
+    @Column(name = "object_key", nullable = false)
     private String objectKey;
 
-    @Column(nullable = false)
+    @Column(name = "original_file_name", nullable = false)
     private String originalFileName;
 
-    @Column(nullable = false)
+    @Column(name = "content_type", nullable = false)
     private String contentType;
 
-    @Column(nullable = false)
+    @Column(name = "size_bytes", nullable = false)
     private Long sizeBytes;
 
+    @Column(name = "created_at")
     private Instant createdAt;
 }

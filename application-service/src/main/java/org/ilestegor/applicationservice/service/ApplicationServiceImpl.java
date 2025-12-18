@@ -10,6 +10,8 @@ import org.ilestegor.applicationservice.dto.response.ApplicationCreateResponseDt
 import org.ilestegor.applicationservice.dto.response.ApplicationStatusUpdateResponseDto;
 import org.ilestegor.applicationservice.exception.exceptions.*;
 import org.ilestegor.applicationservice.infrastructure.feign.company.CompanyClient;
+import org.ilestegor.applicationservice.infrastructure.feign.file.FileClient;
+import org.ilestegor.applicationservice.infrastructure.feign.file.dto.UploadResumeResponse;
 import org.ilestegor.applicationservice.infrastructure.feign.user.UserClient;
 import org.ilestegor.applicationservice.infrastructure.feign.user.dto.UserResponseDto;
 import org.ilestegor.applicationservice.infrastructure.feign.vacancy.VacancyClient;
@@ -21,15 +23,18 @@ import org.ilestegor.applicationservice.model.ApplicationStatusName;
 import org.ilestegor.applicationservice.repository.ApplicationRepository;
 import org.ilestegor.applicationservice.service.interfaces.ApplicationService;
 import org.ilestegor.applicationservice.service.interfaces.ApplicationStatusService;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -54,9 +59,13 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     private final ApplicationEventPublisher applicationEventPublisher;
 
+    private final FileClient fileClient;
+
     @Override
-    public Mono<ApplicationCreateResponseDto> createApplication(UUID vacancyId, ApplicationCreateRequestDto applicationCreateRequestDto) {
-        return getUserDetailsFromContext().flatMap(userPrincipal -> checkUserExists(userPrincipal.userId()).then(checkVacancyExists(vacancyId)).then(checkVacancyIsPublished(vacancyId)).then(checkUserHasNotApplied(userPrincipal.userId(), vacancyId)).then(createAndSaveApplication(userPrincipal.userId(), vacancyId, applicationCreateRequestDto)));
+    public Mono<ApplicationCreateResponseDto> createApplication(UUID vacancyId, ApplicationCreateRequestDto applicationCreateRequestDto, FilePart resume, UUID replacedField) {
+        return getUserDetailsFromContext().flatMap(userPrincipal -> checkUserExists(userPrincipal.userId()).then(checkVacancyExists(vacancyId)).then(checkVacancyIsPublished(vacancyId)).then(checkUserHasNotApplied(userPrincipal.userId(), vacancyId))
+                .then(uploadResumeIfPresent(resume, replacedField))
+                .flatMap(uploaded -> createAndSaveApplication(userPrincipal.userId(), vacancyId, applicationCreateRequestDto, uploaded == null ? null : uploaded.fieldId())));
     }
 
     @Override
@@ -103,6 +112,28 @@ public class ApplicationServiceImpl implements ApplicationService {
                             .zipWith(applicationRepository.countApplicationByVacancyId(vacancyId))
                             .map(application -> new PageImpl<>(application.getT1(), pageable, application.getT2())));
         });
+    }
+
+    private Mono<UploadResumeResponse> uploadResumeIfPresent(FilePart resume, UUID replacedField) {
+        if (resume == null) return Mono.justOrEmpty((UploadResumeResponse) null);
+
+        return DataBufferUtils.join(resume.content())
+                .map(dataBuffer -> {
+                    byte[] bytes = new byte[dataBuffer.readableByteCount()];
+                    dataBuffer.read(bytes);
+                    DataBufferUtils.release(dataBuffer);
+
+                    return new ByteArrayResource(bytes) {
+                        @Override
+                        public String getFilename() {
+                            return resume.filename();
+                        }
+                    };
+                })
+                .flatMap(resource ->
+                        Mono.fromCallable(() -> fileClient.uploadResume(resource, replacedField))
+                                .subscribeOn(Schedulers.boundedElastic())
+                );
     }
 
     private Mono<ApplicationStatusUpdateResponseDto> updateApplicationStatusInternal(
@@ -298,7 +329,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         );
     }
 
-    private Mono<ApplicationCreateResponseDto> createAndSaveApplication(UUID userId, UUID vacancyId, ApplicationCreateRequestDto applicationCreateRequestDto){
+    private Mono<ApplicationCreateResponseDto> createAndSaveApplication(UUID userId, UUID vacancyId, ApplicationCreateRequestDto applicationCreateRequestDto, UUID fieldId){
         return applicationStatusService.findApplicationStatusByApplicationStatusName(ApplicationStatusName.NEW)
                 .switchIfEmpty(Mono.error(new ApplicationStatusNotFoundException()))
                 .flatMap(status -> {
@@ -307,7 +338,9 @@ public class ApplicationServiceImpl implements ApplicationService {
                             .updatedAt(LocalDateTime.now())
                             .status(status.getId())
                             .userId(userId)
-                            .vacancyId(vacancyId).build();
+                            .vacancyId(vacancyId)
+                            .fileId(fieldId)
+                            .build();
 
                     return applicationRepository.save(application).map(saved -> new ApplicationCreateResponseDto(
                             saved.getId(),
