@@ -130,21 +130,24 @@ public class ApplicationServiceImpl implements ApplicationService {
                         application.setUpdatedAt(LocalDateTime.now());
 
                         return applicationRepository.save(application)
-                                .flatMap(saved -> {
-                                    var event = new ApplicationStatusChangeEvent(
-                                            saved.getId(),
-                                            vacancyId,
-                                            saved.getUserId(),
-                                            oldStatus.getApplicationStatusName().getValue(),
-                                            newStatus.getApplicationStatusName().getValue()
-                                    );
+                                .flatMap(saved ->
+                                    getVacancyTitle(vacancyId).flatMap( title -> {
+                                        var event = new ApplicationStatusChangeEvent(
+                                                saved.getId(),
+                                                vacancyId,
+                                                saved.getUserId(),
+                                                title,
+                                                oldStatus.getApplicationStatusName().getValue(),
+                                                newStatus.getApplicationStatusName().getValue()
+                                        );
 
-                                    return applicationEventPublisher.publishStatusChanged(event)
-                                            .thenReturn(new ApplicationStatusUpdateResponseDto(
-                                                    newStatus.getApplicationStatusName().getValue(),
-                                                    saved.getUpdatedAt()
-                                            ));
-                                });
+                                        return applicationEventPublisher.publishStatusChanged(event)
+                                                .thenReturn(new ApplicationStatusUpdateResponseDto(
+                                                        newStatus.getApplicationStatusName().getValue(),
+                                                        saved.getUpdatedAt()
+                                                ));
+                                    })
+                                );
                     });
                 });
     }
