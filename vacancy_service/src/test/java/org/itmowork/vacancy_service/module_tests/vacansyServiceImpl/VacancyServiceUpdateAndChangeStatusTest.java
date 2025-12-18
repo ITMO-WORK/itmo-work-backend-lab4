@@ -4,6 +4,7 @@ import org.itmowork.vacancy_service.dto.request.VacancyUpdateRequestDto;
 import org.itmowork.vacancy_service.dto.response.VacancyResponseDto;
 import org.itmowork.vacancy_service.exception.exceptions.*;
 import org.itmowork.vacancy_service.infrastructure.feign.CompanyClient;
+import org.itmowork.vacancy_service.infrastructure.kafka.VacancyKafkaProducer;
 import org.itmowork.vacancy_service.mappers.VacancyMapper;
 import org.itmowork.vacancy_service.model.Currency;
 import org.itmowork.vacancy_service.model.Vacancy;
@@ -34,18 +35,13 @@ import static org.mockito.Mockito.doAnswer;
 @ExtendWith(MockitoExtension.class)
 class VacancyServiceUpdateAndChangeStatusTest {
 
-    @Mock
-    private VacancyRepository vacancyRepository;
-    @Mock
-    private VacancyStatusService vacancyStatusService;
-    @Mock
-    private CurrencyService currencyService;
-    @Mock
-    private CompanyClient companyClient;
-    @Mock
-    private VacancyMapper vacancyMapper;
-    @InjectMocks
-    private VacancyServiceImpl vacancyService;
+    @Mock private VacancyRepository vacancyRepository;
+    @Mock private VacancyStatusService vacancyStatusService;
+    @Mock private CurrencyService currencyService;
+    @Mock private CompanyClient companyClient;
+    @Mock private VacancyMapper vacancyMapper;
+    @Mock private VacancyKafkaProducer vacancyKafkaProducer;
+    @InjectMocks private VacancyServiceImpl vacancyService;
 
     private UUID vacancyId;
     private UUID userId;
@@ -190,7 +186,7 @@ class VacancyServiceUpdateAndChangeStatusTest {
     }
 
     @Test
-    void updateAndChangeStatusSuccess() {
+    void updateAndChangeStatusSuccess_shouldPublishEvent() {
         VacancyUpdateRequestDto dto = new VacancyUpdateRequestDto(
                 "New", "New desc", 150, 300, 1L
         );
@@ -201,17 +197,14 @@ class VacancyServiceUpdateAndChangeStatusTest {
                 .build();
 
         Mockito.when(vacancyRepository.findById(vacancyId)).thenReturn(Optional.of(vacancyDraft));
-
         Mockito.when(vacancyRepository.findCompanyId(vacancyId)).thenReturn(companyId);
         Mockito.when(companyClient.existsCompany(companyId)).thenReturn(true);
         Mockito.when(companyClient.validateCompanyOwnership(companyId, userId)).thenReturn(true);
         Mockito.when(currencyService.findCurrencyById(1L)).thenReturn(Currency.builder().id(1L).build());
-        Mockito.when(vacancyStatusService.findByVacancyStatusName(VacancyStatusName.PUBLISHED))
-                .thenReturn(newStatus);
+        Mockito.when(vacancyStatusService.findByVacancyStatusName(VacancyStatusName.PUBLISHED)).thenReturn(newStatus);
+        Mockito.when(vacancyRepository.save(Mockito.any(Vacancy.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        Mockito.when(vacancyRepository.save(any())).thenAnswer(a -> a.getArgument(0));
-
-        doAnswer(inv -> {
+        Mockito.doAnswer(inv -> {
             Vacancy v = inv.getArgument(0);
             VacancyUpdateRequestDto d = inv.getArgument(1);
 
@@ -220,7 +213,7 @@ class VacancyServiceUpdateAndChangeStatusTest {
             if (d.salaryFrom() != null) v.setSalaryFrom(d.salaryFrom());
             if (d.salaryTo() != null) v.setSalaryTo(d.salaryTo());
             return null;
-        }).when(vacancyMapper).update(any(Vacancy.class), any(VacancyUpdateRequestDto.class));
+        }).when(vacancyMapper).update(Mockito.any(Vacancy.class), Mockito.any(VacancyUpdateRequestDto.class));
 
         VacancyResponseDto result = vacancyService.updateAndChangeStatus(
                 vacancyId, dto, VacancyStatusName.PUBLISHED
@@ -231,5 +224,17 @@ class VacancyServiceUpdateAndChangeStatusTest {
         Assertions.assertEquals(150, result.salaryFrom());
         Assertions.assertEquals(300, result.salaryTo());
         Assertions.assertEquals(newStatus.getId(), result.statusId());
+
+        Mockito.verify(vacancyKafkaProducer, Mockito.times(1))
+                .publishVacancyStatusChanged(
+                        Mockito.eq(vacancyId),
+                        Mockito.eq(companyId),
+                        Mockito.eq(userId),
+                        Mockito.eq("DRAFT"),
+                        Mockito.eq("PUBLISHED")
+                );
+
+        Mockito.verify(vacancyMapper).update(Mockito.any(Vacancy.class), Mockito.eq(dto));
+        Mockito.verifyNoMoreInteractions(vacancyKafkaProducer);
     }
 }
