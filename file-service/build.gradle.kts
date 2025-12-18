@@ -41,6 +41,7 @@ dependencies {
     testImplementation("org.testcontainers:testcontainers:1.21.3")
     testImplementation("org.testcontainers:junit-jupiter:1.21.3")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    implementation("org.springframework.kafka:spring-kafka")
 
 }
 
