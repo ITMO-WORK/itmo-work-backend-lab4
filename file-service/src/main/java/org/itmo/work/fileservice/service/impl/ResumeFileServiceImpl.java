@@ -47,10 +47,8 @@ public class ResumeFileServiceImpl implements ResumeFileService {
 
         StoredFile saved = storedFileRepository.save(
                 StoredFile.builder().bucket(bucket)
-                        // applicationId
                         .entityId(uploadRequest.applicationId())
                         .entityType(EntityType.APPLICATION)
-                        //userId
                         .ownerId(uploadRequest.userId())
                         .purpose(FilePurpose.APPLICATION_RESUME)
                         .objectKey(objectKey)

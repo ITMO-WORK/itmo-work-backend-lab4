@@ -96,7 +96,7 @@ class FileEventListenerTest {
     void shouldIgnoreUnknownEventType() {
         EventMessage message = new EventMessage(
                 UUID.randomUUID(),
-                EventType.APPLICATION_STATUS_CHANGE, // любой другой тип
+                EventType.APPLICATION_STATUS_CHANGE,
                 Instant.now(),
                 new ObjectMapper().createObjectNode()
         );
