@@ -67,4 +67,16 @@ public class GlobalExceptionHandler {
         ProblemDetail body = ProblemDetailsUtils.problemDetail(HttpStatus.UNAUTHORIZED, "Token incorrect", ex.getMessage(), exchange);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
     }
+
+    @ExceptionHandler(ApplicationNotFoundException.class)
+    public ResponseEntity<ProblemDetail> applicationNotFoundExceptionHandler(ApplicationNotFoundException ex, ServerWebExchange exchange){
+        ProblemDetail body = ProblemDetailsUtils.problemDetail(HttpStatus.BAD_REQUEST, "Application not found", ex.getMessage(), exchange);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
+    @ExceptionHandler(ResumeNotFoundException.class)
+    public ResponseEntity<ProblemDetail> resumeNotFoundExceptionHandler(ResumeNotFoundException ex, ServerWebExchange exchange){
+        ProblemDetail body = ProblemDetailsUtils.problemDetail(HttpStatus.BAD_REQUEST, "Resume not found", ex.getMessage(), exchange);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
 }

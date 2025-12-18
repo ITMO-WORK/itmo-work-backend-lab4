@@ -2,9 +2,11 @@ package org.itmo.work.fileservice.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.itmo.work.fileservice.config.MinioProperties;
+import org.itmo.work.fileservice.dto.request.UploadRequest;
 import org.itmo.work.fileservice.dto.response.UploadResumeResponse;
 import org.itmo.work.fileservice.infrastructure.dto.events.FileUploadEvent;
 import org.itmo.work.fileservice.infrastructure.file.FileEventPublisher;
+import org.itmo.work.fileservice.model.EntityType;
 import org.itmo.work.fileservice.model.FilePurpose;
 import org.itmo.work.fileservice.model.StoredFile;
 import org.itmo.work.fileservice.repository.StoredFileRepository;
@@ -26,8 +28,9 @@ public class ResumeFileServiceImpl implements ResumeFileService {
     private final FileEventPublisher finalEventPublisher;
 
 
+
     @Override
-    public UploadResumeResponse uploadResume(MultipartFile file, UUID replacedField) {
+    public UploadResumeResponse uploadResume(MultipartFile file, UUID replacedField, UploadRequest uploadRequest) {
         UUID actuallyReplaced = null;
         if (replacedField != null){
             StoredFile old = storedFileRepository.findById(replacedField)
@@ -44,9 +47,11 @@ public class ResumeFileServiceImpl implements ResumeFileService {
 
         StoredFile saved = storedFileRepository.save(
                 StoredFile.builder().bucket(bucket)
-                        .entityId(UUID.randomUUID())
-                        .entityType(FilePurpose.APPLICATION_RESUME.getValue())
-                        .ownerId(UUID.randomUUID())
+                        // applicationId
+                        .entityId(uploadRequest.applicationId())
+                        .entityType(EntityType.APPLICATION)
+                        //userId
+                        .ownerId(uploadRequest.userId())
                         .purpose(FilePurpose.APPLICATION_RESUME)
                         .objectKey(objectKey)
                         .originalFileName(Optional.ofNullable(file.getOriginalFilename()).orElse("file"))
@@ -55,16 +60,30 @@ public class ResumeFileServiceImpl implements ResumeFileService {
                         .createdAt(Instant.now())
                         .build()
         );
+
         finalEventPublisher.publishFileUploadedEvent(
                 new FileUploadEvent(
-                     saved.getId(),
-                     saved.getOwnerId(),
-                     saved.getOriginalFileName(),
-                     saved.getContentType(),
-                     saved.getCreatedAt()
+                        saved.getId(),
+                        saved.getOwnerId(),
+                        saved.getOriginalFileName(),
+                        saved.getContentType(),
+                        saved.getCreatedAt()
                 )
         );
 
         return new UploadResumeResponse(saved.getId(), actuallyReplaced);
     }
+
+    @Override
+    public String getDownloadUrl(UUID fileId) {
+        StoredFile file = storedFileRepository.findById(fileId)
+                .orElseThrow(() -> new IllegalArgumentException("File not found: " + fileId));
+
+        return storageService.getPresignedGetUrl(
+                file.getBucket(),
+                file.getObjectKey(),
+                minioProperties.presignExpiry()
+        );
+    }
 }
+

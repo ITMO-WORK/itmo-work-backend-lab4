@@ -1,9 +1,11 @@
 package org.ilestegor.applicationservice.infrastructure.feign.file.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.UUID;
 
 public record UploadResumeResponse(
-        UUID fieldId,
-        UUID replacedField
+        @JsonProperty("field_id") UUID fieldId,
+        @JsonProperty("replaced_field") UUID replacedField
 ) {
 }

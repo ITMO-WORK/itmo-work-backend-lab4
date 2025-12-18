@@ -3,12 +3,12 @@ package org.itmo.work.fileservice.model;
 import lombok.Getter;
 
 @Getter
-public enum FilePurpose {
-    APPLICATION_RESUME("application_resume");
+public enum EntityType {
+    APPLICATION("application");
 
     private final String value;
 
-    FilePurpose(String value) {
+    EntityType(String value) {
         this.value = value;
     }
 }

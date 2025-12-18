@@ -27,4 +27,6 @@ public interface ApplicationService {
     Mono<ApplicationStatusUpdateResponseDto> updateApplicationStatus(UUID applicationId, ApplicationStatusUpdateRequestDto applicationStatusUpdateRequestDto);
 
     Mono<Page<ApplicationDto>> getAllApplicationsByVacancyId(UUID vacancyId, Pageable pageable);
+
+    Mono<String> getResumeUrlByApplicationId(UUID applicationId);
 }

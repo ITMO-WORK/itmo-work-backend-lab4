@@ -26,4 +26,6 @@ public interface ApplicationRepository extends ReactiveCrudRepository<Applicatio
 
     Mono<Boolean> existsById(UUID id);
 
+    @Query("UPDATE applications SET file_id = :fileId, updated_at = NOW() WHERE id = :id")
+    Mono<Integer> updateFileId(UUID id, UUID fileId);
 }
