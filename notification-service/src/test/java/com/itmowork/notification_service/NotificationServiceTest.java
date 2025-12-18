@@ -1,6 +1,7 @@
 package com.itmowork.notification_service;
 
 import com.itmowork.notification_service.dto.event.application.ApplicationStatusUpdateEvent;
+import com.itmowork.notification_service.dto.event.file.ResumeUploadEvent;
 import com.itmowork.notification_service.dto.event.vacancy.VacancyStatusChangeEvent;
 import com.itmowork.notification_service.dto.notification.NotificationDto;
 import com.itmowork.notification_service.service.NotificationService;
@@ -11,6 +12,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+
+import java.time.Instant;
 import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -69,6 +72,39 @@ class NotificationServiceTest {
                 eq("/topic/notifications/vacancy/" + event.vacancyId()),
                 any(NotificationDto.class)
         );
+    }
+
+    @Test
+    void shouldSendResumeUploadedNotification() {
+        ResumeUploadEvent event = new ResumeUploadEvent(
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                "cv_backend.pdf",
+                "application/pdf",
+                Instant.now()
+        );
+
+        notificationService.notifyResumeUploaded(event);
+
+        ArgumentCaptor<NotificationDto> captor =
+                ArgumentCaptor.forClass(NotificationDto.class);
+
+        verify(messagingTemplate).convertAndSend(
+                eq("/topic/notifications/resume/" + event.userId()),
+                captor.capture()
+        );
+
+        NotificationDto dto = captor.getValue();
+
+        assertThat(dto.title())
+                .isEqualTo("Загрузка резюме");
+
+        assertThat(dto.message())
+                .contains("cv_backend.pdf")
+                .contains("успешно загружено");
+
+        assertThat(dto.createdAt())
+                .isNotNull();
     }
 
 }

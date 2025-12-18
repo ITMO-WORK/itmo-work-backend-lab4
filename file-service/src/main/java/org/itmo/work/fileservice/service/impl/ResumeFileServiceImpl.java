@@ -3,6 +3,8 @@ package org.itmo.work.fileservice.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.itmo.work.fileservice.config.MinioProperties;
 import org.itmo.work.fileservice.dto.response.UploadResumeResponse;
+import org.itmo.work.fileservice.infrastructure.dto.events.FileUploadEvent;
+import org.itmo.work.fileservice.infrastructure.file.FileEventPublisher;
 import org.itmo.work.fileservice.model.FilePurpose;
 import org.itmo.work.fileservice.model.StoredFile;
 import org.itmo.work.fileservice.repository.StoredFileRepository;
@@ -21,6 +23,7 @@ public class ResumeFileServiceImpl implements ResumeFileService {
     private final StoredFileRepository storedFileRepository;
     private final StorageService storageService;
     private final MinioProperties minioProperties;
+    private final FileEventPublisher finalEventPublisher;
 
 
     @Override
@@ -52,6 +55,16 @@ public class ResumeFileServiceImpl implements ResumeFileService {
                         .createdAt(Instant.now())
                         .build()
         );
+        finalEventPublisher.publishFileUploadedEvent(
+                new FileUploadEvent(
+                     saved.getId(),
+                     saved.getOwnerId(),
+                     saved.getOriginalFileName(),
+                     saved.getContentType(),
+                     saved.getCreatedAt()
+                )
+        );
+
         return new UploadResumeResponse(saved.getId(), actuallyReplaced);
     }
 }
