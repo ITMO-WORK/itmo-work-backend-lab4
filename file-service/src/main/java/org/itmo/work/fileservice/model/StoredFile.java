@@ -26,7 +26,8 @@ public class StoredFile {
     private UUID ownerId;
 
     @Column(name = "entity_type", nullable = false)
-    private String entityType;
+    @Enumerated(EnumType.STRING)
+    private EntityType entityType;
 
     @Column(name = "entity_id", nullable = false)
     private UUID entityId;

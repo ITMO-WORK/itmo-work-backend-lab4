@@ -11,6 +11,7 @@ import org.ilestegor.applicationservice.dto.response.ApplicationStatusUpdateResp
 import org.ilestegor.applicationservice.exception.exceptions.*;
 import org.ilestegor.applicationservice.infrastructure.feign.company.CompanyClient;
 import org.ilestegor.applicationservice.infrastructure.feign.file.FileWebClient;
+import org.ilestegor.applicationservice.infrastructure.feign.file.dto.UploadRequest;
 import org.ilestegor.applicationservice.infrastructure.feign.file.dto.UploadResumeResponse;
 import org.ilestegor.applicationservice.infrastructure.feign.user.UserClient;
 import org.ilestegor.applicationservice.infrastructure.feign.user.dto.UserResponseDto;
@@ -67,21 +68,63 @@ public class ApplicationServiceImpl implements ApplicationService {
             UUID replacedField
     ) {
         return getUserDetailsFromContext()
-                .flatMap(userPrincipal ->
-                        checkUserExists(userPrincipal.userId())
+                .flatMap(user ->
+                        checkUserExists(user.userId())
                                 .then(checkVacancyExists(vacancyId))
                                 .then(checkVacancyIsPublished(vacancyId))
-                                .then(checkUserHasNotApplied(userPrincipal.userId(), vacancyId))
-                                .then(uploadResumeIfPresent(resume, replacedField))
-                        .flatMap(optional ->
-                                createAndSaveApplication(
-                                        userPrincipal.userId(),
-                                        vacancyId,
-                                        dto,
-                                        optional.map(UploadResumeResponse::fieldId).orElse(null)
+                                .then(checkUserHasNotApplied(user.userId(), vacancyId))
+                                .then(applicationStatusService
+                                        .findApplicationStatusByApplicationStatusName(ApplicationStatusName.NEW)
+                                        .switchIfEmpty(Mono.error(new ApplicationStatusNotFoundException()))
                                 )
-                        )
+                                .flatMap(status ->
+                                        // 1) INSERT заявки (id null -> INSERT)
+                                        saveNewApplicationEntity(user.userId(), vacancyId, dto, status.getId())
+                                                // 2) upload файла (если есть) и update fileId
+                                                .flatMap(savedApp ->
+                                                        uploadResumeIfPresent(resume, replacedField, savedApp.getId(), user.userId())
+                                                                .flatMap(opt -> {
+                                                                    System.out.println(opt.get().fieldId());
+                                                                    if (opt.isEmpty()) return Mono.just(savedApp);
+
+                                                                    UUID fileId = opt.get().fieldId();
+                                                                    System.out.println(fileId);
+                                                                    return applicationRepository
+                                                                            .updateFileId(savedApp.getId(), fileId)
+                                                                            .thenReturn(savedApp); // можно не менять объект
+                                                                })
+                                                                .thenReturn(savedApp) // вернуть заявку (id уже есть)
+                                                )
+                                                // 3) DTO в ответ
+                                                .map(savedApp -> new ApplicationCreateResponseDto(
+                                                        savedApp.getId(),
+                                                        status.getApplicationStatusName().getValue(),
+                                                        savedApp.getCreatedAt(),
+                                                        savedApp.getUpdatedAt(),
+                                                        savedApp.getCoverLetter()
+                                                ))
+                                )
                 );
+    }
+
+    private Mono<Application> saveNewApplicationEntity(
+            UUID userId,
+            UUID vacancyId,
+            ApplicationCreateRequestDto dto,
+            Long statusId
+    ) {
+        Application app = Application.builder()
+                .id(null)                 // ВАЖНО: null, чтобы R2DBC сделал INSERT
+                .userId(userId)
+                .vacancyId(vacancyId)
+                .coverLetter(dto.coverLetter())
+                .status(statusId)
+                .fileId(null)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+
+        return applicationRepository.save(app);
     }
 
     @Override
@@ -103,7 +146,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                                             .then(updateApplicationStatusInternal(
                                                     applicationId,
                                                     applicationStatusUpdateRequestDto,
-                                                    vacancyId, userId
+                                                    vacancyId
                                             ))
                             );
                 });
@@ -130,24 +173,38 @@ public class ApplicationServiceImpl implements ApplicationService {
         });
     }
 
+
+    @Override
+    public Mono<String> getResumeUrlByApplicationId(UUID applicationId) {
+        return applicationRepository.findById(applicationId)
+                .switchIfEmpty(Mono.error(new ApplicationNotFoundException()))
+                .flatMap(app -> {
+                    if (app.getFileId() == null) {
+                        return Mono.error(new ResumeNotFoundException());
+                    }
+                    return fileWebClient.getResumeDownloadUrl(app.getFileId());
+                });
+    }
+
     private Mono<Optional<UploadResumeResponse>> uploadResumeIfPresent(
             FilePart resume,
-            UUID replacedField
+            UUID replacedField,
+            UUID applicationId,
+            UUID userId
     ) {
         if (resume == null) {
             return Mono.just(Optional.empty());
         }
 
         return fileWebClient
-                .uploadResume(resume, replacedField)
+                .uploadResume(resume, replacedField, new UploadRequest(applicationId, userId))
                 .map(Optional::of);
     }
 
     private Mono<ApplicationStatusUpdateResponseDto> updateApplicationStatusInternal(
             UUID applicationId,
             ApplicationStatusUpdateRequestDto req,
-            UUID vacancyId,
-            UUID userId
+            UUID vacancyId
     ) {
         return applicationRepository.findById(applicationId)
                 .switchIfEmpty(Mono.error(new UserApplicationNotFoundException()))
@@ -336,7 +393,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         );
     }
 
-    private Mono<ApplicationCreateResponseDto> createAndSaveApplication(UUID userId, UUID vacancyId, ApplicationCreateRequestDto applicationCreateRequestDto, UUID fieldId){
+    private Mono<ApplicationCreateResponseDto> createAndSaveApplication(UUID applicationId, UUID userId, UUID vacancyId, ApplicationCreateRequestDto applicationCreateRequestDto, UUID fieldId){
         return applicationStatusService.findApplicationStatusByApplicationStatusName(ApplicationStatusName.NEW)
                 .switchIfEmpty(Mono.error(new ApplicationStatusNotFoundException()))
                 .flatMap(status -> {
@@ -347,6 +404,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                             .userId(userId)
                             .vacancyId(vacancyId)
                             .fileId(fieldId)
+                            .id(applicationId)
                             .build();
 
                     return applicationRepository.save(application).map(saved -> new ApplicationCreateResponseDto(

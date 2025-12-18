@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -66,4 +67,12 @@ public class ApplicationController {
         Pageable pageable = PageRequest.of(page, size);
         return applicationService.getAllApplicationsByVacancyId(vacancyId, pageable);
     }
+
+    @SecurityRequirement(name = "bearerAuth")
+    @GetMapping("/{applicationId}/resume-url")
+    public Mono<ResponseEntity<Map<String, String>>> getResumeUrl(@PathVariable UUID applicationId) {
+        return applicationService.getResumeUrlByApplicationId(applicationId)
+                .map(url -> ResponseEntity.ok(Map.of("url", url)));
+    }
+
 }

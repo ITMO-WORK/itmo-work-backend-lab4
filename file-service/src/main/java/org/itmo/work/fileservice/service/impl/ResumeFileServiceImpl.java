@@ -2,7 +2,9 @@ package org.itmo.work.fileservice.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.itmo.work.fileservice.config.MinioProperties;
+import org.itmo.work.fileservice.dto.request.UploadRequest;
 import org.itmo.work.fileservice.dto.response.UploadResumeResponse;
+import org.itmo.work.fileservice.model.EntityType;
 import org.itmo.work.fileservice.model.FilePurpose;
 import org.itmo.work.fileservice.model.StoredFile;
 import org.itmo.work.fileservice.repository.StoredFileRepository;
@@ -23,9 +25,12 @@ public class ResumeFileServiceImpl implements ResumeFileService {
     private final MinioProperties minioProperties;
 
 
+
     @Override
-    public UploadResumeResponse uploadResume(MultipartFile file, UUID replacedField) {
+    public UploadResumeResponse uploadResume(MultipartFile file, UUID replacedField, UploadRequest uploadRequest) {
         UUID actuallyReplaced = null;
+        System.out.println(uploadRequest.applicationId());
+        System.out.println(uploadRequest.userId());
         if (replacedField != null){
             StoredFile old = storedFileRepository.findById(replacedField)
                     .orElseThrow(() -> new IllegalArgumentException("replaced Id not found: " + replacedField));
@@ -41,9 +46,11 @@ public class ResumeFileServiceImpl implements ResumeFileService {
 
         StoredFile saved = storedFileRepository.save(
                 StoredFile.builder().bucket(bucket)
-                        .entityId(UUID.randomUUID())
-                        .entityType(FilePurpose.APPLICATION_RESUME.getValue())
-                        .ownerId(UUID.randomUUID())
+                        // applicationId
+                        .entityId(uploadRequest.applicationId())
+                        .entityType(EntityType.APPLICATION)
+                        //userId
+                        .ownerId(uploadRequest.userId())
                         .purpose(FilePurpose.APPLICATION_RESUME)
                         .objectKey(objectKey)
                         .originalFileName(Optional.ofNullable(file.getOriginalFilename()).orElse("file"))
@@ -52,6 +59,20 @@ public class ResumeFileServiceImpl implements ResumeFileService {
                         .createdAt(Instant.now())
                         .build()
         );
+        System.out.println(saved.getId());
         return new UploadResumeResponse(saved.getId(), actuallyReplaced);
     }
+
+    @Override
+    public String getDownloadUrl(UUID fileId) {
+        StoredFile file = storedFileRepository.findById(fileId)
+                .orElseThrow(() -> new IllegalArgumentException("File not found: " + fileId));
+
+        return storageService.getPresignedGetUrl(
+                file.getBucket(),
+                file.getObjectKey(),
+                minioProperties.presignExpiry()
+        );
+    }
 }
+
