@@ -3,6 +3,7 @@ package org.itmo.work.fileservice.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.itmo.work.fileservice.config.MinioProperties;
 import org.itmo.work.fileservice.dto.response.UploadResumeResponse;
+import org.itmo.work.fileservice.model.FilePurpose;
 import org.itmo.work.fileservice.model.StoredFile;
 import org.itmo.work.fileservice.repository.StoredFileRepository;
 import org.itmo.work.fileservice.service.ResumeFileService;
@@ -40,6 +41,10 @@ public class ResumeFileServiceImpl implements ResumeFileService {
 
         StoredFile saved = storedFileRepository.save(
                 StoredFile.builder().bucket(bucket)
+                        .entityId(UUID.randomUUID())
+                        .entityType(FilePurpose.APPLICATION_RESUME.getValue())
+                        .ownerId(UUID.randomUUID())
+                        .purpose(FilePurpose.APPLICATION_RESUME)
                         .objectKey(objectKey)
                         .originalFileName(Optional.ofNullable(file.getOriginalFilename()).orElse("file"))
                         .contentType(file.getContentType())

@@ -10,7 +10,7 @@ import org.ilestegor.applicationservice.dto.response.ApplicationCreateResponseDt
 import org.ilestegor.applicationservice.dto.response.ApplicationStatusUpdateResponseDto;
 import org.ilestegor.applicationservice.exception.exceptions.*;
 import org.ilestegor.applicationservice.infrastructure.feign.company.CompanyClient;
-import org.ilestegor.applicationservice.infrastructure.feign.file.FileClient;
+import org.ilestegor.applicationservice.infrastructure.feign.file.FileWebClient;
 import org.ilestegor.applicationservice.infrastructure.feign.file.dto.UploadResumeResponse;
 import org.ilestegor.applicationservice.infrastructure.feign.user.UserClient;
 import org.ilestegor.applicationservice.infrastructure.feign.user.dto.UserResponseDto;
@@ -23,8 +23,6 @@ import org.ilestegor.applicationservice.model.ApplicationStatusName;
 import org.ilestegor.applicationservice.repository.ApplicationRepository;
 import org.ilestegor.applicationservice.service.interfaces.ApplicationService;
 import org.ilestegor.applicationservice.service.interfaces.ApplicationStatusService;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -34,11 +32,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -59,13 +57,31 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     private final ApplicationEventPublisher applicationEventPublisher;
 
-    private final FileClient fileClient;
+    private final FileWebClient fileWebClient;
 
     @Override
-    public Mono<ApplicationCreateResponseDto> createApplication(UUID vacancyId, ApplicationCreateRequestDto applicationCreateRequestDto, FilePart resume, UUID replacedField) {
-        return getUserDetailsFromContext().flatMap(userPrincipal -> checkUserExists(userPrincipal.userId()).then(checkVacancyExists(vacancyId)).then(checkVacancyIsPublished(vacancyId)).then(checkUserHasNotApplied(userPrincipal.userId(), vacancyId))
-                .then(uploadResumeIfPresent(resume, replacedField))
-                .flatMap(uploaded -> createAndSaveApplication(userPrincipal.userId(), vacancyId, applicationCreateRequestDto, uploaded == null ? null : uploaded.fieldId())));
+    public Mono<ApplicationCreateResponseDto> createApplication(
+            UUID vacancyId,
+            ApplicationCreateRequestDto dto,
+            FilePart resume,
+            UUID replacedField
+    ) {
+        return getUserDetailsFromContext()
+                .flatMap(userPrincipal ->
+                        checkUserExists(userPrincipal.userId())
+                                .then(checkVacancyExists(vacancyId))
+                                .then(checkVacancyIsPublished(vacancyId))
+                                .then(checkUserHasNotApplied(userPrincipal.userId(), vacancyId))
+                                .then(uploadResumeIfPresent(resume, replacedField))
+                        .flatMap(optional ->
+                                createAndSaveApplication(
+                                        userPrincipal.userId(),
+                                        vacancyId,
+                                        dto,
+                                        optional.map(UploadResumeResponse::fieldId).orElse(null)
+                                )
+                        )
+                );
     }
 
     @Override
@@ -114,26 +130,17 @@ public class ApplicationServiceImpl implements ApplicationService {
         });
     }
 
-    private Mono<UploadResumeResponse> uploadResumeIfPresent(FilePart resume, UUID replacedField) {
-        if (resume == null) return Mono.justOrEmpty((UploadResumeResponse) null);
+    private Mono<Optional<UploadResumeResponse>> uploadResumeIfPresent(
+            FilePart resume,
+            UUID replacedField
+    ) {
+        if (resume == null) {
+            return Mono.just(Optional.empty());
+        }
 
-        return DataBufferUtils.join(resume.content())
-                .map(dataBuffer -> {
-                    byte[] bytes = new byte[dataBuffer.readableByteCount()];
-                    dataBuffer.read(bytes);
-                    DataBufferUtils.release(dataBuffer);
-
-                    return new ByteArrayResource(bytes) {
-                        @Override
-                        public String getFilename() {
-                            return resume.filename();
-                        }
-                    };
-                })
-                .flatMap(resource ->
-                        Mono.fromCallable(() -> fileClient.uploadResume(resource, replacedField))
-                                .subscribeOn(Schedulers.boundedElastic())
-                );
+        return fileWebClient
+                .uploadResume(resume, replacedField)
+                .map(Optional::of);
     }
 
     private Mono<ApplicationStatusUpdateResponseDto> updateApplicationStatusInternal(
