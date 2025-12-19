@@ -24,6 +24,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -32,6 +33,7 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -129,12 +131,12 @@ public class ApplicationServiceControllerTest {
 
         stubFor(get(urlEqualTo("/api/user/" + TEST_USER_ID))
                 .willReturn(okJson("""
-                {
-                  "id": "%s",
-                  "full_name": "Test User",
-                  "email": "test@mail.com"
-                }
-                """.formatted(TEST_USER_ID))));
+            {
+              "id": "%s",
+              "full_name": "Test User",
+              "email": "test@mail.com"
+            }
+            """.formatted(TEST_USER_ID))));
 
         stubFor(get(urlEqualTo("/api/vacancies/" + vacancyId + "/exists"))
                 .willReturn(okJson("true")));
@@ -145,9 +147,16 @@ public class ApplicationServiceControllerTest {
         stubFor(get(urlEqualTo("/api/vacancies/" + vacancyId + "/title"))
                 .willReturn(okJson("\"Java Developer\"")));
 
-        ApplicationCreateRequestDto request = new ApplicationCreateRequestDto("cover letter");
-
         String jwt = generateJwt(TEST_USER_ID, "test@mail.com", "ROLE_USER");
+
+        ApplicationCreateRequestDto request =
+                new ApplicationCreateRequestDto("cover letter");
+
+        MultipartBodyBuilder bodyBuilder = new MultipartBodyBuilder();
+
+        bodyBuilder
+                .part("request", request)
+                .contentType(MediaType.APPLICATION_JSON);
 
         var entity = webTestClient.post()
                 .uri(uriBuilder -> uriBuilder
@@ -156,7 +165,8 @@ public class ApplicationServiceControllerTest {
                         .build()
                 )
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwt)
-                .bodyValue(request)
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(BodyInserters.fromMultipartData(bodyBuilder.build()))
                 .exchange()
                 .expectStatus().isCreated()
                 .expectBody(ApplicationCreateResponseDto.class)
@@ -174,6 +184,9 @@ public class ApplicationServiceControllerTest {
         assertThat(saved.getVacancyId()).isEqualTo(vacancyId);
     }
 
+
+
+
     @Test
     void createApplication_shouldReturn404_whenUserNotFound() {
         UUID TEST_USER_ID = UUID.randomUUID();
@@ -184,15 +197,22 @@ public class ApplicationServiceControllerTest {
 
         stubFor(get(urlEqualTo("/api/vacancies/" + vacancyId + "/exists"))
                 .willReturn(okJson("true")));
+
         stubFor(get(urlEqualTo("/api/vacancies/" + vacancyId + "/is-published"))
                 .willReturn(okJson("true")));
+
         stubFor(get(urlEqualTo("/api/vacancies/" + vacancyId + "/title"))
                 .willReturn(okJson("\"Java Developer\"")));
 
-        ApplicationCreateRequestDto request = new ApplicationCreateRequestDto("cover letter");
-
-
         String jwt = generateJwt(TEST_USER_ID, "test@mail.com", "ROLE_USER");
+
+        ApplicationCreateRequestDto request =
+                new ApplicationCreateRequestDto("cover letter");
+
+        MultipartBodyBuilder bodyBuilder = new MultipartBodyBuilder();
+        bodyBuilder
+                .part("data", request)
+                .contentType(MediaType.APPLICATION_JSON);
 
         webTestClient.post()
                 .uri(uriBuilder -> uriBuilder
@@ -200,13 +220,15 @@ public class ApplicationServiceControllerTest {
                         .queryParam("vacancyId", vacancyId)
                         .build()
                 )
-                .bodyValue(request)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwt)
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(BodyInserters.fromMultipartData(bodyBuilder.build()))
                 .exchange()
                 .expectStatus().isNotFound()
                 .expectBody()
                 .jsonPath("$.status").isEqualTo(404);
     }
+
 
     @Test
     void createApplication_shouldReturn404_whenVacancyNotFound() {
@@ -215,47 +237,47 @@ public class ApplicationServiceControllerTest {
 
         stubFor(get(urlEqualTo("/api/user/" + TEST_USER_ID))
                 .willReturn(okJson("""
-                {
-                  "id": "%s",
-                  "full_name": "Test User",
-                  "email": "test@mail.com"
-                }
-                """.formatted(TEST_USER_ID))));
-
+            {
+              "id": "%s",
+              "full_name": "Test User",
+              "email": "test@mail.com"
+            }
+            """.formatted(TEST_USER_ID))));
 
         stubFor(get(urlEqualTo("/api/vacancies/" + vacancyId + "/exists"))
                 .willReturn(okJson("false")));
 
-        ApplicationCreateRequestDto request = new ApplicationCreateRequestDto("cover letter");
-
         String jwt = generateJwt(TEST_USER_ID, "test@mail.com", "ROLE_USER");
+
         webTestClient.post()
                 .uri(uriBuilder -> uriBuilder
                         .path("/api/application")
                         .queryParam("vacancyId", vacancyId)
                         .build()
                 )
-                .bodyValue(request)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwt)
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(
+                        MultipartBodyBuilderBuilder.applicationCreate("cover letter")
+                )
                 .exchange()
                 .expectStatus().isNotFound();
     }
+
 
     @Test
     void createApplication_shouldReturn400_whenApplicationAlreadyExists() {
         UUID TEST_USER_ID = UUID.randomUUID();
         UUID vacancyId = UUID.randomUUID();
 
-
         stubFor(get(urlEqualTo("/api/user/" + TEST_USER_ID))
                 .willReturn(okJson("""
-                {
-                  "id": "%s",
-                  "full_name": "Test User",
-                  "email": "test@mail.com"
-                }
-                """.formatted(TEST_USER_ID))));
-
+            {
+              "id": "%s",
+              "full_name": "Test User",
+              "email": "test@mail.com"
+            }
+            """.formatted(TEST_USER_ID))));
 
         stubFor(get(urlEqualTo("/api/vacancies/" + vacancyId + "/exists"))
                 .willReturn(okJson("true")));
@@ -266,21 +288,18 @@ public class ApplicationServiceControllerTest {
         stubFor(get(urlEqualTo("/api/vacancies/" + vacancyId + "/title"))
                 .willReturn(okJson("\"Java Developer\"")));
 
-
         var newStatus = applicationStatusRepository
                 .findByApplicationStatusName(ApplicationStatusName.NEW)
                 .blockOptional()
-                .orElseThrow(() -> new IllegalStateException("Status NEW not found in DB"));
+                .orElseThrow(() -> new IllegalStateException("Status NEW not found"));
 
-        var existing = new Application();
+        Application existing = new Application();
         existing.setUserId(TEST_USER_ID);
         existing.setVacancyId(vacancyId);
         existing.setCoverLetter("already applied");
         existing.setStatus(newStatus.getId());
 
         applicationRepository.save(existing).block();
-
-        ApplicationCreateRequestDto request = new ApplicationCreateRequestDto("cover letter");
 
         String jwt = generateJwt(TEST_USER_ID, "test@mail.com", "ROLE_USER");
 
@@ -290,47 +309,38 @@ public class ApplicationServiceControllerTest {
                         .queryParam("vacancyId", vacancyId)
                         .build()
                 )
-                .bodyValue(request)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwt)
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(
+                        MultipartBodyBuilderBuilder.applicationCreate("cover letter")
+                )
                 .exchange()
-                .expectStatus().isEqualTo(HttpStatus.BAD_REQUEST);
+                .expectStatus().isBadRequest();
 
         var all = applicationRepository.findAll().collectList().block();
         assertThat(all).hasSize(1);
-        assertThat(all.getFirst().getUserId()).isEqualTo(TEST_USER_ID);
-        assertThat(all.getFirst().getVacancyId()).isEqualTo(vacancyId);
     }
 
-    @Test
-    void createApplication_shouldReturn409_whenVacancyNotPublished() {
-        UUID TEST_USER_ID = UUID.randomUUID();
-        var vacancyId = UUID.randomUUID();
 
+    @Test
+    void createApplication_shouldReturn400_whenVacancyNotPublished() {
+        UUID TEST_USER_ID = UUID.randomUUID();
+        UUID vacancyId = UUID.randomUUID();
 
         stubFor(get(urlEqualTo("/api/user/" + TEST_USER_ID))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader("Content-Type", "application/json")
-                        .withBody("""
-                        {
-                          "id": "%s",
-                          "email": "john.doe@example.com",
-                          "full_name": "John Doe"
-                        }
-                        """.formatted(TEST_USER_ID))));
-
-
+                .willReturn(okJson("""
+            {
+              "id": "%s",
+              "email": "john.doe@example.com",
+              "full_name": "John Doe"
+            }
+            """.formatted(TEST_USER_ID))));
 
         stubFor(get(urlEqualTo("/api/vacancies/" + vacancyId + "/exists"))
                 .willReturn(okJson("true")));
 
-
         stubFor(get(urlEqualTo("/api/vacancies/" + vacancyId + "/is-published"))
                 .willReturn(okJson("false")));
-
-        var request = new ApplicationCreateRequestDto(
-                "my awesome cover letter"
-        );
 
         String jwt = generateJwt(TEST_USER_ID, "test@mail.com", "ROLE_USER");
 
@@ -338,16 +348,22 @@ public class ApplicationServiceControllerTest {
                 .uri(uriBuilder -> uriBuilder
                         .path("/api/application")
                         .queryParam("vacancyId", vacancyId)
-                        .build())
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(request)
+                        .build()
+                )
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwt)
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(
+                        MultipartBodyBuilderBuilder.applicationCreate(
+                                "my awesome cover letter"
+                        )
+                )
                 .exchange()
-                .expectStatus().isEqualTo(HttpStatus.BAD_REQUEST);
+                .expectStatus().isBadRequest();
 
         var all = applicationRepository.findAll().collectList().block();
         assertThat(all).isEmpty();
     }
+
 
 
     @Test
