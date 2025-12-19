@@ -3,6 +3,7 @@ package org.ilestegor.applicationservice.contoller;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.ilestegor.applicationservice.configuration.ApplicationCreateMultipartBody;
 import org.ilestegor.applicationservice.dto.ApplicationDto;
 import org.ilestegor.applicationservice.dto.request.ApplicationCreateRequestDto;
 import org.ilestegor.applicationservice.dto.request.ApplicationStatusUpdateRequestDto;
@@ -23,6 +24,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Encoding;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 
 import java.util.Map;
 import java.util.UUID;
@@ -36,6 +42,19 @@ public class ApplicationController {
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @SecurityRequirement(name = "bearerAuth")
+    @Operation(
+            requestBody = @RequestBody(
+                    required = true,
+                    content = @Content(
+                            mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
+                            schema = @Schema(implementation = ApplicationCreateMultipartBody.class),
+                            encoding = {
+                                    @Encoding(name = "data", contentType = MediaType.APPLICATION_JSON_VALUE),
+                                    @Encoding(name = "resume", contentType = "application/pdf")
+                            }
+                    )
+            )
+    )
     public Mono<ResponseEntity<ApplicationCreateResponseDto>> createApplication(
             @RequestParam UUID vacancyId,
             @RequestPart("data") @Valid ApplicationCreateRequestDto dto,

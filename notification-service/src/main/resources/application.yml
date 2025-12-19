@@ -9,7 +9,7 @@ spring:
   config:
     import: configserver:${CONFIG_SERVER_URL:http://localhost:9991}
   kafka:
-    bootstrap-servers: localhost:9092,localhost:9093,localhost:9094
+    bootstrap-servers: kafka1:19092,kafka2:19092,kafka3:19092
     consumer:
       group-id: notification.service
       auto-offset-reset: earliest
