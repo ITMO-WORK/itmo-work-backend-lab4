@@ -24,7 +24,6 @@ public class MinioStorageService implements StorageService {
 
     private final MinioClient minioClient;
     private final MinioProperties minioProperties;
-    private final StoredFileRepository storedFileRepository;
 
 
     @Override
