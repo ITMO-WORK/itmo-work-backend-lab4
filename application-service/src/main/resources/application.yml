@@ -14,15 +14,3 @@ spring:
       write-dates-as-timestamps: false
   config:
     import: configserver:${CONFIG_SERVER_URL:http://localhost:9991}
-
-  kafka:
-    bootstrap-servers: kafka1:19092,kafka2:19092,kafka3:19092
-
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-
-
-app:
-  kafka:
-    topics:
-      applications-events: applications.events

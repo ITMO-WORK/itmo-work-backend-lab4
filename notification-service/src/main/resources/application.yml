@@ -8,14 +8,3 @@ spring:
     active: ${SPRING_PROFILES_ACTIVE:dev}
   config:
     import: configserver:${CONFIG_SERVER_URL:http://localhost:9991}
-  kafka:
-    bootstrap-servers: kafka1:19092,kafka2:19092,kafka3:19092
-    consumer:
-      group-id: notification.service
-      auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-
-logging:
-  level:
-    org.springframework.web.socket: TRACE
-    org.springframework.messaging.simp: TRACE
