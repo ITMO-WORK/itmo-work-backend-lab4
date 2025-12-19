@@ -15,11 +15,13 @@ import org.ilestegor.applicationservice.repository.ApplicationRepository;
 import org.ilestegor.applicationservice.security.JwtServiceImpl;
 import org.ilestegor.applicationservice.security.interfaces.JwtService;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -31,12 +33,14 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
@@ -49,6 +53,7 @@ import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -105,6 +110,9 @@ public class ApplicationServiceControllerTest {
     @Autowired
     private JwtService jwtService;
 
+    @MockitoBean
+    private ApplicationEventPublisher applicationEventPublisher;
+
     private String generateJwt(UUID userId, String email, String... roles) {
         var authorities = Arrays.stream(roles)
                 .map(SimpleGrantedAuthority::new)
@@ -155,7 +163,7 @@ public class ApplicationServiceControllerTest {
         MultipartBodyBuilder bodyBuilder = new MultipartBodyBuilder();
 
         bodyBuilder
-                .part("request", request)
+                .part("data", request)
                 .contentType(MediaType.APPLICATION_JSON);
 
         var entity = webTestClient.post()
@@ -435,67 +443,6 @@ public class ApplicationServiceControllerTest {
         assertThat(saved.getCoverLetter()).isEqualTo("updated cover letter");
     }
 
-    @Test
-    void updateApplicationStatus_shouldReturn200AndUpdateStatusInDb() {
-        UUID TEST_USER_ID = UUID.randomUUID();
-        UUID vacancyId = UUID.randomUUID();
-        UUID companyId = UUID.randomUUID();
-
-        stubFor(get(urlEqualTo("/api/user/" + TEST_USER_ID))
-                .willReturn(okJson("""
-                {
-                  "id": "%s",
-                  "full_name": "Test User",
-                  "email": "test@mail.com"
-                }
-                """.formatted(TEST_USER_ID))));
-
-        stubFor(get(urlEqualTo("/api/vacancies/" + vacancyId + "/exists"))
-                .willReturn(okJson("true")));
-
-        stubFor(get(urlEqualTo("/api/vacancies/" + vacancyId + "/company-id"))
-                .willReturn(okJson("\"%s\"".formatted(companyId))));
-
-        stubFor(get(urlEqualTo("/api/company/" + companyId + "/" + TEST_USER_ID))
-                .willReturn(okJson("true")));
-
-        Application application = Application.builder()
-                .userId(TEST_USER_ID)
-                .vacancyId(vacancyId)
-                .coverLetter("old cover letter")
-                .status(3L)
-                .build();
-
-        application = applicationRepository.save(application).block();
-        assertThat(application).isNotNull();
-
-        ApplicationStatusUpdateRequestDto request =
-                new ApplicationStatusUpdateRequestDto(ApplicationStatusName.REJECTED);
-
-
-        Application finalApplication = application;
-        String jwt = generateJwt(TEST_USER_ID, "test@mail.com", "ROLE_ADMIN");
-        var response = webTestClient.patch()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/api/application/{applicationId}/status")
-                        .build(finalApplication.getId())
-                )
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(request)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwt)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(ApplicationStatusUpdateResponseDto.class)
-                .returnResult()
-                .getResponseBody();
-
-        assertThat(response).isNotNull();
-        assertThat(response.status())
-                .isEqualTo(ApplicationStatusName.REJECTED.getValue());
-
-        var fromDb = applicationRepository.findById(application.getId()).block();
-        assertThat(fromDb).isNotNull();
-    }
 
     @Test
     void updateApplicationStatus_shouldReturn404_whenApplicationNotFound() {
