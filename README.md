@@ -9,7 +9,7 @@
 |----------------------|---------------|-------------|
 | user-service         | Маша          | ❌          |
 | company-service      | Арслан        | ❌          |
-| vacancy-service      | Маша          | ❌          |
+| vacancy-service      | Маша          | ✅          |
 | application-service  | Егор          | ❌          |
 | file-service         | Егор          | ❌          |
 | notification-service | Арслан        | ❌          |
