@@ -1,8 +1,7 @@
 package org.itmo.work.fileservice.controller;
 
 
-import io.minio.MinioClient;
-import io.minio.PutObjectArgs;
+import io.minio.*;
 import org.itmo.work.fileservice.service.StorageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,7 +17,13 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.Duration;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import io.minio.MinioClient;
+import io.minio.PutObjectArgs;
+
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @Testcontainers
 @SpringBootTest
@@ -32,15 +37,41 @@ class FileIntegrationTest {
                     .withCommand("server /data")
                     .withExposedPorts(9000);
 
+    @DynamicPropertySource
+    static void overrideProps(DynamicPropertyRegistry registry) {
+        String endpoint = "http://" + minio.getHost() + ":" + minio.getMappedPort(9000);
+
+        registry.add("minio.internal-endpoint", () -> endpoint);
+        registry.add("minio.public-endpoint", () -> endpoint);
+        registry.add("minio.access-key", () -> "minioadmin");
+        registry.add("minio.secret-key", () -> "minioadmin");
+        registry.add("minio.bucket", () -> "files");
+        registry.add("minio.presign-expiry", () -> Duration.ofMinutes(5));
+    }
+
     @Autowired
-    MinioClient minioClient;
+    MinioClient minioInternalClient;
 
     @Autowired
     StorageService storageService;
 
     @BeforeEach
     void setup() throws Exception {
-        minioClient.putObject(
+        boolean exists = minioInternalClient.bucketExists(
+                BucketExistsArgs.builder()
+                        .bucket("files")
+                        .build()
+        );
+
+        if (!exists) {
+            minioInternalClient.makeBucket(
+                    MakeBucketArgs.builder()
+                            .bucket("files")
+                            .build()
+            );
+        }
+
+        minioInternalClient.putObject(
                 PutObjectArgs.builder()
                         .bucket("files")
                         .object("test.txt")
@@ -70,6 +101,5 @@ class FileIntegrationTest {
             assertThat(content).isEqualTo("hello");
         }
     }
-
-
 }
+

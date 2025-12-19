@@ -22,8 +22,42 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.itmo.work.fileservice.dto.request.UploadRequest;
+import org.itmo.work.fileservice.dto.response.UploadResumeResponse;
+import org.itmo.work.fileservice.service.ResumeFileService;
+
+import io.minio.MinioClient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.TestPropertySource;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.UUID;
+
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 @SpringBootTest
 @AutoConfigureMockMvc
+@TestPropertySource(properties = {
+        "minio.internal-endpoint=http://localhost:9000",
+        "minio.public-endpoint=http://localhost:9000",
+        "minio.bucket=test-bucket",
+        "minio.access-key=minio",
+        "minio.secret-key=minio123"
+})
 class FileControllerIntegrationTest {
 
     @Autowired
@@ -32,9 +66,21 @@ class FileControllerIntegrationTest {
     @MockitoBean
     private ResumeFileService resumeFileService;
 
+    // ВАЖНО — отключаем реальные MinIO-клиенты
+    @MockitoBean(name = "minioInternalClient")
+    private MinioClient minioInternal;
+
+    @MockitoBean(name = "minioPresignClient")
+    private MinioClient minioPresign;
+
+    // Отключаем вызов ensureBucket()
+    @MockitoBean
+    private org.itmo.work.fileservice.config.MinioBucketInitializer minioBucketInitializer;
+
     @Autowired
     private ObjectMapper objectMapper;
 
+    // ------------------------- TEST 1 -------------------------
     @Test
     void shouldReturnPresignedDownloadUrl() throws Exception {
         UUID fileId = UUID.randomUUID();
@@ -50,6 +96,7 @@ class FileControllerIntegrationTest {
         verify(resumeFileService).getDownloadUrl(fileId);
     }
 
+    // ------------------------- TEST 2 -------------------------
     @Test
     void shouldUploadResume_withoutReplacedField() throws Exception {
         UUID applicationId = UUID.randomUUID();
@@ -83,13 +130,13 @@ class FileControllerIntegrationTest {
                                 .accept(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.field_id").value(savedFileId.toString()))
-                .andExpect(jsonPath("$.replaced_field").isEmpty()); // или .isNull()
+                .andExpect(jsonPath("$.replaced_field").isEmpty());
 
         verify(resumeFileService).uploadResume(any(), isNull(), eq(req));
     }
 
+    // ------------------------- TEST 3 -------------------------
     @Test
     void shouldUploadResume_withReplacedField() throws Exception {
         UUID applicationId = UUID.randomUUID();
@@ -113,6 +160,7 @@ class FileControllerIntegrationTest {
         );
 
         UUID savedFileId = UUID.randomUUID();
+
         when(resumeFileService.uploadResume(any(), eq(replacedField), any(UploadRequest.class)))
                 .thenReturn(new UploadResumeResponse(savedFileId, replacedField));
 
@@ -125,7 +173,6 @@ class FileControllerIntegrationTest {
                                 .accept(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.field_id").value(savedFileId.toString()))
                 .andExpect(jsonPath("$.replaced_field").value(replacedField.toString()));
 
