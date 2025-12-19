@@ -1,4 +1,4 @@
-package org.ilestegor.applicationservice.exception.exceptions;
+package org.ilestegor.applicationservice.dirty.exception.exceptions;
 
 public class ApplicationNotFoundException extends RuntimeException{
 

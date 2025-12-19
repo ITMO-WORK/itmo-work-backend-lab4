@@ -1,4 +1,4 @@
-package org.ilestegor.applicationservice.infrastructure.feign.vacancy;
+package org.ilestegor.applicationservice.dirty.infrastructure.feign.vacancy;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.HttpHeaders;

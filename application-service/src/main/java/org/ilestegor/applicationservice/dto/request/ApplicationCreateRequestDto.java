@@ -1,4 +1,4 @@
-package org.ilestegor.applicationservice.dto.request;
+package org.ilestegor.applicationservice.dirty.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;

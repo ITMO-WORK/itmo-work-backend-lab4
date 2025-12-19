@@ -1,4 +1,4 @@
-package org.ilestegor.applicationservice.configuration;
+package org.ilestegor.applicationservice.dirty.configuration;
 
 import feign.codec.Encoder;
 import feign.form.spring.SpringFormEncoder;

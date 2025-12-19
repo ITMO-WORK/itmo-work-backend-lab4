@@ -1,4 +1,4 @@
-package org.ilestegor.applicationservice.model;
+package org.ilestegor.applicationservice.dirty.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

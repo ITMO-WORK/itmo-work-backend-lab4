@@ -1,4 +1,4 @@
-package org.ilestegor.applicationservice.infrastructure.kafka.dto.events;
+package org.ilestegor.applicationservice.dirty.infrastructure.kafka.dto.events;
 
 import java.util.UUID;
 

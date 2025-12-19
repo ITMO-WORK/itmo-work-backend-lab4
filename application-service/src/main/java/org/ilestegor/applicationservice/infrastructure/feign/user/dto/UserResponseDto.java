@@ -1,4 +1,4 @@
-package org.ilestegor.applicationservice.infrastructure.feign.user.dto;
+package org.ilestegor.applicationservice.dirty.infrastructure.feign.user.dto;
 
 import java.util.UUID;
 

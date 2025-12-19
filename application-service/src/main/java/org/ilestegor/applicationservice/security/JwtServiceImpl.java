@@ -1,10 +1,10 @@
-package org.ilestegor.applicationservice.security;
+package org.ilestegor.applicationservice.dirty.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
-import org.ilestegor.applicationservice.security.interfaces.JwtService;
+import org.ilestegor.applicationservice.dirty.security.interfaces.JwtService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;

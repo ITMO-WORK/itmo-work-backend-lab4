@@ -1,18 +1,11 @@
-package org.ilestegor.applicationservice.configuration;
+package org.ilestegor.applicationservice.dirty.configuration;
 
-import feign.Logger;
-import feign.codec.Encoder;
-import feign.form.spring.SpringFormEncoder;
 import lombok.RequiredArgsConstructor;
-import org.ilestegor.applicationservice.configuration.filters.JwtFilter;
-import org.ilestegor.applicationservice.configuration.handler.CustomAccessDeniedHandler;
-import org.ilestegor.applicationservice.configuration.handler.CustomAuthenticationEntryPointHandler;
-import org.springframework.beans.factory.ObjectFactory;
-import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
-import org.springframework.cloud.openfeign.support.SpringEncoder;
+import org.ilestegor.applicationservice.dirty.configuration.filters.JwtFilter;
+import org.ilestegor.applicationservice.dirty.configuration.handler.CustomAccessDeniedHandler;
+import org.ilestegor.applicationservice.dirty.configuration.handler.CustomAuthenticationEntryPointHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;

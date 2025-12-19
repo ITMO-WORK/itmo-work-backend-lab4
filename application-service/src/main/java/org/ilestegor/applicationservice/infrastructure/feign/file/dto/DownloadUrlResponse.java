@@ -1,3 +1,3 @@
-package org.ilestegor.applicationservice.infrastructure.feign.file.dto;
+package org.ilestegor.applicationservice.dirty.infrastructure.feign.file.dto;
 
 public record DownloadUrlResponse(String url) {}

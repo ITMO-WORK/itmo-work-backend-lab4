@@ -1,4 +1,4 @@
-package org.ilestegor.applicationservice.infrastructure.kafka.common.producer;
+package org.ilestegor.applicationservice.dirty.infrastructure.kafka.common.producer;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;

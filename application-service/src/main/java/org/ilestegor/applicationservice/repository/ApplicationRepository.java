@@ -1,6 +1,6 @@
-package org.ilestegor.applicationservice.repository;
+package org.ilestegor.applicationservice.dirty.repository;
 
-import org.ilestegor.applicationservice.model.Application;
+import org.ilestegor.applicationservice.dirty.model.Application;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.query.Param;

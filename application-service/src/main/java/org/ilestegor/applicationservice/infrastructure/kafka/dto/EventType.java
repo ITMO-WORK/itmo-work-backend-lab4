@@ -1,4 +1,4 @@
-package org.ilestegor.applicationservice.infrastructure.kafka.dto;
+package org.ilestegor.applicationservice.dirty.infrastructure.kafka.dto;
 
 import lombok.Data;
 import lombok.Getter;

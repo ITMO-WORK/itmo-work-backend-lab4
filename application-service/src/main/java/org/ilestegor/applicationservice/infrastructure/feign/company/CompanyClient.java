@@ -1,4 +1,4 @@
-package org.ilestegor.applicationservice.infrastructure.feign.company;
+package org.ilestegor.applicationservice.dirty.infrastructure.feign.company;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.HttpHeaders;

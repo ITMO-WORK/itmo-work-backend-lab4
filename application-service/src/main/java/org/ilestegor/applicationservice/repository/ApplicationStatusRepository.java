@@ -1,8 +1,8 @@
-package org.ilestegor.applicationservice.repository;
+package org.ilestegor.applicationservice.dirty.repository;
 
 
-import org.ilestegor.applicationservice.model.ApplicationStatus;
-import org.ilestegor.applicationservice.model.ApplicationStatusName;
+import org.ilestegor.applicationservice.dirty.model.ApplicationStatus;
+import org.ilestegor.applicationservice.dirty.model.ApplicationStatusName;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import reactor.core.publisher.Mono;
 

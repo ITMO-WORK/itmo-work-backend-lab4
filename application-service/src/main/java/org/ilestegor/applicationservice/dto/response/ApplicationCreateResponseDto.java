@@ -1,4 +1,4 @@
-package org.ilestegor.applicationservice.dto.response;
+package org.ilestegor.applicationservice.dirty.dto.response;
 import java.time.LocalDateTime;
 import java.util.UUID;
 

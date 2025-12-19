@@ -1,4 +1,4 @@
-package org.ilestegor.applicationservice.configuration.filters;
+package org.ilestegor.applicationservice.dirty.configuration.filters;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;

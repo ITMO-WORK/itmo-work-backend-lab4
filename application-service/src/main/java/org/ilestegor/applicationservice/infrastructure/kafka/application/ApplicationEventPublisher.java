@@ -1,6 +1,6 @@
-package org.ilestegor.applicationservice.infrastructure.kafka.application;
+package org.ilestegor.applicationservice.dirty.infrastructure.kafka.application;
 
-import org.ilestegor.applicationservice.infrastructure.kafka.dto.events.ApplicationStatusChangeEvent;
+import org.ilestegor.applicationservice.dirty.infrastructure.kafka.dto.events.ApplicationStatusChangeEvent;
 import reactor.core.publisher.Mono;
 
 public interface ApplicationEventPublisher {

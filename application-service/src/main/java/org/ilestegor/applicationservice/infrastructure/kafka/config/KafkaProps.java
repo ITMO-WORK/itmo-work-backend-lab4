@@ -1,4 +1,4 @@
-package org.ilestegor.applicationservice.infrastructure.kafka.config;
+package org.ilestegor.applicationservice.dirty.infrastructure.kafka.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

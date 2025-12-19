@@ -1,14 +1,13 @@
-package org.ilestegor.applicationservice.exception;
+package org.ilestegor.applicationservice.dirty.exception;
 
+import org.ilestegor.applicationservice.dirty.exception.exceptions.*;
 import org.ilestegor.applicationservice.exception.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.reactive.result.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.server.ServerWebExchange;
 
 @RestControllerAdvice

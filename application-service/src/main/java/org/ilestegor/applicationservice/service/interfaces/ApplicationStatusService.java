@@ -1,7 +1,7 @@
-package org.ilestegor.applicationservice.service.interfaces;
+package org.ilestegor.applicationservice.dirty.service.interfaces;
 
-import org.ilestegor.applicationservice.model.ApplicationStatus;
-import org.ilestegor.applicationservice.model.ApplicationStatusName;
+import org.ilestegor.applicationservice.dirty.model.ApplicationStatus;
+import org.ilestegor.applicationservice.dirty.model.ApplicationStatusName;
 import reactor.core.publisher.Mono;
 
 public interface ApplicationStatusService {

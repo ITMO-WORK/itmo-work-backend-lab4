@@ -1,4 +1,4 @@
-package org.ilestegor.applicationservice.infrastructure.feign.file.config;
+package org.ilestegor.applicationservice.dirty.infrastructure.feign.file.config;
 
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;

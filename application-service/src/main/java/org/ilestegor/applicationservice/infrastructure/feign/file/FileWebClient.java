@@ -1,11 +1,10 @@
-package org.ilestegor.applicationservice.infrastructure.feign.file;
+package org.ilestegor.applicationservice.dirty.infrastructure.feign.file;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
-import org.ilestegor.applicationservice.infrastructure.feign.file.dto.DownloadUrlResponse;
-import org.ilestegor.applicationservice.infrastructure.feign.file.dto.UploadRequest;
-import org.ilestegor.applicationservice.infrastructure.feign.file.dto.UploadResumeResponse;
+import org.ilestegor.applicationservice.dirty.infrastructure.feign.file.dto.DownloadUrlResponse;
+import org.ilestegor.applicationservice.dirty.infrastructure.feign.file.dto.UploadRequest;
+import org.ilestegor.applicationservice.dirty.infrastructure.feign.file.dto.UploadResumeResponse;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;

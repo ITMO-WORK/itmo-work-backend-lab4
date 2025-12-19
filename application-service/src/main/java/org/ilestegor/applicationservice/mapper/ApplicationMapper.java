@@ -1,8 +1,8 @@
-package org.ilestegor.applicationservice.mapper;
+package org.ilestegor.applicationservice.dirty.mapper;
 
-import org.ilestegor.applicationservice.dto.ApplicationDto;
-import org.ilestegor.applicationservice.dto.request.ApplicationCreateRequestDto;
-import org.ilestegor.applicationservice.model.Application;
+import org.ilestegor.applicationservice.dirty.dto.ApplicationDto;
+import org.ilestegor.applicationservice.dirty.dto.request.ApplicationCreateRequestDto;
+import org.ilestegor.applicationservice.dirty.model.Application;
 import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")

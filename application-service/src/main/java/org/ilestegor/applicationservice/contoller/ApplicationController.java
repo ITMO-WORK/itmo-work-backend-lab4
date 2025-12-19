@@ -1,4 +1,4 @@
-package org.ilestegor.applicationservice.contoller;
+package org.ilestegor.applicationservice.dirty.contoller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -6,25 +6,21 @@ import io.swagger.v3.oas.annotations.media.Encoding;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.ilestegor.applicationservice.dto.ApplicationDto;
-import org.ilestegor.applicationservice.dto.request.ApplicationCreateRequestDto;
-import org.ilestegor.applicationservice.dto.request.ApplicationStatusUpdateRequestDto;
-import org.ilestegor.applicationservice.dto.response.ApplicationCreateResponseDto;
-import org.ilestegor.applicationservice.dto.response.ApplicationStatusUpdateResponseDto;
-import org.ilestegor.applicationservice.model.Application;
-import org.ilestegor.applicationservice.service.interfaces.ApplicationService;
+import org.ilestegor.applicationservice.dirty.dto.ApplicationDto;
+import org.ilestegor.applicationservice.dirty.dto.request.ApplicationCreateRequestDto;
+import org.ilestegor.applicationservice.dirty.dto.request.ApplicationStatusUpdateRequestDto;
+import org.ilestegor.applicationservice.dirty.dto.response.ApplicationCreateResponseDto;
+import org.ilestegor.applicationservice.dirty.dto.response.ApplicationStatusUpdateResponseDto;
+import org.ilestegor.applicationservice.dirty.service.interfaces.ApplicationService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;

@@ -1,13 +1,13 @@
-package org.ilestegor.applicationservice.infrastructure.kafka.application.impl;
+package org.ilestegor.applicationservice.dirty.infrastructure.kafka.application.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.ilestegor.applicationservice.infrastructure.kafka.application.ApplicationEventPublisher;
-import org.ilestegor.applicationservice.infrastructure.kafka.common.producer.KafkaProducer;
-import org.ilestegor.applicationservice.infrastructure.kafka.config.KafkaProps;
-import org.ilestegor.applicationservice.infrastructure.kafka.dto.EventMessage;
-import org.ilestegor.applicationservice.infrastructure.kafka.dto.EventType;
-import org.ilestegor.applicationservice.infrastructure.kafka.dto.events.ApplicationStatusChangeEvent;
+import org.ilestegor.applicationservice.dirty.infrastructure.kafka.application.ApplicationEventPublisher;
+import org.ilestegor.applicationservice.dirty.infrastructure.kafka.common.producer.KafkaProducer;
+import org.ilestegor.applicationservice.dirty.infrastructure.kafka.config.KafkaProps;
+import org.ilestegor.applicationservice.dirty.infrastructure.kafka.dto.EventMessage;
+import org.ilestegor.applicationservice.dirty.infrastructure.kafka.dto.EventType;
+import org.ilestegor.applicationservice.dirty.infrastructure.kafka.dto.events.ApplicationStatusChangeEvent;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 

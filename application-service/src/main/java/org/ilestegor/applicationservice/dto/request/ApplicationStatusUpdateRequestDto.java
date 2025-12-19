@@ -1,6 +1,6 @@
-package org.ilestegor.applicationservice.dto.request;
+package org.ilestegor.applicationservice.dirty.dto.request;
 
-import org.ilestegor.applicationservice.model.ApplicationStatusName;
+import org.ilestegor.applicationservice.dirty.model.ApplicationStatusName;
 
 public record ApplicationStatusUpdateRequestDto(
         ApplicationStatusName applicationStatusName

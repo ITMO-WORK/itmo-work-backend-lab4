@@ -1,4 +1,4 @@
-package org.ilestegor.applicationservice.configuration;
+package org.ilestegor.applicationservice.dirty.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;

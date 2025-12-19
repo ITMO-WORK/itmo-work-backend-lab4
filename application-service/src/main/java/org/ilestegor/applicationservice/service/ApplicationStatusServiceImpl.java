@@ -1,10 +1,10 @@
-package org.ilestegor.applicationservice.service;
+package org.ilestegor.applicationservice.dirty.service;
 
 import lombok.RequiredArgsConstructor;
-import org.ilestegor.applicationservice.model.ApplicationStatus;
-import org.ilestegor.applicationservice.model.ApplicationStatusName;
-import org.ilestegor.applicationservice.repository.ApplicationStatusRepository;
-import org.ilestegor.applicationservice.service.interfaces.ApplicationStatusService;
+import org.ilestegor.applicationservice.dirty.model.ApplicationStatus;
+import org.ilestegor.applicationservice.dirty.model.ApplicationStatusName;
+import org.ilestegor.applicationservice.dirty.repository.ApplicationStatusRepository;
+import org.ilestegor.applicationservice.dirty.service.interfaces.ApplicationStatusService;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 

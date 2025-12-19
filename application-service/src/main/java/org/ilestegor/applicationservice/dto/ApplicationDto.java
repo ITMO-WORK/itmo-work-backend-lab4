@@ -1,4 +1,4 @@
-package org.ilestegor.applicationservice.dto;
+package org.ilestegor.applicationservice.dirty.dto;
 
 import lombok.Builder;
 

@@ -1,8 +1,6 @@
-package org.ilestegor.applicationservice.infrastructure.kafka.dto;
+package org.ilestegor.applicationservice.dirty.infrastructure.kafka.dto;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Builder;
 
 import java.time.Instant;
