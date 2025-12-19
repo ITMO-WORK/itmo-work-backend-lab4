@@ -1,12 +1,17 @@
 package org.itmo.work.fileservice.controller;
 
 
-import io.minio.*;
+import io.minio.BucketExistsArgs;
+import io.minio.MakeBucketArgs;
+import io.minio.MinioClient;
+import io.minio.PutObjectArgs;
 import org.itmo.work.fileservice.service.StorageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -16,12 +21,6 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.Duration;
-
-import io.minio.MinioClient;
-import io.minio.PutObjectArgs;
-
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,6 +35,10 @@ class FileIntegrationTest {
                     .withEnv("MINIO_ROOT_PASSWORD", "minioadmin")
                     .withCommand("server /data")
                     .withExposedPorts(9000);
+    @Autowired
+    MinioClient minioInternalClient;
+    @Autowired
+    StorageService storageService;
 
     @DynamicPropertySource
     static void overrideProps(DynamicPropertyRegistry registry) {
@@ -48,12 +51,6 @@ class FileIntegrationTest {
         registry.add("minio.bucket", () -> "files");
         registry.add("minio.presign-expiry", () -> Duration.ofMinutes(5));
     }
-
-    @Autowired
-    MinioClient minioInternalClient;
-
-    @Autowired
-    StorageService storageService;
 
     @BeforeEach
     void setup() throws Exception {

@@ -1,10 +1,10 @@
 package org.itmo.work.fileservice.service.impl;
 
 
+import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.RemoveObjectArgs;
-import io.minio.GetPresignedObjectUrlArgs;
 import org.itmo.work.fileservice.config.MinioProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

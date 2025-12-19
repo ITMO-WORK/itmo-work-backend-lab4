@@ -28,11 +28,10 @@ public class ResumeFileServiceImpl implements ResumeFileService {
     private final FileEventPublisher finalEventPublisher;
 
 
-
     @Override
     public UploadResumeResponse uploadResume(MultipartFile file, UUID replacedField, UploadRequest uploadRequest) {
         UUID actuallyReplaced = null;
-        if (replacedField != null){
+        if (replacedField != null) {
             StoredFile old = storedFileRepository.findById(replacedField)
                     .orElseThrow(() -> new IllegalArgumentException("replaced Id not found: " + replacedField));
 

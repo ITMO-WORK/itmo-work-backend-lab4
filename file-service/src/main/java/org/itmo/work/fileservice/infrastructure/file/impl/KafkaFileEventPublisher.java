@@ -9,7 +9,6 @@ import org.itmo.work.fileservice.infrastructure.dto.EventType;
 import org.itmo.work.fileservice.infrastructure.dto.events.FileUploadEvent;
 import org.itmo.work.fileservice.infrastructure.file.FileEventPublisher;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.UUID;

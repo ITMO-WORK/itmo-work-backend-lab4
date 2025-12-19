@@ -1,6 +1,7 @@
 package org.itmo.work.fileservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.minio.MinioClient;
 import org.itmo.work.fileservice.dto.request.UploadRequest;
 import org.itmo.work.fileservice.dto.response.UploadResumeResponse;
 import org.itmo.work.fileservice.service.ResumeFileService;
@@ -8,36 +9,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.mock.web.MockMultipartFile;
-
-import java.util.UUID;
-
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.itmo.work.fileservice.dto.request.UploadRequest;
-import org.itmo.work.fileservice.dto.response.UploadResumeResponse;
-import org.itmo.work.fileservice.service.ResumeFileService;
-
-import io.minio.MinioClient;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.TestPropertySource;
-
-import org.junit.jupiter.api.Test;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.UUID;

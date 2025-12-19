@@ -25,6 +25,7 @@ public class KafkaConfig {
                 .replicas(3)
                 .build();
     }
+
     @Bean
     public ProducerFactory<String, Object> producerFactory(KafkaProperties kafkaProperties, ObjectMapper objectMapper) {
         var factory = new DefaultKafkaProducerFactory<String, Object>(

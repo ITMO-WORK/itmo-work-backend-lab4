@@ -4,20 +4,14 @@ import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.RemoveObjectArgs;
-import io.minio.errors.*;
 import io.minio.http.Method;
-import lombok.RequiredArgsConstructor;
 import org.itmo.work.fileservice.config.MinioProperties;
-import org.itmo.work.fileservice.model.StoredFile;
-import org.itmo.work.fileservice.repository.StoredFileRepository;
 import org.itmo.work.fileservice.service.StorageService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.InputStream;
 import java.time.Duration;
-import java.util.UUID;
 
 @Service
 public class MinioStorageService implements StorageService {

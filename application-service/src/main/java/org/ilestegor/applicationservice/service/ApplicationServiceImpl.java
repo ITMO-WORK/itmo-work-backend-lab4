@@ -78,24 +78,19 @@ public class ApplicationServiceImpl implements ApplicationService {
                                         .switchIfEmpty(Mono.error(new ApplicationStatusNotFoundException()))
                                 )
                                 .flatMap(status ->
-                                        // 1) INSERT заявки (id null -> INSERT)
                                         saveNewApplicationEntity(user.userId(), vacancyId, dto, status.getId())
-                                                // 2) upload файла (если есть) и update fileId
                                                 .flatMap(savedApp ->
                                                         uploadResumeIfPresent(resume, replacedField, savedApp.getId(), user.userId())
                                                                 .flatMap(opt -> {
-                                                                    System.out.println(opt.get().fieldId());
                                                                     if (opt.isEmpty()) return Mono.just(savedApp);
 
                                                                     UUID fileId = opt.get().fieldId();
-                                                                    System.out.println(fileId);
                                                                     return applicationRepository
                                                                             .updateFileId(savedApp.getId(), fileId)
-                                                                            .thenReturn(savedApp); // можно не менять объект
+                                                                            .thenReturn(savedApp);
                                                                 })
-                                                                .thenReturn(savedApp) // вернуть заявку (id уже есть)
+                                                                .thenReturn(savedApp)
                                                 )
-                                                // 3) DTO в ответ
                                                 .map(savedApp -> new ApplicationCreateResponseDto(
                                                         savedApp.getId(),
                                                         status.getApplicationStatusName().getValue(),
@@ -114,7 +109,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             Long statusId
     ) {
         Application app = Application.builder()
-                .id(null)                 // ВАЖНО: null, чтобы R2DBC сделал INSERT
+                .id(null)
                 .userId(userId)
                 .vacancyId(vacancyId)
                 .coverLetter(dto.coverLetter())

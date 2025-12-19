@@ -20,7 +20,7 @@ public class MinioController {
     private final ResumeFileService resumeFileService;
 
     @PostMapping(value = "/resume", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UploadResumeResponse> uploadResume(@RequestPart("file")MultipartFile file, @RequestParam(value = "replacedField", required = false) UUID replacedField, @RequestPart("data") UploadRequest uploadRequest){
+    public ResponseEntity<UploadResumeResponse> uploadResume(@RequestPart("file") MultipartFile file, @RequestParam(value = "replacedField", required = false) UUID replacedField, @RequestPart("data") UploadRequest uploadRequest) {
         return new ResponseEntity<>(resumeFileService.uploadResume(file, replacedField, uploadRequest), HttpStatus.OK);
     }
 
