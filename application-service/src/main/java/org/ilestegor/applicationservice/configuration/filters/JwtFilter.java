@@ -1,10 +1,10 @@
-package org.ilestegor.applicationservice.dirty.configuration.filters;
+package org.ilestegor.applicationservice.configuration.filters;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.ilestegor.applicationservice.dirty.configuration.UserPrincipal;
+import org.ilestegor.applicationservice.configuration.UserPrincipal;
 import org.ilestegor.applicationservice.dirty.security.interfaces.JwtService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

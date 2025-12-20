@@ -1,7 +1,7 @@
 package org.ilestegor.applicationservice.service;
 
-import org.ilestegor.applicationservice.model.ApplicationStatus;
-import org.ilestegor.applicationservice.model.ApplicationStatusName;
+import org.ilestegor.applicationservice.domain.ApplicationStatus;
+import org.ilestegor.applicationservice.domain.ApplicationStatusName;
 import org.ilestegor.applicationservice.repository.ApplicationStatusRepository;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

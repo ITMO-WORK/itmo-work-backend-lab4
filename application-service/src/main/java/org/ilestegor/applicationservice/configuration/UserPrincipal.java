@@ -1,4 +1,4 @@
-package org.ilestegor.applicationservice.dirty.configuration;
+package org.ilestegor.applicationservice.configuration;
 
 import java.util.UUID;
 

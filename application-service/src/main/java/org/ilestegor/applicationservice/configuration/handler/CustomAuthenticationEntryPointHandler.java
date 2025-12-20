@@ -1,8 +1,8 @@
-package org.ilestegor.applicationservice.dirty.configuration.handler;
+package org.ilestegor.applicationservice.configuration.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.ilestegor.applicationservice.dirty.exception.ProblemDetailsUtils;
+import org.ilestegor.applicationservice.exception.ProblemDetailsUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;

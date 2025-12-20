@@ -1,6 +1,6 @@
-package org.ilestegor.applicationservice.dirty.exception;
+package org.ilestegor.applicationservice.exception;
 
-import org.ilestegor.applicationservice.dirty.exception.exceptions.*;
+import org.ilestegor.applicationservice.exception.exceptions.*;
 import org.ilestegor.applicationservice.exception.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;

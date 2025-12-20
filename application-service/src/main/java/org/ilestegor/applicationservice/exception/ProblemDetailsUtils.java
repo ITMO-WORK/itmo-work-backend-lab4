@@ -1,4 +1,4 @@
-package org.ilestegor.applicationservice.dirty.exception;
+package org.ilestegor.applicationservice.exception;
 
 
 import lombok.AccessLevel;

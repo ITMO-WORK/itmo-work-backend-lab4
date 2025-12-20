@@ -1,9 +1,9 @@
-package org.ilestegor.applicationservice.dirty.configuration;
+package org.ilestegor.applicationservice.configuration;
 
 import lombok.RequiredArgsConstructor;
-import org.ilestegor.applicationservice.dirty.configuration.filters.JwtFilter;
-import org.ilestegor.applicationservice.dirty.configuration.handler.CustomAccessDeniedHandler;
-import org.ilestegor.applicationservice.dirty.configuration.handler.CustomAuthenticationEntryPointHandler;
+import org.ilestegor.applicationservice.configuration.filters.JwtFilter;
+import org.ilestegor.applicationservice.configuration.handler.CustomAccessDeniedHandler;
+import org.ilestegor.applicationservice.configuration.handler.CustomAuthenticationEntryPointHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
