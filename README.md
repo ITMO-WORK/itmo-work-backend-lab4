@@ -11,7 +11,7 @@
 | company-service      | Арслан        | ❌          |
 | vacancy-service      | Маша          | ✅          |
 | application-service  | Егор          | ✅          |
-| file-service         | Егор          | ❌          |
+| file-service         | Егор          | ✅          |
 | notification-service | Арслан        | ❌          |
 
 ### 2. Добавить обработку ошибок в file-service и application-service 
