@@ -7,7 +7,7 @@
 
 | Сервис               | Ответственный | Готовность  |
 |----------------------|---------------|-------------|
-| user-service         | Маша          | ❌          |
+| user-service         | Маша          | ✅          |
 | company-service      | Арслан        | ✅          |
 | vacancy-service      | Маша          | ✅          |
 | application-service  | Егор          | ✅          |
