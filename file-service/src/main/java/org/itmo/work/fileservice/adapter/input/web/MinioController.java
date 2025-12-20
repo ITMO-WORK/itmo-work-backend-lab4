@@ -15,22 +15,22 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/files")
+@RequestMapping("/api/file")
 @RequiredArgsConstructor
 public class MinioController {
     private final UploadResumePort uploadResume;
     private final GetResumeFilePort getDownloadUrl;
 
     @PostMapping(value = "/resume", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UploadResumeResponse> uploadResume(@RequestPart("file") MultipartFile file, @RequestParam(value = "replacedField", required = false) UUID replacedField, @RequestPart("data") UploadResumeRequest uploadRequest) {
+    public ResponseEntity<UploadResumeResponse> uploadResume(@RequestPart("file") MultipartFile file, @RequestParam(value = "applicationId", required = false) UUID applicationId) {
 
-        return new ResponseEntity<>(uploadResume.uploadResume(file, replacedField, uploadRequest), HttpStatus.OK);
+        return new ResponseEntity<>(uploadResume.uploadResume(file, applicationId), HttpStatus.OK);
     }
 
-    @GetMapping(value = "/resume/{id}")
-    public ResponseEntity<Map<String, String>> getDownloadUrl(@PathVariable UUID id) {
+    @GetMapping(value = "/resume/{applicationId}")
+    public ResponseEntity<Map<String, String>> getDownloadUrl(@PathVariable UUID applicationId) {
 
-        String url = getDownloadUrl.getDownloadUrl(id);
+        String url = getDownloadUrl.getDownloadUrl(applicationId);
 
         return ResponseEntity.ok(
                 Map.of("url", url)

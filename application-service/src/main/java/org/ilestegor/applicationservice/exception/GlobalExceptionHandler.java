@@ -78,4 +78,10 @@ public class GlobalExceptionHandler {
         ProblemDetail body = ProblemDetailsUtils.problemDetail(HttpStatus.BAD_REQUEST, "Resume not found", ex.getMessage(), exchange);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
+
+    @ExceptionHandler(IllegalJsonFormatException.class)
+    public ResponseEntity<ProblemDetail> illegalJsonFormatExceptionHandler(IllegalJsonFormatException ex, ServerWebExchange request){
+        ProblemDetail body = ProblemDetailsUtils.problemDetail(HttpStatus.BAD_REQUEST, "Not valid JSON format", "", request);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
 }

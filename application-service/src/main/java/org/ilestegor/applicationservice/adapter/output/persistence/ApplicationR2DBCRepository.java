@@ -60,4 +60,14 @@ public class ApplicationR2DBCRepository implements ApplicationRepositoryPort {
     public Mono<Application> save(Application application) {
         return applicationRepository.save(application);
     }
+
+    @Override
+    public Mono<Void> updateFileIdByApplicationId(UUID applicationId, UUID fileId) {
+        return applicationRepository.updateFileIdById(applicationId, fileId);
+    }
+
+    @Override
+    public Mono<UUID> findApplicationIdByUserId(UUID userId) {
+        return applicationRepository.findApplicationByUserId(userId);
+    }
 }
