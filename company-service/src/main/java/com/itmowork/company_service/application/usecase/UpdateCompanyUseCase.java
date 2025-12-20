@@ -6,6 +6,7 @@ import com.itmowork.company_service.application.port.in.UpdateCompanyPort;
 import com.itmowork.company_service.application.port.out.CompanyRepositoryPort;
 import com.itmowork.company_service.application.port.out.UserCompanyRepositoryPort;
 import com.itmowork.company_service.configuration.UserPrincipal;
+import com.itmowork.company_service.domain.exception.exceptions.CompanyNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
@@ -28,11 +29,11 @@ public class UpdateCompanyUseCase implements UpdateCompanyPort {
                         userCompanyRepositoryPort.validateCompanyOwnership(id, userId)
                                 .filter(Boolean::booleanValue)
                                 .switchIfEmpty(Mono.error(
-                                        new com.itmowork.company_service.domain.model.exception.exceptions.CompanyNotFoundException("Компания не принадлежит пользователю")
+                                        new CompanyNotFoundException("Компания не принадлежит пользователю")
                                 ))
                                 .flatMap(valid -> companyRepositoryPort.findCompanyById(id))
                                 .switchIfEmpty(Mono.error(
-                                        new com.itmowork.company_service.domain.model.exception.exceptions.CompanyNotFoundException("Компания не найдена")
+                                        new CompanyNotFoundException("Компания не найдена")
                                 ))
                                 .flatMap(company -> {
 

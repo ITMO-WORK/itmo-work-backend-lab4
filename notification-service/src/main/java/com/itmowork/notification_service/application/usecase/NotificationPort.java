@@ -1,9 +1,9 @@
-package com.itmowork.notification_service.service;
+package com.itmowork.notification_service.application.usecase;
 
-import com.itmowork.notification_service.dto.event.application.ApplicationStatusUpdateEvent;
-import com.itmowork.notification_service.dto.event.file.ResumeUploadEvent;
-import com.itmowork.notification_service.dto.event.vacancy.VacancyStatusChangeEvent;
-import com.itmowork.notification_service.dto.notification.NotificationDto;
+import com.itmowork.notification_service.adapter.out.kafka.dto.event.application.ApplicationStatusUpdateEvent;
+import com.itmowork.notification_service.adapter.out.kafka.dto.event.file.ResumeUploadEvent;
+import com.itmowork.notification_service.adapter.out.kafka.dto.event.vacancy.VacancyStatusChangeEvent;
+import com.itmowork.notification_service.adapter.out.kafka.dto.notification.NotificationDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -12,11 +12,11 @@ import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
-public class NotificationService {
+public class NotificationPort implements com.itmowork.notification_service.application.port.NotificationPort {
 
     private final SimpMessagingTemplate messagingTemplate;
 
-
+    @Override
     public void notifyApplicationStatusUpdated(ApplicationStatusUpdateEvent event) {
 
         String message = String.format(
@@ -38,6 +38,7 @@ public class NotificationService {
         );
     }
 
+    @Override
     public void notifyVacancyStatusUpdated(VacancyStatusChangeEvent event) {
        String message = String.format(
                 "Статус вашей вакансии изменён: %s → %s",
@@ -57,6 +58,7 @@ public class NotificationService {
          );
     }
 
+    @Override
     public void notifyResumeUploaded(ResumeUploadEvent event) {
         String message = String.format(
                 "Ваше резюме %s было успешно загружено",

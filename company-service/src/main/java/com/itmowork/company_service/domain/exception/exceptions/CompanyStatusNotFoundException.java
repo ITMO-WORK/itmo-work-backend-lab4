@@ -1,4 +1,4 @@
-package com.itmowork.company_service.domain.model.exception.exceptions;
+package com.itmowork.company_service.domain.exception.exceptions;
 
 public class CompanyStatusNotFoundException extends RuntimeException{
 

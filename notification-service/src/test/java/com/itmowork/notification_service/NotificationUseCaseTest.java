@@ -1,10 +1,10 @@
 package com.itmowork.notification_service;
 
-import com.itmowork.notification_service.dto.event.application.ApplicationStatusUpdateEvent;
-import com.itmowork.notification_service.dto.event.file.ResumeUploadEvent;
-import com.itmowork.notification_service.dto.event.vacancy.VacancyStatusChangeEvent;
-import com.itmowork.notification_service.dto.notification.NotificationDto;
-import com.itmowork.notification_service.service.NotificationService;
+import com.itmowork.notification_service.adapter.out.kafka.dto.event.application.ApplicationStatusUpdateEvent;
+import com.itmowork.notification_service.adapter.out.kafka.dto.event.file.ResumeUploadEvent;
+import com.itmowork.notification_service.adapter.out.kafka.dto.event.vacancy.VacancyStatusChangeEvent;
+import com.itmowork.notification_service.adapter.out.kafka.dto.notification.NotificationDto;
+import com.itmowork.notification_service.application.usecase.NotificationPort;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -21,13 +21,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(MockitoExtension.class)
-class NotificationServiceTest {
+class NotificationUseCaseTest {
 
     @Mock
     private SimpMessagingTemplate messagingTemplate;
 
     @InjectMocks
-    private NotificationService notificationService;
+    private NotificationPort notificationUseCase;
 
     @Test
     void shouldSendApplicationStatusUpdateNotification() {
@@ -40,7 +40,7 @@ class NotificationServiceTest {
                 "ACCEPTED"
         );
 
-        notificationService.notifyApplicationStatusUpdated(event);
+        notificationUseCase.notifyApplicationStatusUpdated(event);
 
         ArgumentCaptor<NotificationDto> captor =
                 ArgumentCaptor.forClass(NotificationDto.class);
@@ -66,7 +66,7 @@ class NotificationServiceTest {
                 "PUBLISHED"
         );
 
-        notificationService.notifyVacancyStatusUpdated(event);
+        notificationUseCase.notifyVacancyStatusUpdated(event);
 
         verify(messagingTemplate).convertAndSend(
                 eq("/topic/notifications/vacancy/" + event.vacancyId()),
@@ -84,7 +84,7 @@ class NotificationServiceTest {
                 Instant.now()
         );
 
-        notificationService.notifyResumeUploaded(event);
+        notificationUseCase.notifyResumeUploaded(event);
 
         ArgumentCaptor<NotificationDto> captor =
                 ArgumentCaptor.forClass(NotificationDto.class);

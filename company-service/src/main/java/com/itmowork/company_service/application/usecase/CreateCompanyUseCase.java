@@ -9,10 +9,15 @@ import com.itmowork.company_service.application.port.out.CompanyRepositoryPort;
 import com.itmowork.company_service.application.port.out.CompanyStatusRepositoryPort;
 import com.itmowork.company_service.application.port.out.UserCompanyRepositoryPort;
 import com.itmowork.company_service.application.port.out.UserPort;
+import com.itmowork.company_service.domain.exception.exceptions.CompanyAlreadyExistsException;
+import com.itmowork.company_service.domain.exception.exceptions.UserClientException;
 import com.itmowork.company_service.domain.model.Company;
 import com.itmowork.company_service.domain.model.CompanyStatus;
 import com.itmowork.company_service.domain.model.CompanyStatusName;
 import com.itmowork.company_service.domain.model.UserCompany;
+import feign.FeignException;
+import feign.RetryableException;
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.reactor.circuitbreaker.operator.CircuitBreakerOperator;
@@ -39,7 +44,7 @@ public class CreateCompanyUseCase implements CreateCompanyPort {
         return companyRepositoryPort.existsByEmail(companyRequestDto.email())
                 .flatMap(isExists -> {
                             if(isExists){
-                                return Mono.error(new com.itmowork.company_service.domain.model.exception.exceptions.CompanyAlreadyExistsException("Компания с таким email уже существует"));
+                                return Mono.error(new CompanyAlreadyExistsException("Компания с таким email уже существует"));
                             }
                             Mono<CompanyStatus> companyStatusMono = companyStatusRepositoryPort.
                                     findCompanyStatusByCompanyStatusName(CompanyStatusName.PENDING_VERIFICATION);
@@ -99,7 +104,7 @@ public class CreateCompanyUseCase implements CreateCompanyPort {
         );
     }
 
-    public Mono<UserResponseDto> createRemoteUser(UserRequestDto userRequestDto){
+    public Mono<UserResponseDto> createRemoteUser(UserRequestDto userRequestDto) {
         return Mono.deferContextual(ctx -> {
             String token = ctx.getOrDefault("authToken", null);
 
@@ -112,14 +117,45 @@ public class CreateCompanyUseCase implements CreateCompanyPort {
                     })
                     .subscribeOn(Schedulers.boundedElastic())
                     .transformDeferred(CircuitBreakerOperator.of(cb))
-                    .onErrorResume(e -> createUserFallback(userRequestDto, e));
+                    .onErrorResume(e -> {
+
+
+                        if (e instanceof FeignException fe) {
+                            return Mono.error(mapFeignException(fe));
+                        }
+
+
+                        if (isInfrastructureError(e)) {
+                            return createUserFallback(userRequestDto, e);
+                        }
+
+
+                        return Mono.error(e);
+                    });
+
         });
     }
 
     public Mono<UserResponseDto> createUserFallback(UserRequestDto dto, Throwable e) {
-        return Mono.error(new com.itmowork.company_service.domain.model.exception.exceptions.UserClientException(
+        return Mono.error(new UserClientException(
                 "User service сейчас не доступен, создание юзера невозможно",
                 HttpStatus.SERVICE_UNAVAILABLE
         ));
+    }
+
+    private boolean isInfrastructureError(Throwable e) {
+        return e instanceof RetryableException
+                || e instanceof CallNotPermittedException;
+    }
+
+    private RuntimeException mapFeignException(FeignException e) {
+        HttpStatus status = HttpStatus.resolve(e.status());
+
+        String message = e.contentUTF8();
+        if (message == null || message.isBlank()) {
+            message = "Ошибка user сервиса";
+        }
+
+        return new UserClientException(message, status != null ? status : HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

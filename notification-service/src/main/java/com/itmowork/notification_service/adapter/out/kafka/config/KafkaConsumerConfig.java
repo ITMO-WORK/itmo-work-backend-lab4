@@ -1,7 +1,7 @@
-package com.itmowork.notification_service.config;
+package com.itmowork.notification_service.adapter.out.kafka.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itmowork.notification_service.dto.event.EventMessage;
+import com.itmowork.notification_service.adapter.out.kafka.dto.event.EventMessage;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;

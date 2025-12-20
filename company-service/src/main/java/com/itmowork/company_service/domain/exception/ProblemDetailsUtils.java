@@ -1,4 +1,4 @@
-package com.itmowork.company_service.domain.model.exception;
+package com.itmowork.company_service.domain.exception;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

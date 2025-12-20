@@ -1,4 +1,4 @@
-package com.itmowork.company_service.domain.model.exception.exceptions;
+package com.itmowork.company_service.domain.exception.exceptions;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

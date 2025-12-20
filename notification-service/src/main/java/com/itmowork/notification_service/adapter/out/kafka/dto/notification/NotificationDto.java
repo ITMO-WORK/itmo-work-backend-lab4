@@ -1,4 +1,4 @@
-package com.itmowork.notification_service.dto.notification;
+package com.itmowork.notification_service.adapter.out.kafka.dto.notification;
 
 import java.time.Instant;
 

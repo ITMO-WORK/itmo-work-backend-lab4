@@ -1,4 +1,4 @@
-package com.itmowork.notification_service.dto.event.file;
+package com.itmowork.notification_service.adapter.out.kafka.dto.event.file;
 
 import java.time.Instant;
 import java.util.UUID;

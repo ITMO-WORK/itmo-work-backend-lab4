@@ -4,11 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.itmowork.notification_service.dto.event.EventMessage;
-import com.itmowork.notification_service.dto.event.EventType;
-import com.itmowork.notification_service.dto.event.file.ResumeUploadEvent;
-import com.itmowork.notification_service.kafka.file.FileEventListener;
-import com.itmowork.notification_service.service.NotificationService;
+import com.itmowork.notification_service.adapter.out.kafka.dto.event.EventMessage;
+import com.itmowork.notification_service.adapter.out.kafka.dto.event.EventType;
+import com.itmowork.notification_service.adapter.out.kafka.dto.event.file.ResumeUploadEvent;
+import com.itmowork.notification_service.adapter.out.kafka.listener.file.FileEventListener;
+import com.itmowork.notification_service.application.usecase.NotificationPort;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -27,7 +27,7 @@ import static org.mockito.Mockito.*;
 class FileEventListenerTest {
 
     @Mock
-    private NotificationService notificationService;
+    private NotificationPort notificationUseCase;
 
     @Mock
     private ObjectMapper objectMapper;
@@ -57,7 +57,7 @@ class FileEventListenerTest {
         assertThat(exception.getMessage())
                 .isEqualTo("Cannot parse payload");
 
-        verify(notificationService, never())
+        verify(notificationUseCase, never())
                 .notifyResumeUploaded(any());
     }
 
@@ -88,7 +88,7 @@ class FileEventListenerTest {
 
         listener.listen(message);
 
-        verify(notificationService)
+        verify(notificationUseCase)
                 .notifyResumeUploaded(payload);
     }
 
@@ -103,7 +103,7 @@ class FileEventListenerTest {
 
         listener.listen(message);
 
-        verify(notificationService, never())
+        verify(notificationUseCase, never())
                 .notifyResumeUploaded(any());
     }
 

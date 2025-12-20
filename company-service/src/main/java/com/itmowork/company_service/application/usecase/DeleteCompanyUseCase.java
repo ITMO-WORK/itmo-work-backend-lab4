@@ -5,6 +5,7 @@ import com.itmowork.company_service.application.port.in.DeleteCompanyPort;
 import com.itmowork.company_service.application.port.out.CompanyRepositoryPort;
 import com.itmowork.company_service.application.port.out.UserCompanyRepositoryPort;
 import com.itmowork.company_service.configuration.UserPrincipal;
+import com.itmowork.company_service.domain.exception.exceptions.CompanyNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
@@ -25,7 +26,7 @@ public class DeleteCompanyUseCase implements DeleteCompanyPort {
                 .flatMap(userId -> userCompanyRepositoryPort.validateCompanyOwnership(id, userId))
                 .filter(Boolean::booleanValue)
                 .switchIfEmpty(
-                        Mono.error(new com.itmowork.company_service.domain.model.exception.exceptions.CompanyNotFoundException(
+                        Mono.error(new CompanyNotFoundException(
                                 "Компания с таким пользователем не найдена"
                         )))
                 .flatMap(valid -> companyRepositoryPort.findCompanyById(id))

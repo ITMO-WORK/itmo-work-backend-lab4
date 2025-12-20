@@ -1,6 +1,7 @@
 package com.itmowork.company_service.adapter.out.persistence;
 
 import com.itmowork.company_service.application.port.out.CompanyStatusRepositoryPort;
+import com.itmowork.company_service.domain.exception.exceptions.CompanyStatusNotFoundException;
 import com.itmowork.company_service.domain.model.CompanyStatus;
 import com.itmowork.company_service.domain.model.CompanyStatusName;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ public class CompanyStatusRepositoryAdapter implements CompanyStatusRepositoryPo
     public Mono<CompanyStatus> findCompanyStatusByCompanyStatusName(CompanyStatusName companyStatusName) {
         return r2dbcCompanyStatusRepository.findByStatus(companyStatusName)
                 .switchIfEmpty(
-                        Mono.error(new com.itmowork.company_service.domain.model.exception.exceptions.CompanyStatusNotFoundException("Компания с таким статусом не найдена"))
+                        Mono.error(new CompanyStatusNotFoundException("Компания с таким статусом не найдена"))
                 );
     }
 }

@@ -1,4 +1,4 @@
-package com.itmowork.notification_service.dto.event.application;
+package com.itmowork.notification_service.adapter.out.kafka.dto.event.application;
 
 import java.util.UUID;
 

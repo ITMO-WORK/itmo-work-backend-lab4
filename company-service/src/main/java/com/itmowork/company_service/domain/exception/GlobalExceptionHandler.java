@@ -1,9 +1,9 @@
-package com.itmowork.company_service.domain.model.exception;
+package com.itmowork.company_service.domain.exception;
 
-import com.itmowork.company_service.domain.model.exception.exceptions.CompanyAlreadyExistsException;
-import com.itmowork.company_service.domain.model.exception.exceptions.CompanyNotFoundException;
-import com.itmowork.company_service.domain.model.exception.exceptions.CompanyStatusNotFoundException;
-import com.itmowork.company_service.domain.model.exception.exceptions.UserClientException;
+import com.itmowork.company_service.domain.exception.exceptions.CompanyAlreadyExistsException;
+import com.itmowork.company_service.domain.exception.exceptions.CompanyNotFoundException;
+import com.itmowork.company_service.domain.exception.exceptions.CompanyStatusNotFoundException;
+import com.itmowork.company_service.domain.exception.exceptions.UserClientException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;

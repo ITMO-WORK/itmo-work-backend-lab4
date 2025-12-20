@@ -1,11 +1,11 @@
-package com.itmowork.notification_service.kafka.file;
+package com.itmowork.notification_service.adapter.out.kafka.listener.vacancy;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itmowork.notification_service.dto.event.EventMessage;
-import com.itmowork.notification_service.dto.event.EventType;
-import com.itmowork.notification_service.dto.event.file.ResumeUploadEvent;
-import com.itmowork.notification_service.service.NotificationService;
+import com.itmowork.notification_service.adapter.out.kafka.dto.event.EventMessage;
+import com.itmowork.notification_service.adapter.out.kafka.dto.event.EventType;
+import com.itmowork.notification_service.adapter.out.kafka.dto.event.vacancy.VacancyStatusChangeEvent;
+import com.itmowork.notification_service.application.usecase.NotificationPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -14,14 +14,14 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class FileEventListener {
+public class VacancyEventListener {
 
-    private final NotificationService notificationService;
+    private final NotificationPort notificationPort;
     private final ObjectMapper objectMapper;
 
 
     @KafkaListener(
-            topics = "files.events",
+            topics = "vacancy.events",
             groupId = "notification.service"
     )
     public void listen(EventMessage message) {
@@ -29,11 +29,11 @@ public class FileEventListener {
         log.info("Received event: type={}, id={}",
                 message.eventType(), message.eventId());
 
-        if (message.eventType() == EventType.RESUME_UPLOAD_EVENT) {
+        if (message.eventType() == EventType.VACANCY_STATUS_CHANGE) {
 
-            ResumeUploadEvent payload = parsePayload(message, ResumeUploadEvent.class);
+            VacancyStatusChangeEvent payload = parsePayload(message, VacancyStatusChangeEvent.class);
 
-            notificationService.notifyResumeUploaded(payload);
+            notificationPort.notifyVacancyStatusUpdated(payload);
         }
     }
 

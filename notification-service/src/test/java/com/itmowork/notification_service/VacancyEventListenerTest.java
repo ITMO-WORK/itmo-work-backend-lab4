@@ -3,11 +3,11 @@ package com.itmowork.notification_service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.itmowork.notification_service.dto.event.EventMessage;
-import com.itmowork.notification_service.dto.event.EventType;
-import com.itmowork.notification_service.dto.event.vacancy.VacancyStatusChangeEvent;
-import com.itmowork.notification_service.kafka.vacancy.VacancyEventListener;
-import com.itmowork.notification_service.service.NotificationService;
+import com.itmowork.notification_service.adapter.out.kafka.dto.event.EventMessage;
+import com.itmowork.notification_service.adapter.out.kafka.dto.event.EventType;
+import com.itmowork.notification_service.adapter.out.kafka.dto.event.vacancy.VacancyStatusChangeEvent;
+import com.itmowork.notification_service.adapter.out.kafka.listener.vacancy.VacancyEventListener;
+import com.itmowork.notification_service.application.usecase.NotificationPort;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,7 +26,7 @@ import static org.mockito.Mockito.*;
 class VacancyEventListenerTest {
 
     @Mock
-    private NotificationService notificationService;
+    private NotificationPort notificationUseCase;
 
     @Mock
     private ObjectMapper objectMapper;
@@ -56,7 +56,7 @@ class VacancyEventListenerTest {
         assertThat(exception.getMessage())
                 .isEqualTo("Cannot parse payload");
 
-        verify(notificationService, never())
+        verify(notificationUseCase, never())
                 .notifyVacancyStatusUpdated(any());
     }
 
@@ -86,7 +86,7 @@ class VacancyEventListenerTest {
 
         listener.listen(message);
 
-        verify(notificationService)
+        verify(notificationUseCase)
                 .notifyVacancyStatusUpdated(payload);
     }
 
@@ -102,7 +102,7 @@ class VacancyEventListenerTest {
 
         listener.listen(message);
 
-        verify(notificationService, never())
+        verify(notificationUseCase, never())
                 .notifyVacancyStatusUpdated(any());
     }
 }

@@ -1,4 +1,4 @@
-package com.itmowork.notification_service.dto.event;
+package com.itmowork.notification_service.adapter.out.kafka.dto.event;
 
 import com.fasterxml.jackson.databind.JsonNode;
 

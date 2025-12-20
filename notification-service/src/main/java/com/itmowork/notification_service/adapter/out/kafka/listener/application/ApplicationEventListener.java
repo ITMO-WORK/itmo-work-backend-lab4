@@ -1,10 +1,10 @@
-package com.itmowork.notification_service.kafka.application;
+package com.itmowork.notification_service.adapter.out.kafka.listener.application;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.itmowork.notification_service.dto.event.EventMessage;
-import com.itmowork.notification_service.dto.event.EventType;
-import com.itmowork.notification_service.dto.event.application.ApplicationStatusUpdateEvent;
-import com.itmowork.notification_service.service.NotificationService;
+import com.itmowork.notification_service.adapter.out.kafka.dto.event.EventMessage;
+import com.itmowork.notification_service.adapter.out.kafka.dto.event.EventType;
+import com.itmowork.notification_service.adapter.out.kafka.dto.event.application.ApplicationStatusUpdateEvent;
+import com.itmowork.notification_service.application.port.NotificationPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @RequiredArgsConstructor
 public class ApplicationEventListener {
 
-    private final NotificationService notificationService;
+    private final NotificationPort notificationPort;
     private final ObjectMapper objectMapper;
 
 
@@ -33,7 +33,7 @@ public class ApplicationEventListener {
 
             ApplicationStatusUpdateEvent payload = parsePayload(message, ApplicationStatusUpdateEvent.class);
 
-            notificationService.notifyApplicationStatusUpdated(payload);
+            notificationPort.notifyApplicationStatusUpdated(payload);
         }
     }
 

@@ -1,4 +1,4 @@
-package com.itmowork.notification_service.dto.event.vacancy;
+package com.itmowork.notification_service.adapter.out.kafka.dto.event.vacancy;
 
 import java.util.UUID;
 
