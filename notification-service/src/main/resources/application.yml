@@ -1,0 +1,10 @@
+server:
+  port: 0
+
+spring:
+  application:
+    name: notification-service
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+  config:
+    import: configserver:${CONFIG_SERVER_URL:http://localhost:9991}
