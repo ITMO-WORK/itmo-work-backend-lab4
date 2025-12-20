@@ -1,7 +1,7 @@
 package com.itmowork.company_service.configuration.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itmowork.company_service.exception.ProblemDetailsUtils;
+import com.itmowork.company_service.domain.model.exception.ProblemDetailsUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
