@@ -1,4 +1,4 @@
-package org.ilestegor.applicationservice.dirty.security.interfaces;
+package org.ilestegor.applicationservice.security.interfaces;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;

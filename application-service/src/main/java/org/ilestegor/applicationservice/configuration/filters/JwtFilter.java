@@ -5,7 +5,7 @@ import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ilestegor.applicationservice.configuration.UserPrincipal;
-import org.ilestegor.applicationservice.dirty.security.interfaces.JwtService;
+import org.ilestegor.applicationservice.security.interfaces.JwtService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 public class JwtFilter implements WebFilter {
 
     private final JwtService jwtService;
+
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
