@@ -45,3 +45,76 @@
 | application-service  | Егор          | ❌          |
 | file-service         | Егор          | ❌          |
 | notification-service | Арслан        | ❌          |
+
+# Json-форматы 
+## vacancy-response: 
+
+### 1. GET /api/vacancies/{id}/exists
+
+```
+{
+  "vacancy_operations": "VACANCY_EXISTS",
+  "ok": true,
+  "payload": {
+      "vacancy_id": "<id>"
+      "published": true
+  },
+  "error_payload": null
+}
+```
+
+### 2. GET  /api/vacancies/{id}/is-published
+
+```
+{
+  "vacancy_operations": "VACANCY_IS_PUBLISHED",
+  "ok": true,
+  "payload": {
+      "vacancy_id": "<id>"
+      "published": true
+  },
+  "error_payload": null
+}
+```
+
+### 3. GET /api/vacancies/{id}/title
+
+```
+{
+  "vacancy_operations": "VACANCY_TITLE",
+  "ok": true,
+  "payload": {
+      "vacancy_id": "<id>"
+      "title": "<title>"
+  },
+  "error_payload": null
+}
+```
+
+### 4. GET /api/vacancies/{vacancyId}/company-id
+
+```
+{
+  "vacancy_operations": "VACANCY_COMPANY_ID",
+  "ok": true,
+  "payload": {
+      "vacancy_id": "<id>"
+      "company_id": "<company-id>"
+  },
+  "error_payload": null
+}
+```
+
+### Пример сообщения в случае ошибки в ходе выполнения: 
+Запрос - GET /api/vacancies/{id}/exists
+```
+{
+  "vacancy_operations": null,
+  "ok": false,
+  "payload": null,
+  "error_payload": {
+      "code": "UNKOWN_OPEATION"
+      "message": "Unknown operation: null"
+  }
+}
+```
