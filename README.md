@@ -151,7 +151,7 @@
 
 ```
 {
-  "eventType": "VACANCY_PUBLISHED_REQUEST",
+  "event_type": "VACANCY_PUBLISHED_REQUEST",
   "correlation_id": "11111111-2222-3333-4444-555555555555",
   "reply_to": "application.responses",
   "payload": {
@@ -164,7 +164,7 @@
 
 ```
 {
-  "eventType": "VACANCY_GET_COMPANY_ID_REQUEST",
+  "event_type": "VACANCY_GET_COMPANY_ID_REQUEST",
   "correlation_id": "9999eeee-aaaa-bbbb-cccc-dddddddddddd",
   "reply_to": "application.responses",
   "payload": {
