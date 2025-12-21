@@ -12,4 +12,5 @@ public record EventMessage(
         EventType eventType,
         Instant occurredAt,
         JsonNode payload
-) { }
+) {
+}

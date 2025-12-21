@@ -35,7 +35,7 @@ public class JwtFilter implements WebFilter {
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")){
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return chain.filter(exchange);
         }
 
@@ -49,7 +49,7 @@ public class JwtFilter implements WebFilter {
                     .stream()
                     .map(Object::toString)
                     .toList();
-            List<GrantedAuthority> authorityList =  roles.stream()
+            List<GrantedAuthority> authorityList = roles.stream()
                     .map(SimpleGrantedAuthority::new)
                     .collect(Collectors.toList());
 
@@ -58,7 +58,7 @@ public class JwtFilter implements WebFilter {
 
             Authentication authentication = new UsernamePasswordAuthenticationToken(new UserPrincipal(email, userId), null, authorityList);
             return chain.filter(exchange).contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(new SecurityContextImpl(authentication))));
-        } catch (JwtException | IllegalArgumentException ex){
+        } catch (JwtException | IllegalArgumentException ex) {
             return Mono.error(new org.springframework.security.authentication.BadCredentialsException("Invalid or expired token", ex));
         }
     }

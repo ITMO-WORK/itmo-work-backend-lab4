@@ -13,11 +13,11 @@ public class EventHandlerRegistry {
 
     private final Map<EventType, EventHandler> handlers;
 
-    public EventHandlerRegistry(List<EventHandler> handlerList){
+    public EventHandlerRegistry(List<EventHandler> handlerList) {
         this.handlers = handlerList.stream().collect(Collectors.toMap(EventHandler::support, h -> h));
     }
 
-    public Optional<EventHandler> get(EventType eventType){
+    public Optional<EventHandler> get(EventType eventType) {
         return Optional.ofNullable(handlers.get(eventType));
     }
 }

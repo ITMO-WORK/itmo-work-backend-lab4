@@ -4,4 +4,5 @@ import org.ilestegor.applicationservice.domain.ApplicationStatusName;
 
 public record ApplicationStatusUpdateRequestDto(
         ApplicationStatusName applicationStatusName
-){}
+) {
+}

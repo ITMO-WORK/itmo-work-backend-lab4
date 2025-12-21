@@ -1,4 +1,4 @@
-package org.ilestegor.applicationservice.adapter.input.kafka.responselistener.mapper;
+package org.ilestegor.applicationservice.adapter.input.kafka.vacancy.responselistener.mapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -14,11 +14,11 @@ import org.springframework.stereotype.Component;
 public class ErrorToExceptionMapper {
     private final ObjectMapper objectMapper;
 
-    public RuntimeException toException(RequestType requestType, JsonNode errorPayloadNode){
+    public RuntimeException toException(RequestType requestType, JsonNode errorPayloadNode) {
         ErrorPayload errorPayload;
         try {
             errorPayload = objectMapper.treeToValue(errorPayloadNode, ErrorPayload.class);
-        } catch (JsonProcessingException ex){
+        } catch (JsonProcessingException ex) {
             return new IllegalJsonFormatException();
         }
 

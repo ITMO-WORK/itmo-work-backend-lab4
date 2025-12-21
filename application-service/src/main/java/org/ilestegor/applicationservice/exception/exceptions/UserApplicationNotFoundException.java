@@ -1,6 +1,6 @@
 package org.ilestegor.applicationservice.exception.exceptions;
 
-public class UserApplicationNotFoundException extends RuntimeException{
+public class UserApplicationNotFoundException extends RuntimeException {
     public UserApplicationNotFoundException() {
     }
 

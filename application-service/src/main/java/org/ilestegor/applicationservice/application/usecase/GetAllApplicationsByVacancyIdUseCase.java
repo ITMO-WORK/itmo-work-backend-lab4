@@ -1,6 +1,7 @@
 package org.ilestegor.applicationservice.application.usecase;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.kafka.common.errors.TimeoutException;
 import org.ilestegor.applicationservice.adapter.input.web.dto.ApplicationDto;
 import org.ilestegor.applicationservice.application.common.ApplicationPreconditions;
 import org.ilestegor.applicationservice.application.port.input.GetAllApplicationsByVacancyIdPort;
@@ -36,7 +37,9 @@ public class GetAllApplicationsByVacancyIdUseCase implements GetAllApplicationsB
                         .then(applicationPreconditions.checkVacancyExists(vacancyId, user.token()))
                         .then(applicationPreconditions.checkUserBelongsToCompany(vacancyId, user.userId(), user.token()))
                         .then(vacancyPort.getVacancyTitle(vacancyId, user.token()))
-                        .flatMap(vacancyTitle -> fetchPage(vacancyId, pageable, vacancyTitle, user.token()))
+                        .flatMap(vacancyTitle -> fetchPage(vacancyId, pageable, vacancyTitle, user.token())).onErrorResume(TimeoutException.class, e ->
+                                Mono.just(new PageImpl<>(List.of(), pageable, 0))
+                        )
                 );
     }
 

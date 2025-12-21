@@ -8,18 +8,15 @@ import org.ilestegor.applicationservice.application.common.ApplicationPreconditi
 import org.ilestegor.applicationservice.application.port.input.CreateApplicationPort;
 import org.ilestegor.applicationservice.application.port.output.ApplicationEventPublisherPort;
 import org.ilestegor.applicationservice.application.port.output.ApplicationRepositoryPort;
-
 import org.ilestegor.applicationservice.application.port.output.ApplicationStatusRepositoryPort;
 import org.ilestegor.applicationservice.application.port.output.CurrentUserPort;
 import org.ilestegor.applicationservice.domain.Application;
 import org.ilestegor.applicationservice.domain.ApplicationStatusName;
 import org.ilestegor.applicationservice.exception.exceptions.ApplicationStatusNotFoundException;
-
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -60,7 +57,7 @@ public class CreateApplicationUseCase implements CreateApplicationPort {
                                             status.getId()
                                     );
 
-                                    return  applicationRepositoryPort.save(app)
+                                    return applicationRepositoryPort.save(app)
                                             .flatMap(saved -> {
                                                 var event = new ApplicationCreateEventDto(
                                                         saved.getId(),

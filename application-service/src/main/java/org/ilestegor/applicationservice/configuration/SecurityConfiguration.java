@@ -24,7 +24,7 @@ public class SecurityConfiguration {
     private final CustomAuthenticationEntryPointHandler customAuthenticationEntryPointHandler;
 
     @Bean
-    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity serverHttpRequest){
+    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity serverHttpRequest) {
 
         serverHttpRequest.csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)

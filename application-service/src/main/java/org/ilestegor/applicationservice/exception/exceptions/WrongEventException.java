@@ -1,6 +1,6 @@
 package org.ilestegor.applicationservice.exception.exceptions;
 
-public class WrongEventException extends RuntimeException{
+public class WrongEventException extends RuntimeException {
     public WrongEventException() {
     }
 

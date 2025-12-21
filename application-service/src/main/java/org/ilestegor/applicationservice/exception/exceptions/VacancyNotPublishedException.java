@@ -1,6 +1,6 @@
 package org.ilestegor.applicationservice.exception.exceptions;
 
-public class VacancyNotPublishedException extends RuntimeException{
+public class VacancyNotPublishedException extends RuntimeException {
     public VacancyNotPublishedException() {
     }
 

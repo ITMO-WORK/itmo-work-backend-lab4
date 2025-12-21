@@ -1,6 +1,6 @@
 package org.ilestegor.applicationservice.exception.exceptions;
 
-public class ForbiddenErrorException extends RuntimeException{
+public class ForbiddenErrorException extends RuntimeException {
 
     public ForbiddenErrorException() {
     }

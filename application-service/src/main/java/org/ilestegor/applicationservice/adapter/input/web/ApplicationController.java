@@ -26,7 +26,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
-import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -64,21 +63,21 @@ public class ApplicationController {
 
     @PatchMapping("/{applicationId}")
     @SecurityRequirement(name = "bearerAuth")
-    public Mono<ResponseEntity<ApplicationCreateResponseDto>> updateApplication(@PathVariable UUID applicationId, @RequestBody ApplicationCreateRequestDto applicationCreateRequestDto){
+    public Mono<ResponseEntity<ApplicationCreateResponseDto>> updateApplication(@PathVariable UUID applicationId, @RequestBody ApplicationCreateRequestDto applicationCreateRequestDto) {
         return updateApplicationPort.updateApplication(applicationId, applicationCreateRequestDto).map(body -> new ResponseEntity<>(body, HttpStatus.OK));
     }
 
     @PatchMapping("/{applicationId}/status")
     @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'COMPANY_OWNER', 'EMPLOYEE')")
-    public Mono<ResponseEntity<ApplicationStatusUpdateResponseDto>> updateApplicationStatus(@PathVariable UUID applicationId, @RequestBody ApplicationStatusUpdateRequestDto applicationStatusUpdateRequestDto){
+    public Mono<ResponseEntity<ApplicationStatusUpdateResponseDto>> updateApplicationStatus(@PathVariable UUID applicationId, @RequestBody ApplicationStatusUpdateRequestDto applicationStatusUpdateRequestDto) {
         return updateApplicationStatusPort.updateApplicationStatus(applicationId, applicationStatusUpdateRequestDto).map(body -> new ResponseEntity<>(body, HttpStatus.OK));
     }
 
     @GetMapping
     @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'COMPANY_OWNER', 'EMPLOYEE')")
-    public Mono<Page<ApplicationDto>> getAllApplicationsByVacancyId(@RequestParam UUID vacancyId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size){
+    public Mono<Page<ApplicationDto>> getAllApplicationsByVacancyId(@RequestParam UUID vacancyId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
         return getAllApplicationsByVacancyIdPort.getAllApplicationsByVacancyId(vacancyId, pageable);
     }

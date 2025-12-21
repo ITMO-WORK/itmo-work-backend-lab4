@@ -25,7 +25,7 @@ public class ApplicationPreconditions {
 
     private final ApplicationRepositoryPort applicationRepositoryPort;
 
-    public Mono<Void> checkUserHasNotApplied(UUID userId, UUID vacancyId){
+    public Mono<Void> checkUserHasNotApplied(UUID userId, UUID vacancyId) {
         return applicationRepositoryPort.existsByUserIdAndVacancyId(userId, vacancyId).flatMap(
                 exists -> {
                     if (exists) return Mono.error(new UserHasAlreadyAppliedException());

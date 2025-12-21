@@ -15,4 +15,5 @@ public record ApplicationDto(
         String vacancyTitle,
         UUID userId,
         String userFullName
-){}
+) {
+}

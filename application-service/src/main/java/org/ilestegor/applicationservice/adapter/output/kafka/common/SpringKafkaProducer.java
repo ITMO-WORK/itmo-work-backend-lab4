@@ -11,11 +11,11 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
-public class SpringKafkaProducer implements KafkaProducer{
+public class SpringKafkaProducer implements KafkaProducer {
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Override
-    public Mono<Void> send(String topic, String key, Object message){
+    public Mono<Void> send(String topic, String key, Object message) {
         return Mono.fromFuture(kafkaTemplate.send(topic, key, message)).then();
     }
 

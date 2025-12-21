@@ -6,5 +6,6 @@ import reactor.core.publisher.Mono;
 
 public interface ApplicationStatusRepositoryPort {
     Mono<ApplicationStatus> findById(Long id);
+
     Mono<ApplicationStatus> findByName(ApplicationStatusName name);
 }

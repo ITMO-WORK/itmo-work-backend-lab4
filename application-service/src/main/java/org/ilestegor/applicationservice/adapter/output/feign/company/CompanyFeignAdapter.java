@@ -15,7 +15,7 @@ import java.util.UUID;
 public class CompanyFeignAdapter implements CompanyPort {
     private final CompanyClient companyClient;
 
-    public Mono<Boolean> isUserBelongsToCompany(UUID companyId, UUID userId,  String token){
+    public Mono<Boolean> isUserBelongsToCompany(UUID companyId, UUID userId, String token) {
         return Mono.fromCallable(() -> companyClient.isUserBelongsToCompany(companyId, userId, token))
                 .subscribeOn(Schedulers.boundedElastic())
                 .onErrorMap(FeignException.NotFound.class, ex -> new UserNotFoundException())

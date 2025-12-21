@@ -2,13 +2,13 @@ package org.ilestegor.applicationservice.adapter.output.kafka.vacancy;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.ilestegor.applicationservice.adapter.input.kafka.responselistener.dto.VacancyCompanyIdPayload;
-import org.ilestegor.applicationservice.adapter.input.kafka.responselistener.dto.VacancyResultPayload;
-import org.ilestegor.applicationservice.adapter.input.kafka.responselistener.dto.VacancyTitlePayload;
-import org.ilestegor.applicationservice.adapter.output.kafka.common.SpringKafkaProducer;
+import org.ilestegor.applicationservice.adapter.input.kafka.vacancy.responselistener.dto.VacancyCompanyIdPayload;
+import org.ilestegor.applicationservice.adapter.input.kafka.vacancy.responselistener.dto.VacancyResultPayload;
+import org.ilestegor.applicationservice.adapter.input.kafka.vacancy.responselistener.dto.VacancyTitlePayload;
 import org.ilestegor.applicationservice.adapter.output.kafka.common.ReplyTo;
 import org.ilestegor.applicationservice.adapter.output.kafka.common.RequestMessage;
 import org.ilestegor.applicationservice.adapter.output.kafka.common.RequestType;
+import org.ilestegor.applicationservice.adapter.output.kafka.common.SpringKafkaProducer;
 import org.ilestegor.applicationservice.adapter.output.kafka.common.registry.CorrelationRegistry;
 import org.ilestegor.applicationservice.adapter.output.kafka.common.util.KafkaHeaders;
 import org.ilestegor.applicationservice.adapter.output.kafka.config.KafkaProps;
@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.UUID;
+import java.util.concurrent.TimeoutException;
 
 @Service
 @RequiredArgsConstructor
@@ -44,7 +45,9 @@ public class VacancyKafkaAdapter implements VacancyPort {
                 .replyTo(ReplyTo.APPLICATION_RESPONSE)
                 .payload(objectMapper.valueToTree(new VacancyIdPayload(vacancyId)))
                 .build();
-        Mono<VacancyResultPayload> wait = correlationRegistry.registerRequest(correlationId, kafkaProps.timeout(), VacancyResultPayload.class);
+        Mono<VacancyResultPayload> wait =
+                withTimeoutHandling(correlationRegistry.registerRequest(correlationId, kafkaProps.timeout(), VacancyResultPayload.class), RequestType.VACANCY_EXISTS.getValue());
+
 
         return springKafkaProducer.send(kafkaProps.topics().vacancyRequest(), vacancyId.toString(), requestMessage, KafkaHeaders.withJwt(token))
                 .then(wait.map(VacancyResultPayload::result));
@@ -65,7 +68,8 @@ public class VacancyKafkaAdapter implements VacancyPort {
                 .build();
 
         Mono<VacancyResultPayload> wait =
-                correlationRegistry.registerRequest(correlationId, kafkaProps.timeout(), VacancyResultPayload.class);
+                withTimeoutHandling(correlationRegistry.registerRequest(correlationId, kafkaProps.timeout(), VacancyResultPayload.class), RequestType.VACANCY_IS_PUBLISHED.getValue());
+
 
         return springKafkaProducer.send(kafkaProps.topics().vacancyRequest(), vacancyId.toString(), requestMessage, KafkaHeaders.withJwt(token))
                 .then(wait.map(VacancyResultPayload::result));
@@ -87,7 +91,8 @@ public class VacancyKafkaAdapter implements VacancyPort {
                 .build();
 
         Mono<VacancyTitlePayload> wait =
-                correlationRegistry.registerRequest(correlationId, kafkaProps.timeout(), VacancyTitlePayload.class);
+                withTimeoutHandling(correlationRegistry.registerRequest(correlationId, kafkaProps.timeout(), VacancyTitlePayload.class), RequestType.VACANCY_TITLE.getValue());
+
 
         return springKafkaProducer.send(kafkaProps.topics().vacancyRequest(), vacancyId.toString(), requestMessage, KafkaHeaders.withJwt(token))
                 .then(wait.map(VacancyTitlePayload::title));
@@ -109,7 +114,8 @@ public class VacancyKafkaAdapter implements VacancyPort {
                 .build();
 
         Mono<VacancyCompanyIdPayload> wait =
-                correlationRegistry.registerRequest(correlationId, kafkaProps.timeout(), VacancyCompanyIdPayload.class);
+                withTimeoutHandling(correlationRegistry.registerRequest(correlationId, kafkaProps.timeout(), VacancyCompanyIdPayload.class), RequestType.VACANCY_COMPANY_ID.getValue());
+
 
         return springKafkaProducer.send(kafkaProps.topics().vacancyRequest(), vacancyId.toString(), requestMessage, KafkaHeaders.withJwt(token))
                 .then(wait.handle((p, sink) -> {
@@ -119,5 +125,14 @@ public class VacancyKafkaAdapter implements VacancyPort {
                     }
                     sink.next(p.companyId());
                 }));
+    }
+
+    private <T> Mono<T> withTimeoutHandling(Mono<T> mono, String operation) {
+        return mono.onErrorMap(
+                TimeoutException.class,
+                e -> new org.ilestegor.applicationservice.exception.exceptions.TimeoutException(
+                        "Timeout waiting vacancy-service response for operation=" + operation
+                )
+        );
     }
 }

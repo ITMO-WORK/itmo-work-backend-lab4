@@ -38,8 +38,8 @@ public class CustomAccessDeniedHandler implements ServerAccessDeniedHandler {
             bytes = objectMapper.writeValueAsBytes(problem);
         } catch (Exception e) {
             bytes = """
-                {"status":403,"title":"Access denied","detail":"You do not have rights to perform this action"}
-                """.getBytes(StandardCharsets.UTF_8);
+                    {"status":403,"title":"Access denied","detail":"You do not have rights to perform this action"}
+                    """.getBytes(StandardCharsets.UTF_8);
         }
 
         var buffer = response.bufferFactory().wrap(bytes);

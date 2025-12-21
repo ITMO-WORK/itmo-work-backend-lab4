@@ -1,6 +1,6 @@
 package org.ilestegor.applicationservice.exception.exceptions;
 
-public class VacancyNotFoundException extends RuntimeException{
+public class VacancyNotFoundException extends RuntimeException {
     public VacancyNotFoundException() {
     }
 

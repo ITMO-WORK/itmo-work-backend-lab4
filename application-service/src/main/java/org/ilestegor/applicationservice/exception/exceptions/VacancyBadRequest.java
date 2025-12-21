@@ -1,6 +1,6 @@
 package org.ilestegor.applicationservice.exception.exceptions;
 
-public class VacancyBadRequest extends RuntimeException{
+public class VacancyBadRequest extends RuntimeException {
     public VacancyBadRequest() {
     }
 

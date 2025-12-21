@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
-public interface ApplicationRepository extends ReactiveCrudRepository<Application, Long>{
+public interface ApplicationRepository extends ReactiveCrudRepository<Application, Long> {
     Mono<Boolean> existsByUserIdAndVacancyId(UUID userId, UUID vacancyId);
 
     Mono<Application> findApplicationsByUserIdAndVacancyId(UUID userId, UUID vacancyId);

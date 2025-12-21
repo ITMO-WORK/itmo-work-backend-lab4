@@ -22,7 +22,8 @@ public class SpringSecurityCurrentUserAdapter implements CurrentUserPort {
 
         Mono<String> tokenMono = Mono.deferContextual(ctx -> {
             String token = ctx.getOrDefault("authToken", null);
-            if (token == null) return Mono.error(new org.springframework.security.authentication.BadCredentialsException("No auth token"));
+            if (token == null)
+                return Mono.error(new org.springframework.security.authentication.BadCredentialsException("No auth token"));
             return Mono.just(token);
         });
 

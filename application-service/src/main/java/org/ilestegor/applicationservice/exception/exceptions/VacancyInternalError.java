@@ -1,6 +1,6 @@
 package org.ilestegor.applicationservice.exception.exceptions;
 
-public class VacancyInternalError extends RuntimeException{
+public class VacancyInternalError extends RuntimeException {
     public VacancyInternalError() {
     }
 

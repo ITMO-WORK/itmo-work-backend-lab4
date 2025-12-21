@@ -3,20 +3,15 @@ package org.ilestegor.applicationservice.dirty.configuration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
-import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.web.reactive.function.client.WebClient;
-
-import java.util.List;
 
 @Configuration
 public class FeignConfig {
 
     @Bean
-    public HttpMessageConverters httpMessageConverters(){
+    public HttpMessageConverters httpMessageConverters() {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
 

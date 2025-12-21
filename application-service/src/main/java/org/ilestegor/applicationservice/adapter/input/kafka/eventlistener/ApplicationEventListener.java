@@ -22,18 +22,18 @@ public class ApplicationEventListener {
             topics = "${app.kafka.topics.file-events}",
             groupId = "${spring.kafka.consumer.group-id}"
     )
-    public void onMessage(String rawMessage){
+    public void onMessage(String rawMessage) {
         EventMessage eventMessage;
         try {
             eventMessage = objectMapper.readValue(rawMessage, EventMessage.class);
-        } catch (JsonProcessingException ex){
+        } catch (JsonProcessingException ex) {
             log.warn("Invalid json in kafka message {} ", rawMessage, ex);
             throw new IllegalJsonFormatException();
         }
 
         EventType eventType = eventMessage.eventType();
         var handlerOpt = eventHandlerRegistry.get(eventType);
-        if (handlerOpt.isEmpty()){
+        if (handlerOpt.isEmpty()) {
             log.debug("No handler for event type={}", eventType);
             return;
         }

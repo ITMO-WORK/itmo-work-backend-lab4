@@ -7,5 +7,6 @@ import java.util.UUID;
 public interface CurrentUserPort {
     Mono<CurrentUser> getCurrentUser();
 
-    record CurrentUser(UUID userId, String token){}
+    record CurrentUser(UUID userId, String token) {
+    }
 }

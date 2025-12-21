@@ -18,7 +18,7 @@ public interface ApplicationRepositoryPort {
 
     Mono<Long> countApplicationByVacancyId(UUID vacancyId);
 
-    Mono<UUID> findVacancyIdById( UUID applicationId);
+    Mono<UUID> findVacancyIdById(UUID applicationId);
 
     Mono<Boolean> existsById(UUID id);
 
