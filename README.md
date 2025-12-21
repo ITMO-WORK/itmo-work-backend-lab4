@@ -47,13 +47,15 @@
 | notification-service | Арслан        | ❌          |
 
 # Json-форматы 
+
 ## vacancy-response: 
 
 ### 1. GET /api/vacancies/{id}/exists
 
 ```
 {
-  "vacancy_operations": "VACANCY_EXISTS",
+  "event_type": "VACANCY_EXISTS",
+  "correlation_id": "<id>",
   "ok": true,
   "payload": {
       "vacancy_id": "<id>"
@@ -67,7 +69,8 @@
 
 ```
 {
-  "vacancy_operations": "VACANCY_IS_PUBLISHED",
+  "event_type": "VACANCY_IS_PUBLISHED",
+  "correlation_id": "<id>",
   "ok": true,
   "payload": {
       "vacancy_id": "<id>"
@@ -81,7 +84,8 @@
 
 ```
 {
-  "vacancy_operations": "VACANCY_TITLE",
+  "event_type": "VACANCY_TITLE",
+  "correlation_id": "<id>",
   "ok": true,
   "payload": {
       "vacancy_id": "<id>"
@@ -95,7 +99,8 @@
 
 ```
 {
-  "vacancy_operations": "VACANCY_COMPANY_ID",
+  "event_type": "VACANCY_COMPANY_ID",
+  "correlation_id": "<id>",
   "ok": true,
   "payload": {
       "vacancy_id": "<id>"
@@ -109,7 +114,8 @@
 Запрос - GET /api/vacancies/{id}/title
 ```
 {
-  "vacancy_operations": "VACANCY_TITLE",
+  "event_type": "VACANCY_TITLE",
+  "correlation_id": "<id>",
   "ok": false,
   "payload": null,
   "error_payload": {
