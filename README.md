@@ -178,3 +178,31 @@
   }
 }
 ```
+
+## company.request:
+ 
+### 1. GET /api/company/{companyId}
+
+```json
+{
+  "event_type": "COMPANY_EXISTS",
+  "correlation_id": "<id>",
+  "reply_to": "vacancy.response",
+  "payload": {
+      "company_id": "<company_id>"
+  }
+}
+```
+
+### 2. GET /api/company/{companyId}
+
+```json
+{
+  "event_type": "COMPANY_VALIDATE_OWNERSHIP",
+  "correlation_id": "<id>",
+  "reply_to": "vacancy.response",
+  "payload": {
+      "company_id": "<company_id>",
+      "user_id": "<user_id>"
+  }
+}```
