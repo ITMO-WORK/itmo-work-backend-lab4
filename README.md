@@ -59,7 +59,7 @@
   "ok": true,
   "payload": {
       "vacancy_id": "<id>"
-      "published": true
+      "result": true
   },
   "error_payload": null
 }
@@ -74,7 +74,7 @@
   "ok": true,
   "payload": {
       "vacancy_id": "<id>"
-      "published": true
+      "result": true
   },
   "error_payload": null
 }
