@@ -106,15 +106,15 @@
 ```
 
 ### Пример сообщения в случае ошибки в ходе выполнения: 
-Запрос - GET /api/vacancies/{id}/exists
+Запрос - GET /api/vacancies/{id}/title
 ```
 {
-  "vacancy_operations": null,
+  "vacancy_operations": "VACANCY_TITLE",
   "ok": false,
   "payload": null,
   "error_payload": {
-      "code": "UNKOWN_OPEATION"
-      "message": "Unknown operation: null"
+      "code": "VACANCY_ID_INVALID"
+      "message": "Given vacancy_id is not found"
   }
 }
 ```
