@@ -25,7 +25,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class ApplicationRequestsListener {
 
-    private static final String DEFAULT_RESPONSE_TOPIC = "vacancy.response";
+    private static final String DEFAULT_RESPONSE_TOPIC = "application.response";
 
     private final VacancyQueriesUseCase vacancyQueriesUseCase;
     private final KafkaTemplate<String, VacancyResponseMessage> responseKafkaTemplate;
@@ -33,7 +33,7 @@ public class ApplicationRequestsListener {
     private final JwtService jwtService;
 
     @KafkaListener(
-            topics = "application.request",
+            topics = "vacancy.request",
             groupId = "vacancy-service",
             containerFactory = "applicationRequestKafkaListenerFactory"
     )
