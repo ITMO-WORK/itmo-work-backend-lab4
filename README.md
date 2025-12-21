@@ -126,6 +126,12 @@
 }
 ```
 
+#### Возможные code, которые могут вернуться в vacancy.response: 
+
+`UNSUPPORTED_OPERATION` - операция в event_type не существует или равна null
+`BAD_REQUEST` - любые проблемы с vacancy_id, в message будет прописано в чем проблема
+`INTERNAL_ERROR` - unexpected error 
+
 ## application.request:
 
 #### 1. GET /{id}/title
