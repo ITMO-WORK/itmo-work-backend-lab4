@@ -136,6 +136,8 @@
 
 `FORBIDDEN` - недостаточно прав для выполнения запроса
 
+`UNAUTHORIZED` - токен не был указан 
+
 
 ## application.request:
 
