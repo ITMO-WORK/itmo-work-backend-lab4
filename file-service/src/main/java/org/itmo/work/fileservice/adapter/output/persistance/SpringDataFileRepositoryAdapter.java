@@ -15,8 +15,8 @@ public class SpringDataFileRepositoryAdapter implements FileRepositoryPort {
     private final StoredFileRepository storedFileRepository;
 
     @Override
-    public Optional<StoredFile> findById(UUID id) {
-        return storedFileRepository.findById(id);
+    public Boolean checkResumeAlreadyExists(UUID applicationId) {
+        return storedFileRepository.existsByEntityId((applicationId));
     }
 
     @Override
@@ -27,5 +27,10 @@ public class SpringDataFileRepositoryAdapter implements FileRepositoryPort {
     @Override
     public void delete(StoredFile storedFile) {
         storedFileRepository.delete(storedFile);
+    }
+
+    @Override
+    public Optional<StoredFile> getResumeByApplicationId(UUID applicationId) {
+        return storedFileRepository.findByEntityId(applicationId);
     }
 }

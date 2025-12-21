@@ -3,8 +3,10 @@ package org.ilestegor.applicationservice.application.usecase;
 import lombok.RequiredArgsConstructor;
 import org.ilestegor.applicationservice.adapter.input.web.dto.request.ApplicationCreateRequestDto;
 import org.ilestegor.applicationservice.adapter.input.web.dto.response.ApplicationCreateResponseDto;
+import org.ilestegor.applicationservice.adapter.output.kafka.event.dto.events.ApplicationCreateEventDto;
 import org.ilestegor.applicationservice.application.common.ApplicationPreconditions;
 import org.ilestegor.applicationservice.application.port.input.CreateApplicationPort;
+import org.ilestegor.applicationservice.application.port.output.ApplicationEventPublisherPort;
 import org.ilestegor.applicationservice.application.port.output.ApplicationRepositoryPort;
 
 import org.ilestegor.applicationservice.application.port.output.ApplicationStatusRepositoryPort;
@@ -19,6 +21,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Service
@@ -30,6 +33,7 @@ public class CreateApplicationUseCase implements CreateApplicationPort {
 
     private final ApplicationStatusRepositoryPort applicationStatusRepositoryPort;
     private final ApplicationRepositoryPort applicationRepositoryPort;
+    private final ApplicationEventPublisherPort applicationEventPublisherPort;
 
     @Override
     public Mono<ApplicationCreateResponseDto> createApplication(
@@ -56,14 +60,22 @@ public class CreateApplicationUseCase implements CreateApplicationPort {
                                             status.getId()
                                     );
 
-                                    return applicationRepositoryPort.save(app)
-                                            .map(saved -> new ApplicationCreateResponseDto(
-                                                    saved.getId(),
-                                                    status.getApplicationStatusName().getValue(),
-                                                    saved.getCreatedAt(),
-                                                    saved.getUpdatedAt(),
-                                                    saved.getCoverLetter()
-                                            ));
+                                    return  applicationRepositoryPort.save(app)
+                                            .flatMap(saved -> {
+                                                var event = new ApplicationCreateEventDto(
+                                                        saved.getId(),
+                                                        saved.getUserId(),
+                                                        OffsetDateTime.now()
+                                                );
+                                                return applicationEventPublisherPort.publishApplicationCreate(event)
+                                                        .thenReturn(new ApplicationCreateResponseDto(
+                                                                saved.getId(),
+                                                                status.getApplicationStatusName().getValue(),
+                                                                saved.getCreatedAt(),
+                                                                saved.getUpdatedAt(),
+                                                                saved.getCoverLetter()
+                                                        ));
+                                            });
                                 })
                 );
     }

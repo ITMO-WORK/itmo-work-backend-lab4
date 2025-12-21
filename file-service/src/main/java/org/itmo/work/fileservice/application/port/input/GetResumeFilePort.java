@@ -4,5 +4,5 @@ import java.util.UUID;
 
 public interface GetResumeFilePort {
 
-    String getDownloadUrl(UUID fileId);
+    String getDownloadUrl(UUID applicationId);
 }

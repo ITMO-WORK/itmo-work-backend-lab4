@@ -6,6 +6,7 @@ import org.ilestegor.applicationservice.adapter.output.kafka.common.KafkaProduce
 import org.ilestegor.applicationservice.adapter.output.kafka.config.KafkaProps;
 import org.ilestegor.applicationservice.adapter.output.kafka.event.dto.EventMessage;
 import org.ilestegor.applicationservice.adapter.output.kafka.event.dto.EventType;
+import org.ilestegor.applicationservice.adapter.output.kafka.event.dto.events.ApplicationCreateEventDto;
 import org.ilestegor.applicationservice.adapter.output.kafka.event.dto.events.ApplicationStatusChangeEvent;
 import org.ilestegor.applicationservice.application.port.output.ApplicationEventPublisherPort;
 import org.springframework.stereotype.Service;
@@ -23,16 +24,32 @@ public class KafkaApplicationEventPublisherAdapter implements ApplicationEventPu
 
     @Override
     public Mono<Void> publishStatusChanged(ApplicationStatusChangeEvent applicationStatusChangeEvent) {
-        EventMessage eventMessage = EventMessage.builder()
-                .eventId(UUID.randomUUID())
-                .eventType(EventType.APPLICATION_STATUS_CHANGE)
-                .occurredAt(Instant.now())
-                .payload(objectMapper.valueToTree(applicationStatusChangeEvent)).build();
-
-        return kafkaProducer.send(
+        return publish(
                 kafkaProps.topics().applicationsEvents(),
+                EventType.APPLICATION_STATUS_CHANGE,
                 applicationStatusChangeEvent.applicationId().toString(),
-                eventMessage
+                applicationStatusChangeEvent
         );
+    }
+
+    @Override
+    public Mono<Void> publishApplicationCreate(ApplicationCreateEventDto applicationCreateEventDto) {
+        return publish(
+                kafkaProps.topics().applicationsEvents(),
+                EventType.APPLICATION_CREATE,
+                applicationCreateEventDto.applicationId().toString(),
+                applicationCreateEventDto
+        );
+    }
+
+    private Mono<Void> publish(String topic, EventType type, String key, Object payload) {
+        EventMessage msg = EventMessage.builder()
+                .eventId(UUID.randomUUID())
+                .eventType(type)
+                .occurredAt(Instant.now())
+                .payload(objectMapper.valueToTree(payload))
+                .build();
+
+        return kafkaProducer.send(topic, key, msg);
     }
 }

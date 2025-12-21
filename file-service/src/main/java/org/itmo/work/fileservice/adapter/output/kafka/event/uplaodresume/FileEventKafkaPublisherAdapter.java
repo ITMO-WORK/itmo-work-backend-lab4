@@ -10,7 +10,6 @@ import org.itmo.work.fileservice.adapter.output.kafka.dto.events.FileUploadEvent
 import org.itmo.work.fileservice.application.port.output.FileEventPublisherPort;
 
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -23,18 +22,24 @@ public class FileEventKafkaPublisherAdapter implements FileEventPublisherPort {
     private final ObjectMapper objectMapper;
 
     @Override
-    public void publishFileUploadedEvent(FileUploadEvent fileUploadEvent) {
+    public void publishFileUploadedEvent(FileUploadEvent event) {
+        publishEvent(
+                kafkaProps.topics().filesEvents(),
+                event.fileId().toString(),
+                EventType.RESUME_UPLOAD_EVENT,
+                event
+        );
+    }
+
+
+    private void publishEvent(String topic, String key, EventType eventType, Object payload) {
         EventMessage message = EventMessage.builder()
                 .eventId(UUID.randomUUID())
-                .eventType(EventType.RESUME_UPLOAD_EVENT)
+                .eventType(eventType)
                 .occurredAt(Instant.now())
-                .payload(objectMapper.valueToTree(fileUploadEvent))
+                .payload(objectMapper.valueToTree(payload))
                 .build();
-        kafkaProducer.send(
-                kafkaProps.topics().filesEvents(),
-                fileUploadEvent.fileId().toString(),
-                message
 
-        );
+        kafkaProducer.send(topic, key, message);
     }
 }

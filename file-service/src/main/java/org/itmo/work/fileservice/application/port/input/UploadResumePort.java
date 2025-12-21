@@ -8,5 +8,5 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.UUID;
 
 public interface UploadResumePort {
-    UploadResumeResponse uploadResume(MultipartFile file, UUID replacedField, UploadResumeRequest uploadRequest);
+    UploadResumeResponse uploadResume(MultipartFile file, UUID applicationId);
 }

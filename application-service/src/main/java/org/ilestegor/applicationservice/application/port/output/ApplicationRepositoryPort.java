@@ -2,8 +2,6 @@ package org.ilestegor.applicationservice.application.port.output;
 
 import org.ilestegor.applicationservice.domain.Application;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.r2dbc.repository.Query;
-import org.springframework.data.repository.query.Param;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -28,6 +26,8 @@ public interface ApplicationRepositoryPort {
 
     Mono<Application> save(Application application);
 
+    Mono<Void> updateFileIdByApplicationId(UUID applicationId, UUID fieldId);
 
+    Mono<UUID> findApplicationIdByUserId(UUID userId);
 
 }
