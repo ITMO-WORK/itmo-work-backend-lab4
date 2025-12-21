@@ -134,6 +134,8 @@
 
 `INTERNAL_ERROR` - unexpected error 
 
+`FORBIDDEN` - недостаточно прав для выполнения запроса
+
 
 ## application.request:
 
