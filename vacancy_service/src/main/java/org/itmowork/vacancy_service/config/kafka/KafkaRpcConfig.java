@@ -1,5 +1,6 @@
 package org.itmowork.vacancy_service.config.kafka;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -30,13 +31,15 @@ public class KafkaRpcConfig {
     @Bean
     public ConsumerFactory<String, ApplicationRequestMessage> applicationRequestConsumerFactory(ObjectMapper objectMapper) {
         Map<String, Object> props = new HashMap<>();
-
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
 
+        ObjectMapper kafkaMapper = objectMapper.copy()
+                .configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE, true);
+
         JsonDeserializer<ApplicationRequestMessage> valueDeserializer =
-                new JsonDeserializer<>(ApplicationRequestMessage.class, objectMapper, false);
+                new JsonDeserializer<>(ApplicationRequestMessage.class, kafkaMapper, false);
 
         valueDeserializer.addTrustedPackages("org.itmowork.vacancy_service.*");
         valueDeserializer.setUseTypeHeaders(false);

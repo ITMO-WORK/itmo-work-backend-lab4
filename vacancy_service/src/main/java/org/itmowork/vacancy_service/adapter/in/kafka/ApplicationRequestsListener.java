@@ -42,7 +42,12 @@ public class ApplicationRequestsListener {
             @Header(name = KafkaHeaders.RECEIVED_KEY, required = false) String key,
             @Header(name = "Authorization", required = false) String authorization
     ) {
-        if (msg == null || msg.eventType() == null) {
+        if (msg == null) {
+            return;
+        }
+
+        if (msg.eventType() == null || msg.eventType() == EventType.UNKNOWN) {
+            sendError(msg, "UNSUPPORTED_OPERATION", "Unsupported event_type: " + msg.eventType());
             return;
         }
 
