@@ -1,4 +1,4 @@
-package org.ilestegor.applicationservice.adapter.output.kafka.listener;
+package org.ilestegor.applicationservice.adapter.input.kafka.eventlistener;
 
 import org.ilestegor.applicationservice.adapter.output.kafka.event.dto.EventType;
 import org.springframework.stereotype.Component;

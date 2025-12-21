@@ -1,19 +1,17 @@
-package org.ilestegor.applicationservice.adapter.output.kafka.listener.handler;
+package org.ilestegor.applicationservice.adapter.input.kafka.eventlistener.handler;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.ilestegor.applicationservice.adapter.input.kafka.eventlistener.EventHandler;
 import org.ilestegor.applicationservice.adapter.output.kafka.event.dto.EventMessage;
 import org.ilestegor.applicationservice.adapter.output.kafka.event.dto.EventType;
 import org.ilestegor.applicationservice.adapter.output.kafka.event.dto.events.ResumeUploadedEventDto;
-import org.ilestegor.applicationservice.adapter.output.kafka.listener.EventHandler;
-import org.ilestegor.applicationservice.adapter.output.persistence.ApplicationRepository;
 import org.ilestegor.applicationservice.application.port.output.ApplicationRepositoryPort;
 import org.ilestegor.applicationservice.exception.exceptions.ApplicationNotFoundException;
 import org.ilestegor.applicationservice.exception.exceptions.IllegalJsonFormatException;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @Component

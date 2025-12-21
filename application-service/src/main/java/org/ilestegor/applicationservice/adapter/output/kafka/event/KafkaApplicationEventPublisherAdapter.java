@@ -2,7 +2,7 @@ package org.ilestegor.applicationservice.adapter.output.kafka.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.ilestegor.applicationservice.adapter.output.kafka.common.KafkaProducer;
+import org.ilestegor.applicationservice.adapter.output.kafka.common.SpringKafkaProducer;
 import org.ilestegor.applicationservice.adapter.output.kafka.config.KafkaProps;
 import org.ilestegor.applicationservice.adapter.output.kafka.event.dto.EventMessage;
 import org.ilestegor.applicationservice.adapter.output.kafka.event.dto.EventType;
@@ -20,7 +20,7 @@ import java.util.UUID;
 public class KafkaApplicationEventPublisherAdapter implements ApplicationEventPublisherPort {
     private final ObjectMapper objectMapper;
     private final KafkaProps kafkaProps;
-    private final KafkaProducer kafkaProducer;
+    private final SpringKafkaProducer springKafkaProducer;
 
     @Override
     public Mono<Void> publishStatusChanged(ApplicationStatusChangeEvent applicationStatusChangeEvent) {
@@ -50,6 +50,6 @@ public class KafkaApplicationEventPublisherAdapter implements ApplicationEventPu
                 .payload(objectMapper.valueToTree(payload))
                 .build();
 
-        return kafkaProducer.send(topic, key, msg);
+        return springKafkaProducer.send(topic, key, msg);
     }
 }

@@ -1,7 +1,6 @@
 package org.ilestegor.applicationservice.exception;
 
 import org.ilestegor.applicationservice.exception.exceptions.*;
-import org.ilestegor.applicationservice.exception.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -83,5 +82,35 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ProblemDetail> illegalJsonFormatExceptionHandler(IllegalJsonFormatException ex, ServerWebExchange request){
         ProblemDetail body = ProblemDetailsUtils.problemDetail(HttpStatus.BAD_REQUEST, "Not valid JSON format", "", request);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
+    @ExceptionHandler(VacancyBadRequest.class)
+    public ResponseEntity<ProblemDetail> vacancyBadRequestExceptionHandler(VacancyBadRequest ex, ServerWebExchange request){
+        ProblemDetail body = ProblemDetailsUtils.problemDetail(HttpStatus.BAD_REQUEST, ex.getMessage(), "", request);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
+    @ExceptionHandler(WrongEventException.class)
+    public ResponseEntity<ProblemDetail> wrongEventExceptionHandler(WrongEventException ex, ServerWebExchange request){
+        ProblemDetail body = ProblemDetailsUtils.problemDetail(HttpStatus.BAD_REQUEST, ex.getMessage(), "", request);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
+    @ExceptionHandler(VacancyInternalError.class)
+    public ResponseEntity<ProblemDetail> vacancyInternalErrorExceptionHandler(VacancyInternalError ex, ServerWebExchange request){
+        ProblemDetail body = ProblemDetailsUtils.problemDetail(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), "", request);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
+    }
+
+    @ExceptionHandler(ForbiddenErrorException.class)
+    public ResponseEntity<ProblemDetail> forbiddenErrorExceptionHandler(ForbiddenErrorException ex, ServerWebExchange request){
+        ProblemDetail body = ProblemDetailsUtils.problemDetail(HttpStatus.FORBIDDEN, ex.getMessage(), "", request);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ProblemDetail> forbiddenErrorExceptionHandler(UnauthorizedException ex, ServerWebExchange request){
+        ProblemDetail body = ProblemDetailsUtils.problemDetail(HttpStatus.UNAUTHORIZED, ex.getMessage(), "", request);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
     }
 }

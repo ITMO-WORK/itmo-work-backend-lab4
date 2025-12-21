@@ -19,8 +19,16 @@ public class KafkaConfig {
     private final KafkaProps kafkaProps;
 
     @Bean
-    public NewTopic vacancyRequestsTopic() {
+    public NewTopic applicationsEventsTopic() {
         return TopicBuilder.name(kafkaProps.topics().applicationsEvents())
+                .partitions(1)
+                .replicas(3)
+                .build();
+    }
+
+    @Bean
+    public NewTopic applicationResponseTopic(){
+        return TopicBuilder.name(kafkaProps.topics().applicationResponse())
                 .partitions(1)
                 .replicas(3)
                 .build();

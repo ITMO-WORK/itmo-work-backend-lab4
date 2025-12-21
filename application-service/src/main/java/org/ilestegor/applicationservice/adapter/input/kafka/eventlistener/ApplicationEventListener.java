@@ -1,4 +1,4 @@
-package org.ilestegor.applicationservice.adapter.output.kafka.listener;
+package org.ilestegor.applicationservice.adapter.input.kafka.eventlistener;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
