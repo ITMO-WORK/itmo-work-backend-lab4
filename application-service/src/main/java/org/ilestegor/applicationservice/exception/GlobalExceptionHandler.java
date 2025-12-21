@@ -1,14 +1,13 @@
 package org.ilestegor.applicationservice.exception;
 
 import org.ilestegor.applicationservice.exception.exceptions.*;
+import org.ilestegor.applicationservice.exception.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.reactive.result.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.server.ServerWebExchange;
 
 @RestControllerAdvice
@@ -66,5 +65,23 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ProblemDetail> companyNotPublishedExceptionHandler(BadCredentialsException ex, ServerWebExchange exchange){
         ProblemDetail body = ProblemDetailsUtils.problemDetail(HttpStatus.UNAUTHORIZED, "Token incorrect", ex.getMessage(), exchange);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
+    }
+
+    @ExceptionHandler(ApplicationNotFoundException.class)
+    public ResponseEntity<ProblemDetail> applicationNotFoundExceptionHandler(ApplicationNotFoundException ex, ServerWebExchange exchange){
+        ProblemDetail body = ProblemDetailsUtils.problemDetail(HttpStatus.BAD_REQUEST, "Application not found", ex.getMessage(), exchange);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
+    @ExceptionHandler(ResumeNotFoundException.class)
+    public ResponseEntity<ProblemDetail> resumeNotFoundExceptionHandler(ResumeNotFoundException ex, ServerWebExchange exchange){
+        ProblemDetail body = ProblemDetailsUtils.problemDetail(HttpStatus.BAD_REQUEST, "Resume not found", ex.getMessage(), exchange);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
+    @ExceptionHandler(IllegalJsonFormatException.class)
+    public ResponseEntity<ProblemDetail> illegalJsonFormatExceptionHandler(IllegalJsonFormatException ex, ServerWebExchange request){
+        ProblemDetail body = ProblemDetailsUtils.problemDetail(HttpStatus.BAD_REQUEST, "Not valid JSON format", "", request);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 }

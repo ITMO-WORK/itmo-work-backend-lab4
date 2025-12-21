@@ -1,7 +1,7 @@
 package com.itmowork.company_service.mapper;
 
-import com.itmowork.company_service.dto.request.CompanyUpdateRequestDto;
-import com.itmowork.company_service.model.Company;
+import com.itmowork.company_service.adapter.in.web.dto.request.CompanyUpdateRequestDto;
+import com.itmowork.company_service.domain.model.Company;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;

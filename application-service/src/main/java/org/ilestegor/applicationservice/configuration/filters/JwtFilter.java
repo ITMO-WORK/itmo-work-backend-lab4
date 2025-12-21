@@ -30,6 +30,7 @@ public class JwtFilter implements WebFilter {
 
     private final JwtService jwtService;
 
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
