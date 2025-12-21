@@ -125,7 +125,7 @@
 
 ```
 {
-  "event_type": "VACANCY_GET_TITLE_REQUEST",
+  "event_type": "VACANCY_TITLE",
   "correlation_id": "b4c5f8c1-9d4f-4b1f-b4de-92a21c999999",
   "reply_to": "application.responses",
   "payload": {
@@ -138,7 +138,7 @@
 
 ```
 {
-  "event_type": "VACANCY_EXISTS_REQUEST",
+  "event_type": "VACANCY_EXISTS",
   "correlation_id": "eab4f2c1-9a22-4444-bbbb-cccccccccccc",
   "reply_to": "application.responses",
   "payload": {
@@ -151,7 +151,7 @@
 
 ```
 {
-  "event_type": "VACANCY_PUBLISHED_REQUEST",
+  "event_type": "VACANCY_IS_PUBLISHED",
   "correlation_id": "11111111-2222-3333-4444-555555555555",
   "reply_to": "application.responses",
   "payload": {
@@ -164,7 +164,7 @@
 
 ```
 {
-  "event_type": "VACANCY_GET_COMPANY_ID_REQUEST",
+  "event_type": "VACANCY_COMPANY_ID",
   "correlation_id": "9999eeee-aaaa-bbbb-cccc-dddddddddddd",
   "reply_to": "application.responses",
   "payload": {
