@@ -48,7 +48,7 @@
 
 # Json-форматы 
 
-## vacancy-response: 
+## vacancy.response: 
 
 ### 1. GET /api/vacancies/{id}/exists
 
@@ -125,7 +125,7 @@
 }
 ```
 
-## application-request:
+## application.request:
 
 #### 1. GET /{id}/title
 
