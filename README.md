@@ -118,3 +118,57 @@
   }
 }
 ```
+
+## application-request:
+
+#### 1. GET /{id}/title
+
+```
+{
+  "eventType": "VACANCY_GET_TITLE_REQUEST",
+  "correlationId": "b4c5f8c1-9d4f-4b1f-b4de-92a21c999999",
+  "replyTo": "application.responses",
+  "payload": {
+    "vacancyId": "e7b8d7d0-3a55-4b5e-8c2b-91d7e9c1a111",
+  }
+}
+```
+
+#### 2. GET /{id}/exists
+
+```
+{
+  "eventType": "VACANCY_EXISTS_REQUEST",
+  "correlationId": "eab4f2c1-9a22-4444-bbbb-cccccccccccc",
+  "replyTo": "application.responses",
+  "payload": {
+    "vacancyId": "e7b8d7d0-3a55-4b5e-8c2b-91d7e9c1a111",
+  }
+}
+```
+
+#### 3. GET /{id}/is-published
+
+```
+{
+  "eventType": "VACANCY_PUBLISHED_REQUEST",
+  "correlationId": "11111111-2222-3333-4444-555555555555",
+  "replyTo": "application.responses",
+  "payload": {
+    "vacancyId": "e7b8d7d0-3a55-4b5e-8c2b-91d7e9c1a111",
+  }
+}
+```
+
+#### 4. GET /{vacancyId}/company-id
+
+```
+{
+  "eventType": "VACANCY_GET_COMPANY_ID_REQUEST",
+  "correlationId": "9999eeee-aaaa-bbbb-cccc-dddddddddddd",
+  "replyTo": "application.responses",
+  "payload": {
+    "vacancyId": "e7b8d7d0-3a55-4b5e-8c2b-91d7e9c1a111",
+  }
+}
+```
