@@ -52,7 +52,7 @@
 
 ### 1. GET /api/vacancies/{id}/exists
 
-```
+```json
 {
   "event_type": "VACANCY_EXISTS",
   "correlation_id": "<id>",
@@ -67,7 +67,7 @@
 
 ### 2. GET  /api/vacancies/{id}/is-published
 
-```
+```json
 {
   "event_type": "VACANCY_IS_PUBLISHED",
   "correlation_id": "<id>",
@@ -82,7 +82,7 @@
 
 ### 3. GET /api/vacancies/{id}/title
 
-```
+```json
 {
   "event_type": "VACANCY_TITLE",
   "correlation_id": "<id>",
@@ -97,7 +97,7 @@
 
 ### 4. GET /api/vacancies/{vacancyId}/company-id
 
-```
+```json
 {
   "event_type": "VACANCY_COMPANY_ID",
   "correlation_id": "<id>",
@@ -111,8 +111,9 @@
 ```
 
 ### Пример сообщения в случае ошибки в ходе выполнения: 
+
 Запрос - GET /api/vacancies/{id}/title
-```
+```json
 {
   "event_type": "VACANCY_TITLE",
   "correlation_id": "<id>",
@@ -129,7 +130,7 @@
 
 #### 1. GET /{id}/title
 
-```
+```json
 {
   "event_type": "VACANCY_TITLE",
   "correlation_id": "b4c5f8c1-9d4f-4b1f-b4de-92a21c999999",
@@ -142,7 +143,7 @@
 
 #### 2. GET /{id}/exists
 
-```
+```json
 {
   "event_type": "VACANCY_EXISTS",
   "correlation_id": "eab4f2c1-9a22-4444-bbbb-cccccccccccc",
@@ -155,7 +156,7 @@
 
 #### 3. GET /{id}/is-published
 
-```
+```json
 {
   "event_type": "VACANCY_IS_PUBLISHED",
   "correlation_id": "11111111-2222-3333-4444-555555555555",
@@ -168,7 +169,7 @@
 
 #### 4. GET /{vacancyId}/company-id
 
-```
+```json
 {
   "event_type": "VACANCY_COMPANY_ID",
   "correlation_id": "9999eeee-aaaa-bbbb-cccc-dddddddddddd",
