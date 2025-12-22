@@ -138,6 +138,37 @@
 
 `UNAUTHORIZED` - токен не был указан 
 
+## vacancy.response (company-service -> vacancy.service):
+
+### 1. GET /api/company/{companyId}
+
+```json
+{
+  "event_type": "COMPANY_EXISTS",
+  "correlation_id": "<id">,
+  "ok": true,
+  "payload": {
+      "company_id": "<company_id>",
+      "result": true
+  },
+  "error_payload": null
+}
+```
+
+### 2. GET /api/company/{companyId}/{userId}
+
+```json
+{
+  "event_type": "COMPANY_VALIDATE_OWNERSHIP",
+  "correlation_id": "<id">,
+  "ok": true,
+  "payload": {
+      "company_id": "<company_id>",
+      "result": true
+  },
+  "error_payload": null
+}```
+
 
 ## application.request:
 
@@ -225,6 +256,7 @@
 ## user.request:
 
 ### 1. POST /api/auth/register-company-owner
+
 ```json
 {
   "event_type": "USER_CREATE_EVENT",
@@ -239,6 +271,7 @@
 ```
 
 ### 2. GET /api/user/{id}
+
 ```json
 {
   "event_type": "USER_EXISTS_EVENT",
