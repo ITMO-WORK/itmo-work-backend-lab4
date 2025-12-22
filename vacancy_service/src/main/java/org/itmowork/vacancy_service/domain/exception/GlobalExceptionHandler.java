@@ -1,6 +1,8 @@
 package org.itmowork.vacancy_service.domain.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.itmowork.vacancy_service.adapter.in.kafka.dto.ErrorPayload;
+import org.itmowork.vacancy_service.adapter.out.kafka.company.exceptions.CompanyRpcException;
 import org.itmowork.vacancy_service.domain.exception.exceptions.*;
 import org.springframework.http.*;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -14,6 +16,20 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+
+    @ExceptionHandler(CompanyRpcException.class)
+    public ResponseEntity<ErrorPayload> handleCompanyRpc(CompanyRpcException ex) {
+        HttpStatus status = switch (ex.getCode()) {
+            case "UNAUTHORIZED" -> HttpStatus.UNAUTHORIZED;
+            case "FORBIDDEN" -> HttpStatus.FORBIDDEN;
+            case "INTERNAL_ERROR" -> HttpStatus.INTERNAL_SERVER_ERROR;
+            case "BAD_REQUEST", "UNSUPPORTED_OPERATION" -> HttpStatus.BAD_REQUEST;
+            default -> HttpStatus.BAD_REQUEST;
+        };
+
+        return ResponseEntity.status(status)
+                .body(new ErrorPayload(ex.getCode(), ex.getMessage()));
+    }
 
     @ExceptionHandler(InvalidVacancyStatusException.class)
     public ResponseEntity<ProblemDetail> InvalidVacancyStatusException(InvalidVacancyStatusException e, HttpServletRequest request) {
