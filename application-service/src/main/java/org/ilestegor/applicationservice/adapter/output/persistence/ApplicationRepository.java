@@ -38,4 +38,9 @@ public interface ApplicationRepository extends ReactiveCrudRepository<Applicatio
     @Modifying
     @Query("UPDATE applications SET status = :statusId WHERE id = :applicationId")
     Mono<Integer> updateStatusById(UUID applicationId, Long statusId);
+
+    Flux<Application> findApplicationsByUserId(UUID userId, Pageable pageable);
+
+
+    Mono<Long> countApplicationsByUserId(UUID userId);
 }

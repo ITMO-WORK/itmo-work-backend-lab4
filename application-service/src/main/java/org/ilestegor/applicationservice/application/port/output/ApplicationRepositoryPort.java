@@ -32,5 +32,9 @@ public interface ApplicationRepositoryPort {
 
     Mono<Void> updateStatus(UUID applicationId, Long statusId);
 
+    Flux<Application> findAllByUserId(UUID userId, Pageable pageable);
+
+    Mono<Long> countApplicationsByUserId(UUID userId);
+
 
 }

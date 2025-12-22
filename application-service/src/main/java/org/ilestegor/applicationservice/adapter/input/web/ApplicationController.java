@@ -11,6 +11,7 @@ import org.ilestegor.applicationservice.adapter.input.web.dto.request.Applicatio
 import org.ilestegor.applicationservice.adapter.input.web.dto.request.ApplicationStatusUpdateRequestDto;
 import org.ilestegor.applicationservice.adapter.input.web.dto.response.ApplicationCreateResponseDto;
 import org.ilestegor.applicationservice.adapter.input.web.dto.response.ApplicationStatusUpdateResponseDto;
+import org.ilestegor.applicationservice.adapter.input.web.dto.response.GetMyApplicationResponse;
 import org.ilestegor.applicationservice.application.port.input.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -65,8 +66,9 @@ public class ApplicationController {
 
     @GetMapping("/me")
     @SecurityRequirement(name = "bearerAuth")
-    public Mono<ApplicationDto> getApplicationByApplicationId(){
-        return getApplicationPort.getApplicationByApplicationId();
+    public Mono<Page<GetMyApplicationResponse>> getApplicationByApplicationId(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size){
+        Pageable pageable = PageRequest.of(page, size);
+        return getApplicationPort.getApplicationByApplicationId(pageable);
     }
 
 }

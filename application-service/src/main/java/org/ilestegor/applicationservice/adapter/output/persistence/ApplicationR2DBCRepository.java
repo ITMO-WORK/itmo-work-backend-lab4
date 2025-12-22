@@ -77,4 +77,14 @@ public class ApplicationR2DBCRepository implements ApplicationRepositoryPort {
     public Mono<Void> updateStatus(UUID applicationId, Long statusId) {
         return applicationRepository.updateStatusById(applicationId, statusId).then();
     }
+
+    @Override
+    public Flux<Application> findAllByUserId(UUID userId, Pageable pageable) {
+        return applicationRepository.findApplicationsByUserId(userId, pageable);
+    }
+
+    @Override
+    public Mono<Long> countApplicationsByUserId(UUID userId) {
+        return applicationRepository.countApplicationsByUserId(userId);
+    }
 }
