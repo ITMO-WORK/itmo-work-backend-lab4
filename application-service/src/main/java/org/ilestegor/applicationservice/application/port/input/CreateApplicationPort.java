@@ -8,5 +8,5 @@ import reactor.core.publisher.Mono;
 import java.util.UUID;
 
 public interface CreateApplicationPort {
-    Mono<ApplicationCreateResponseDto> createApplication(UUID vacancyId, ApplicationCreateRequestDto dto, FilePart resume, UUID replacedField);
+    Mono<ApplicationCreateResponseDto> createApplication(UUID vacancyId, ApplicationCreateRequestDto dto);
 }

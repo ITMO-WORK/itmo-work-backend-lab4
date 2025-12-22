@@ -1,7 +1,7 @@
 package org.ilestegor.applicationservice.application.common;
 
 import lombok.RequiredArgsConstructor;
-import org.ilestegor.applicationservice.adapter.output.feign.user.dto.UserResponseDto;
+import org.ilestegor.applicationservice.adapter.input.kafka.user.dto.UserResponseDto;
 import org.ilestegor.applicationservice.application.port.output.ApplicationRepositoryPort;
 import org.ilestegor.applicationservice.application.port.output.CompanyPort;
 import org.ilestegor.applicationservice.application.port.output.UserPort;
@@ -36,7 +36,7 @@ public class ApplicationPreconditions {
 
     public Mono<UserResponseDto> checkUserExists(UUID userId, String token) {
         return userPort.checkUserExists(userId, token)
-                .flatMap(dto -> (dto == null || dto.id() == null)
+                .flatMap(dto -> (dto == null || dto.userId() == null)
                         ? Mono.error(new UserNotFoundException())
                         : Mono.just(dto));
     }
@@ -71,6 +71,17 @@ public class ApplicationPreconditions {
                 .flatMap(belongs -> {
                     if (belongs) return Mono.empty();
                     return Mono.error(new UserDoesNotBelongsToCompanyException());
+                });
+    }
+
+    public Mono<Application> checkUserOwnsApplicationByUserId(UUID userId) {
+        return applicationRepositoryPort.findApplicationIdByUserId(userId)
+                .switchIfEmpty(Mono.error(new ApplicationNotFoundException()))
+                .flatMap(app -> {
+                    if (userId.equals(app.getUserId())) {
+                        return Mono.just(app);
+                    }
+                    return Mono.error(new ApplicationNotFoundException());
                 });
     }
 }

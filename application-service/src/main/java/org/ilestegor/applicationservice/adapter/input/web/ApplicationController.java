@@ -11,10 +11,7 @@ import org.ilestegor.applicationservice.adapter.input.web.dto.request.Applicatio
 import org.ilestegor.applicationservice.adapter.input.web.dto.request.ApplicationStatusUpdateRequestDto;
 import org.ilestegor.applicationservice.adapter.input.web.dto.response.ApplicationCreateResponseDto;
 import org.ilestegor.applicationservice.adapter.input.web.dto.response.ApplicationStatusUpdateResponseDto;
-import org.ilestegor.applicationservice.application.port.input.CreateApplicationPort;
-import org.ilestegor.applicationservice.application.port.input.GetAllApplicationsByVacancyIdPort;
-import org.ilestegor.applicationservice.application.port.input.UpdateApplicationPort;
-import org.ilestegor.applicationservice.application.port.input.UpdateApplicationStatusPort;
+import org.ilestegor.applicationservice.application.port.input.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -37,28 +34,12 @@ public class ApplicationController {
     private final UpdateApplicationPort updateApplicationPort;
     private final UpdateApplicationStatusPort updateApplicationStatusPort;
     private final GetAllApplicationsByVacancyIdPort getAllApplicationsByVacancyIdPort;
+    private final GetApplicationPort getApplicationPort;
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    content = @Content(
-                            mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
-                            encoding = {
-                                    @Encoding(name = "data", contentType = MediaType.APPLICATION_JSON_VALUE)
-                            }
-                    )
-            )
-    )
-    public Mono<ResponseEntity<ApplicationCreateResponseDto>> createApplication(
-            @RequestParam UUID vacancyId,
-            @RequestPart("data") @Valid ApplicationCreateRequestDto dto,
-            @RequestPart(value = "resume", required = false) FilePart resume,
-            @RequestParam(value = "replacedField", required = false) UUID replacedField
-    ) {
-        return createApplicationPort
-                .createApplication(vacancyId, dto, resume, replacedField)
-                .map(body -> ResponseEntity.status(HttpStatus.CREATED).body(body));
+    public Mono<ResponseEntity<ApplicationCreateResponseDto>> createApplication(@RequestParam UUID vacancyId, @RequestBody @Valid ApplicationCreateRequestDto dto) {
+        return createApplicationPort.createApplication(vacancyId, dto).map(body -> ResponseEntity.status(HttpStatus.CREATED).body(body));
     }
 
     @PatchMapping("/{applicationId}")
@@ -80,6 +61,12 @@ public class ApplicationController {
     public Mono<Page<ApplicationDto>> getAllApplicationsByVacancyId(@RequestParam UUID vacancyId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
         return getAllApplicationsByVacancyIdPort.getAllApplicationsByVacancyId(vacancyId, pageable);
+    }
+
+    @GetMapping("/me")
+    @SecurityRequirement(name = "bearerAuth")
+    public Mono<ApplicationDto> getApplicationByApplicationId(){
+        return getApplicationPort.getApplicationByApplicationId();
     }
 
 }

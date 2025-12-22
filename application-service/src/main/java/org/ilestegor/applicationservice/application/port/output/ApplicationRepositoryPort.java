@@ -28,6 +28,9 @@ public interface ApplicationRepositoryPort {
 
     Mono<Void> updateFileIdByApplicationId(UUID applicationId, UUID fieldId);
 
-    Mono<UUID> findApplicationIdByUserId(UUID userId);
+    Mono<Application> findApplicationIdByUserId(UUID userId);
+
+    Mono<Void> updateStatus(UUID applicationId, Long statusId);
+
 
 }

@@ -84,23 +84,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
-    @ExceptionHandler(VacancyBadRequest.class)
-    public ResponseEntity<ProblemDetail> vacancyBadRequestExceptionHandler(VacancyBadRequest ex, ServerWebExchange request) {
-        ProblemDetail body = ProblemDetailsUtils.problemDetail(HttpStatus.BAD_REQUEST, ex.getMessage(), "", request);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
-    }
-
     @ExceptionHandler(WrongEventException.class)
     public ResponseEntity<ProblemDetail> wrongEventExceptionHandler(WrongEventException ex, ServerWebExchange request) {
         ProblemDetail body = ProblemDetailsUtils.problemDetail(HttpStatus.BAD_REQUEST, ex.getMessage(), "", request);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
-    @ExceptionHandler(VacancyInternalError.class)
-    public ResponseEntity<ProblemDetail> vacancyInternalErrorExceptionHandler(VacancyInternalError ex, ServerWebExchange request) {
-        ProblemDetail body = ProblemDetailsUtils.problemDetail(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), "", request);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
-    }
 
     @ExceptionHandler(ForbiddenErrorException.class)
     public ResponseEntity<ProblemDetail> forbiddenErrorExceptionHandler(ForbiddenErrorException ex, ServerWebExchange request) {
@@ -119,4 +108,17 @@ public class GlobalExceptionHandler {
         ProblemDetail body = ProblemDetailsUtils.problemDetail(HttpStatus.REQUEST_TIMEOUT, ex.getMessage(), "", request);
         return ResponseEntity.status(HttpStatus.REQUEST_TIMEOUT).body(body);
     }
+
+    @ExceptionHandler(RemoteServiceException.class)
+    public ResponseEntity<ProblemDetail> remoteBadRequestExceptionHandler(RemoteServiceException ex, ServerWebExchange request) {
+        ProblemDetail body = ProblemDetailsUtils.problemDetail(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), "", request);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
+    }
+
+    @ExceptionHandler(RemoteBadRequestException.class)
+    public ResponseEntity<ProblemDetail> remoteBadRequestExceptionHandler(RemoteBadRequestException ex, ServerWebExchange request) {
+        ProblemDetail body = ProblemDetailsUtils.problemDetail(HttpStatus.BAD_REQUEST, ex.getMessage(), "", request);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
 }

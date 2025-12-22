@@ -9,6 +9,8 @@ public record KafkaProps(Topics topics, Duration timeout) {
     public record Topics(String applicationsEvents,
                          String vacancyRequest,
                          String fileEvents,
-                         String applicationResponse) {
+                         String applicationResponse,
+                         String companyRequest,
+                         String userRequest) {
     }
 }

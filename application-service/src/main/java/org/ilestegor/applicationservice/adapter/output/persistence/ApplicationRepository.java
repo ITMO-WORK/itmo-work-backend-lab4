@@ -2,6 +2,7 @@ package org.ilestegor.applicationservice.adapter.output.persistence;
 
 import org.ilestegor.applicationservice.domain.Application;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.r2dbc.repository.Modifying;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
@@ -32,5 +33,9 @@ public interface ApplicationRepository extends ReactiveCrudRepository<Applicatio
     @Query("UPDATE applications SET file_id = :fileId, updated_at = NOW() WHERE id = :applicationId")
     Mono<Void> updateFileIdById(UUID applicationId, UUID fileId);
 
-    Mono<UUID> findApplicationByUserId(UUID userId);
+    Mono<Application> findApplicationByUserId(UUID userId);
+
+    @Modifying
+    @Query("UPDATE applications SET status = :statusId WHERE id = :applicationId")
+    Mono<Integer> updateStatusById(UUID applicationId, Long statusId);
 }

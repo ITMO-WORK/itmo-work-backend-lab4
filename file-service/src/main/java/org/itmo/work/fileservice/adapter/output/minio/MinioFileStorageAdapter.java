@@ -35,7 +35,7 @@ public class MinioFileStorageAdapter implements FileStoragePort {
         try {
             internalClient.putObject(
                     PutObjectArgs.builder()
-                            .bucket(fileStoragePropsPort.bucket())
+                            .bucket(bucket)
                             .object(objectKey)
                             .contentType(file.getContentType())
                             .stream(file.getInputStream(), file.getSize(), -1)

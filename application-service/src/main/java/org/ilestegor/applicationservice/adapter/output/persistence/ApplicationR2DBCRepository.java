@@ -1,6 +1,7 @@
 package org.ilestegor.applicationservice.adapter.output.persistence;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.ilestegor.applicationservice.application.port.output.ApplicationRepositoryPort;
 import org.ilestegor.applicationservice.domain.Application;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +13,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ApplicationR2DBCRepository implements ApplicationRepositoryPort {
 
     private final ApplicationRepository applicationRepository;
@@ -67,7 +69,12 @@ public class ApplicationR2DBCRepository implements ApplicationRepositoryPort {
     }
 
     @Override
-    public Mono<UUID> findApplicationIdByUserId(UUID userId) {
+    public Mono<Application> findApplicationIdByUserId(UUID userId) {
         return applicationRepository.findApplicationByUserId(userId);
+    }
+
+    @Override
+    public Mono<Void> updateStatus(UUID applicationId, Long statusId) {
+        return applicationRepository.updateStatusById(applicationId, statusId).then();
     }
 }

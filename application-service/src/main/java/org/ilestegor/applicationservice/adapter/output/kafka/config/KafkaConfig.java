@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.ilestegor.applicationservice.adapter.input.kafka.vacancy.responselistener.dto.ResponseMessage;
+import org.ilestegor.applicationservice.adapter.input.kafka.common.ResponseMessage;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

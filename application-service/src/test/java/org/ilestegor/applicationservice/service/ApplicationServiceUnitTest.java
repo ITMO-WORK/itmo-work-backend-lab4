@@ -119,7 +119,7 @@
 //            LocalDateTime now = LocalDateTime.now();
 //
 //            Application savedApp = Application.builder()
-//                    .id(appId)
+//                    .userId(appId)
 //                    .userId(userId)
 //                    .vacancyId(vacancyId)
 //                    .coverLetter(request.coverLetter())
@@ -137,7 +137,7 @@
 //                    withAuth(applicationService.createApplication(vacancyId, request, null, null));
 //            StepVerifier.create(result)
 //                    .assertNext(dto -> {
-//                        assertEquals(appId, dto.id());
+//                        assertEquals(appId, dto.userId());
 //                        assertEquals(ApplicationStatusName.NEW.getValue(), dto.status());
 //                        assertEquals(request.coverLetter(), dto.coverLetter());
 //                        assertEquals(now, dto.createdAt());
@@ -171,7 +171,7 @@
 //            LocalDateTime now = LocalDateTime.now();
 //
 //            Application savedApp = Application.builder()
-//                    .id(appId)
+//                    .userId(appId)
 //                    .userId(userId)
 //                    .vacancyId(vacancyId)
 //                    .coverLetter(request.coverLetter())
@@ -201,7 +201,7 @@
 //
 //            StepVerifier.create(result)
 //                    .assertNext(dto -> {
-//                        assertEquals(appId, dto.id());
+//                        assertEquals(appId, dto.userId());
 //                        assertEquals(ApplicationStatusName.NEW.getValue(), dto.status());
 //                        assertEquals(request.coverLetter(), dto.coverLetter());
 //                    })
@@ -343,7 +343,7 @@
 //
 //
 //            Application existing = Application.builder()
-//                    .id(UUID.randomUUID())
+//                    .userId(UUID.randomUUID())
 //                    .userId(userId)
 //                    .vacancyId(vacancyId)
 //                    .coverLetter("old cover")
@@ -365,7 +365,7 @@
 //
 //
 //            Application saved = Application.builder()
-//                    .id(existing.getId())
+//                    .userId(existing.getId())
 //                    .userId(userId)
 //                    .vacancyId(vacancyId)
 //                    .coverLetter(request.coverLetter())
@@ -393,7 +393,7 @@
 //
 //            StepVerifier.create(result)
 //                    .assertNext(dto -> {
-//                        assertEquals(saved.getId(), dto.id());
+//                        assertEquals(saved.getId(), dto.userId());
 //                        assertEquals(ApplicationStatusName.NEW.getValue(), dto.status());
 //                        assertEquals(saved.getCoverLetter(), dto.coverLetter());
 //                    })
@@ -610,7 +610,7 @@
 //
 //
 //            Application existing = Application.builder()
-//                    .id(UUID.randomUUID())
+//                    .userId(UUID.randomUUID())
 //                    .userId(userId)
 //                    .vacancyId(vacancyId)
 //                    .coverLetter("old")
@@ -667,7 +667,7 @@
 //
 //
 //            Application existing = Application.builder()
-//                    .id(UUID.randomUUID())
+//                    .userId(UUID.randomUUID())
 //                    .userId(userId)
 //                    .vacancyId(vacancyId)
 //                    .coverLetter("old")
@@ -731,7 +731,7 @@
 //            when(companyClient.isUserBelongsToCompany(companyId, userId, BEARER_TOKEN)).thenReturn(true);
 //
 //            Application application = Application.builder()
-//                    .id(applicationId)
+//                    .userId(applicationId)
 //                    .userId(userId)
 //                    .vacancyId(vacancyId)
 //                    .coverLetter("some")
@@ -756,7 +756,7 @@
 //                    .thenReturn(Mono.just(targetStatus));
 //
 //            Application saved = Application.builder()
-//                    .id(applicationId)
+//                    .userId(applicationId)
 //                    .userId(userId)
 //                    .vacancyId(vacancyId)
 //                    .coverLetter(application.getCoverLetter())
@@ -988,7 +988,7 @@
 //
 //
 //            Application application = Application.builder()
-//                    .id(applicationId)
+//                    .userId(applicationId)
 //                    .userId(userId)
 //                    .vacancyId(vacancyId)
 //                    .coverLetter("x")
@@ -1070,7 +1070,7 @@
 //
 //
 //            Application app1 = Application.builder()
-//                    .id(UUID.randomUUID())
+//                    .userId(UUID.randomUUID())
 //                    .userId(applicantId)
 //                    .vacancyId(vacancyId)
 //                    .coverLetter("cover 1")
@@ -1080,7 +1080,7 @@
 //                    .build();
 //
 //            Application app2 = Application.builder()
-//                    .id(UUID.randomUUID())
+//                    .userId(UUID.randomUUID())
 //                    .userId(applicantId)
 //                    .vacancyId(vacancyId)
 //                    .coverLetter("cover 2")
@@ -1106,7 +1106,7 @@
 //                    .thenAnswer(invocation -> {
 //                        Application app = invocation.getArgument(0, Application.class);
 //                        return ApplicationDto.builder()
-//                                .id(app.getId())
+//                                .userId(app.getId())
 //                                .userId(app.getUserId())
 //                                .vacancyId(app.getVacancyId())
 //                                .coverLetter(app.getCoverLetter())
@@ -1241,7 +1241,7 @@
 //
 //
 //            Application app = Application.builder()
-//                    .id(UUID.randomUUID())
+//                    .userId(UUID.randomUUID())
 //                    .userId(applicantId)
 //                    .vacancyId(vacancyId)
 //                    .coverLetter("cover")

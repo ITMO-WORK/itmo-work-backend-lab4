@@ -8,4 +8,5 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface ApplicationRegistryRepository extends JpaRepository<ApplicationRegistry, UUID> {
+    ApplicationRegistry findApplicationRegistryByApplicationId(UUID applicationId);
 }

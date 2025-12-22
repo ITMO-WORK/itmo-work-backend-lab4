@@ -32,7 +32,7 @@ public class ResumeUploadEventHandler implements EventHandler {
             var payload = objectMapper.treeToValue(eventMessage.payload(), ResumeUploadedEventDto.class);
             applicationRepositoryPort.findApplicationIdByUserId(payload.userId())
                     .switchIfEmpty(Mono.error(new ApplicationNotFoundException()))
-                    .flatMap(appId -> applicationRepositoryPort.updateFileIdByApplicationId(appId, payload.fileId()))
+                    .flatMap(appId -> applicationRepositoryPort.updateFileIdByApplicationId(appId.getId(), payload.fileId()))
                     .doOnError(e -> log.error("Failed to handle RESUME_UPLOAD_EVENT: {}", payload, e))
                     .subscribe();
 

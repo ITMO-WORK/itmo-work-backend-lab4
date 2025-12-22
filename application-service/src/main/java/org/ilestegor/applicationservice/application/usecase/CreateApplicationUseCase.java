@@ -35,9 +35,7 @@ public class CreateApplicationUseCase implements CreateApplicationPort {
     @Override
     public Mono<ApplicationCreateResponseDto> createApplication(
             UUID vacancyId,
-            ApplicationCreateRequestDto dto,
-            FilePart resume,
-            UUID replacedField
+            ApplicationCreateRequestDto dto
     ) {
         return currentUserPort.getCurrentUser()
                 .flatMap(user ->

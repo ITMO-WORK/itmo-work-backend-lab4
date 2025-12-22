@@ -19,6 +19,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class UploadResumeUseCase implements UploadResumePort {
+
     private final FileRepositoryPort storedFileRepositoryPort;
     private final FileStoragePort fileStoragePort;
     private final FileEventPublisherPort fileEventPublisherPort;
@@ -28,8 +29,6 @@ public class UploadResumeUseCase implements UploadResumePort {
 
     @Override
     public UploadResumeResponse uploadResume(MultipartFile file, UUID applicationId) {
-
-        System.out.println(applicationId);
 
         boolean exists = applicationRegistryPort.exists(applicationId);
         if (!exists) throw new ApplicationNotFoundException();

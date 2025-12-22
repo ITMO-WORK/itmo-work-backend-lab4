@@ -14,6 +14,7 @@ public record ApplicationDto(
         UUID vacancyId,
         String vacancyTitle,
         UUID userId,
-        String userFullName
+        String userFullName,
+        UUID fileId
 ) {
 }

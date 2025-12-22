@@ -14,3 +14,6 @@ spring:
       write-dates-as-timestamps: false
   config:
     import: configserver:${CONFIG_SERVER_URL:http://localhost:9991}
+logging:
+  level:
+    org.springframework.r2dbc.core: DEBUG

@@ -2,9 +2,9 @@ package org.ilestegor.applicationservice.adapter.output.kafka.vacancy;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.ilestegor.applicationservice.adapter.input.kafka.vacancy.responselistener.dto.VacancyCompanyIdPayload;
-import org.ilestegor.applicationservice.adapter.input.kafka.vacancy.responselistener.dto.VacancyResultPayload;
-import org.ilestegor.applicationservice.adapter.input.kafka.vacancy.responselistener.dto.VacancyTitlePayload;
+import org.ilestegor.applicationservice.adapter.input.kafka.vacancy.dto.VacancyCompanyIdPayload;
+import org.ilestegor.applicationservice.adapter.input.kafka.vacancy.dto.VacancyResultPayload;
+import org.ilestegor.applicationservice.adapter.input.kafka.vacancy.dto.VacancyTitlePayload;
 import org.ilestegor.applicationservice.adapter.output.kafka.common.ReplyTo;
 import org.ilestegor.applicationservice.adapter.output.kafka.common.RequestMessage;
 import org.ilestegor.applicationservice.adapter.output.kafka.common.RequestType;

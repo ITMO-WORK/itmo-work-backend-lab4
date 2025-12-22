@@ -125,7 +125,7 @@
 //        stubFor(get(urlEqualTo("/api/user/" + TEST_USER_ID))
 //                .willReturn(okJson("""
 //            {
-//              "id": "%s",
+//              "userId": "%s",
 //              "full_name": "Test User",
 //              "email": "test@mail.com"
 //            }
@@ -167,11 +167,11 @@
 //                .getResponseBody();
 //
 //        assertThat(entity).isNotNull();
-//        assertThat(entity.id()).isNotNull();
+//        assertThat(entity.userId()).isNotNull();
 //        assertThat(entity.status()).isEqualTo(ApplicationStatusName.NEW.getValue());
 //        assertThat(entity.coverLetter()).isEqualTo("cover letter");
 //
-//        var saved = applicationRepository.findById(entity.id()).block();
+//        var saved = applicationRepository.findById(entity.userId()).block();
 //        assertThat(saved).isNotNull();
 //        assertThat(saved.getUserId()).isEqualTo(TEST_USER_ID);
 //        assertThat(saved.getVacancyId()).isEqualTo(vacancyId);
@@ -231,7 +231,7 @@
 //        stubFor(get(urlEqualTo("/api/user/" + TEST_USER_ID))
 //                .willReturn(okJson("""
 //            {
-//              "id": "%s",
+//              "userId": "%s",
 //              "full_name": "Test User",
 //              "email": "test@mail.com"
 //            }
@@ -266,7 +266,7 @@
 //        stubFor(get(urlEqualTo("/api/user/" + TEST_USER_ID))
 //                .willReturn(okJson("""
 //            {
-//              "id": "%s",
+//              "userId": "%s",
 //              "full_name": "Test User",
 //              "email": "test@mail.com"
 //            }
@@ -323,7 +323,7 @@
 //        stubFor(get(urlEqualTo("/api/user/" + TEST_USER_ID))
 //                .willReturn(okJson("""
 //            {
-//              "id": "%s",
+//              "userId": "%s",
 //              "email": "john.doe@example.com",
 //              "full_name": "John Doe"
 //            }
@@ -367,7 +367,7 @@
 //        stubFor(get(urlEqualTo("/api/user/" + TEST_USER_ID))
 //                .willReturn(okJson("""
 //                {
-//                  "id": "%s",
+//                  "userId": "%s",
 //                  "full_name": "Test User",
 //                  "email": "test@mail.com"
 //                }
@@ -413,7 +413,7 @@
 //
 //
 //        assertThat(response).isNotNull();
-//        assertThat(response.id()).isEqualTo(existing.getId());
+//        assertThat(response.userId()).isEqualTo(existing.getId());
 //        assertThat(response.coverLetter()).isEqualTo("updated cover letter");
 //        assertThat(response.status()).isEqualTo(ApplicationStatusName.NEW.getValue());
 //

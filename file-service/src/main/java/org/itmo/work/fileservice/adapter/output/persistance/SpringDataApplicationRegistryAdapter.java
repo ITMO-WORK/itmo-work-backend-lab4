@@ -28,4 +28,9 @@ public class SpringDataApplicationRegistryAdapter implements ApplicationRegistry
     public Boolean exists(UUID applicationId) {
         return applicationRegistryRepository.existsById(applicationId);
     }
+
+    @Override
+    public ApplicationRegistry findApplicationRegistryByApplicationId(UUID applicationId) {
+        return applicationRegistryRepository.findApplicationRegistryByApplicationId(applicationId);
+    }
 }

@@ -47,11 +47,11 @@ public class GetAllApplicationsByVacancyIdUseCase implements GetAllApplicationsB
         Mono<List<ApplicationDto>> contentMono =
                 applicationRepositoryPort.findAllByVacancyId(vacancyId, pageable)
                         .flatMap(app ->
-                                userPort.checkUserExists(app.getUserId(), token) // или userPort.getById(...)
+                                userPort.checkUserExists(app.getUserId(), token)
                                         .map(u -> {
                                             var dto = applicationMapper.fromApplicationtoApplicationDto(app);
                                             return dto.toBuilder()
-                                                    .userFullName(u.fullName())
+                                                    .userFullName(u.ownerFullName())
                                                     .vacancyTitle(vacancyTitle)
                                                     .build();
                                         })

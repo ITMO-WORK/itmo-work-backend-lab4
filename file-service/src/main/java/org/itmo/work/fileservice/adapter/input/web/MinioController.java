@@ -2,7 +2,9 @@ package org.itmo.work.fileservice.adapter.input.web;
 
 import lombok.RequiredArgsConstructor;
 import org.itmo.work.fileservice.application.port.input.GetResumeFilePort;
+import org.itmo.work.fileservice.application.port.input.UpdateResumePort;
 import org.itmo.work.fileservice.application.port.input.UploadResumePort;
+import org.itmo.work.fileservice.application.usecase.updateresume.dto.UpdateResumeResponse;
 import org.itmo.work.fileservice.application.usecase.uploadresume.dto.UploadResumeRequest;
 import org.itmo.work.fileservice.application.usecase.uploadresume.dto.UploadResumeResponse;
 import org.springframework.http.HttpStatus;
@@ -20,9 +22,10 @@ import java.util.UUID;
 public class MinioController {
     private final UploadResumePort uploadResume;
     private final GetResumeFilePort getDownloadUrl;
+    private final UpdateResumePort updateResumePort;
 
     @PostMapping(value = "/resume", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UploadResumeResponse> uploadResume(@RequestPart("file") MultipartFile file, @RequestParam(value = "applicationId", required = false) UUID applicationId) {
+    public ResponseEntity<UploadResumeResponse> uploadResume(@RequestPart("file") MultipartFile file, @RequestParam(value = "applicationId") UUID applicationId) {
 
         return new ResponseEntity<>(uploadResume.uploadResume(file, applicationId), HttpStatus.OK);
     }
@@ -35,6 +38,11 @@ public class MinioController {
         return ResponseEntity.ok(
                 Map.of("url", url)
         );
+    }
+
+    @PatchMapping(value = "/resume", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UpdateResumeResponse> updateResume(@RequestPart("file") MultipartFile file, @RequestParam(value = "applicationId") UUID applicationId){
+        return new ResponseEntity<>(updateResumePort.updateResume(applicationId, file), HttpStatus.OK);
     }
 
 }
