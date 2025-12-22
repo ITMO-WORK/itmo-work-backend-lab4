@@ -8,6 +8,7 @@ import com.itmowork.user_service.adapter.in.web.mapper.AuthWebMapper;
 import com.itmowork.user_service.application.port.in.LoginUseCase;
 import com.itmowork.user_service.application.port.in.RegisterCompanyOwnerUseCase;
 import com.itmowork.user_service.application.port.in.RegisterUserUseCase;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,6 +28,7 @@ public class AuthController {
     private final LoginUseCase loginUseCase;
 
     @PostMapping("/register")
+    @SecurityRequirement(name = "bearerAuth")
     public Mono<AuthResponseDto> register(@RequestBody @Valid Mono<UserRequestDto> userRequestDto) {
         return userRequestDto
                 .map(authWebMapper::toRegisterCommand)
@@ -35,6 +37,7 @@ public class AuthController {
     }
 
     @PostMapping("/register-company-owner")
+    @SecurityRequirement(name = "bearerAuth")
     public Mono<AuthResponseDto> registerCompanyOwner(@RequestBody @Valid Mono<UserRequestDto> userRequestDto) {
         return userRequestDto
                 .map(authWebMapper::toRegisterCompanyOwnerCommand)
