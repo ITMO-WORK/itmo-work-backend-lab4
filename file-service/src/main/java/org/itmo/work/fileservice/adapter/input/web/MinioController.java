@@ -1,5 +1,6 @@
 package org.itmo.work.fileservice.adapter.input.web;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.itmo.work.fileservice.application.port.input.GetResumeFilePort;
 import org.itmo.work.fileservice.application.port.input.UpdateResumePort;
@@ -25,12 +26,14 @@ public class MinioController {
     private final UpdateResumePort updateResumePort;
 
     @PostMapping(value = "/resume", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<UploadResumeResponse> uploadResume(@RequestPart("file") MultipartFile file, @RequestParam(value = "applicationId") UUID applicationId) {
 
         return new ResponseEntity<>(uploadResume.uploadResume(file, applicationId), HttpStatus.OK);
     }
 
     @GetMapping(value = "/resume/{applicationId}")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Map<String, String>> getDownloadUrl(@PathVariable UUID applicationId) {
 
         String url = getDownloadUrl.getDownloadUrl(applicationId);
@@ -41,6 +44,7 @@ public class MinioController {
     }
 
     @PatchMapping(value = "/resume", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<UpdateResumeResponse> updateResume(@RequestPart("file") MultipartFile file, @RequestParam(value = "applicationId") UUID applicationId){
         return new ResponseEntity<>(updateResumePort.updateResume(applicationId, file), HttpStatus.OK);
     }
