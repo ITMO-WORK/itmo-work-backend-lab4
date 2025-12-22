@@ -293,7 +293,7 @@
   "correlation_id": "<id>",
   "ok": true,
   "payload": {
-      "company_id": "<company_id>"
+      "user_id": "<user_id>"
   },
   "error_payload": null
 }
