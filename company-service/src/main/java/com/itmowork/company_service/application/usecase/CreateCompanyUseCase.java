@@ -22,13 +22,18 @@ import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.reactor.circuitbreaker.operator.CircuitBreakerOperator;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.util.function.Tuples;
 
+import java.util.concurrent.TimeoutException;
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CreateCompanyUseCase implements CreateCompanyPort {
@@ -40,6 +45,7 @@ public class CreateCompanyUseCase implements CreateCompanyPort {
     private final UserPort userPort;
 
     @Override
+    @Transactional
     public Mono<CompanyResponseDto> createCompany(CompanyRequestDto companyRequestDto) {
         return companyRepositoryPort.existsByEmail(companyRequestDto.email())
                 .flatMap(isExists -> {
@@ -53,8 +59,8 @@ public class CreateCompanyUseCase implements CreateCompanyPort {
                             Mono<UserResponsePayLoad> userResponseDtoMono = createRemoteUser(
                                     new UserRequestPayLoad(
                                             companyRequestDto.ownerFullName(),
-                                            companyRequestDto.ownerPassword(),
-                                            companyRequestDto.ownerEmail()
+                                            companyRequestDto.ownerEmail(),
+                                            companyRequestDto.ownerPassword()
                                     )
                             );
 
@@ -64,6 +70,8 @@ public class CreateCompanyUseCase implements CreateCompanyPort {
                 .flatMap(tuple -> {
                     CompanyStatus companyStatus = tuple.getT1();
                     UserResponsePayLoad userResponsePayLoad = tuple.getT2();
+
+                    log.info(userResponsePayLoad + "");
 
                     Company company = getCompany(companyRequestDto, companyStatus);
 
@@ -76,7 +84,7 @@ public class CreateCompanyUseCase implements CreateCompanyPort {
 
                     UserCompany userCompany = new UserCompany();
                     userCompany.setCompanyId(savedCompany.getId());
-                    userCompany.setUserId(userResponsePayLoad.id());
+                    userCompany.setUserId(userResponsePayLoad.userId());
 
                     return userCompanyRepositoryPort.saveUserCompany(userCompany);
 
@@ -106,56 +114,37 @@ public class CreateCompanyUseCase implements CreateCompanyPort {
 
     public Mono<UserResponsePayLoad> createRemoteUser(UserRequestPayLoad userRequestPayLoad) {
         return Mono.deferContextual(ctx -> {
+            log.info("Reactor context keys: {}", ctx.stream().map(e -> e.getKey()).toList());
+
             String token = ctx.getOrDefault("authToken", null);
+            log.info("Auth token from context = {}", token);
+            if (token == null) {
+                return Mono.error(new BadCredentialsException("Not authorized"));
+            }
 
             CircuitBreaker cb = registry.circuitBreaker("userClientCB");
 
-            if (token == null) return Mono.error(new BadCredentialsException("Not authorized"));
-
-            return Mono.fromCallable(() -> {
-                        return userPort.registerCompanyOwner(userRequestPayLoad, token);
-                    })
+            return Mono.fromCallable(() ->
+                            userPort.registerCompanyOwner(userRequestPayLoad, token)
+                    )
                     .subscribeOn(Schedulers.boundedElastic())
                     .transformDeferred(CircuitBreakerOperator.of(cb))
-                    .onErrorResume(e -> {
-
-
-                        if (e instanceof FeignException fe) {
-                            return Mono.error(mapFeignException(fe));
-                        }
-
-
-                        if (isInfrastructureError(e)) {
-                            return createUserFallback(userRequestPayLoad, e);
-                        }
-
-
-                        return Mono.error(e);
-                    });
-
+                    .onErrorMap(this::mapInfrastructureErrors);
         });
     }
 
-    public Mono<UserResponsePayLoad> createUserFallback(UserRequestPayLoad dto, Throwable e) {
-        return Mono.error(new UserClientException(
-                "User service сейчас не доступен, создание юзера невозможно",
-                HttpStatus.SERVICE_UNAVAILABLE
-        ));
-    }
+    private Throwable mapInfrastructureErrors(Throwable e) {
 
-    private boolean isInfrastructureError(Throwable e) {
-        return e instanceof RetryableException
-                || e instanceof CallNotPermittedException;
-    }
+        if (e instanceof TimeoutException
+                || e instanceof RetryableException
+                || e instanceof CallNotPermittedException) {
 
-    private RuntimeException mapFeignException(FeignException e) {
-        HttpStatus status = HttpStatus.resolve(e.status());
-
-        String message = e.contentUTF8();
-        if (message == null || message.isBlank()) {
-            message = "Ошибка user сервиса";
+            return new UserClientException(
+                    "User service сейчас не доступен, создание юзера невозможно",
+                    HttpStatus.SERVICE_UNAVAILABLE
+            );
         }
 
-        return new UserClientException(message, status != null ? status : HttpStatus.INTERNAL_SERVER_ERROR);
+        return e;
     }
 }

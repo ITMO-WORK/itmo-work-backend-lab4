@@ -18,6 +18,7 @@ import com.itmowork.user_service.application.port.in.GetUserByIdUseCase;
 import com.itmowork.user_service.application.port.in.RegisterCompanyOwnerUseCase;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.header.Headers;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
@@ -29,6 +30,7 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class UserRequestListener {
@@ -57,6 +59,8 @@ public class UserRequestListener {
             return;
         }
 
+        log.info(msg + "");
+
         Mono<Void> pipeline = switch (msg.eventType()) {
             case USER_CREATE_EVENT -> handleUserCreate(msg, authorization);
             case USER_EXISTS_EVENT -> handleUserExists(msg, key);
@@ -72,6 +76,7 @@ public class UserRequestListener {
                     if (!allowed) return Mono.empty();
 
                     CreateOwnerPayload payload = readPayload(msg.payload(), CreateOwnerPayload.class);
+                    log.info(payload + "");
                     if (payload == null || isBlank(payload.ownerEmail()) || isBlank(payload.ownerPassword()) || isBlank(payload.ownerFullName())) {
                         return sendError(msg, "BAD_REQUEST", "owner_full_name, owner_email, owner_password are required");
                     }
@@ -189,6 +194,7 @@ public class UserRequestListener {
                 null,
                 new ErrorPayload(code, message)
         );
+        log.info(msg + "");
         String topic = msg.replyTo() == null ? "application.response" : msg.replyTo().getValue();
         return producer.send(topic, response);
     }

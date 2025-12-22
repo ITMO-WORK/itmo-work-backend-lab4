@@ -1,9 +1,6 @@
 package com.itmowork.company_service.domain.exception;
 
-import com.itmowork.company_service.domain.exception.exceptions.CompanyAlreadyExistsException;
-import com.itmowork.company_service.domain.exception.exceptions.CompanyNotFoundException;
-import com.itmowork.company_service.domain.exception.exceptions.CompanyStatusNotFoundException;
-import com.itmowork.company_service.domain.exception.exceptions.UserClientException;
+import com.itmowork.company_service.domain.exception.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -50,6 +47,35 @@ public class GlobalExceptionHandler {
     public Mono<ProblemDetail> handleCompanyNotFoundException(CompanyNotFoundException ex, ServerWebExchange exchange){
 
         return Mono.just(ProblemDetailsUtils.problemDetail(HttpStatus.NOT_FOUND, "Company not found", ex.getMessage(), exchange));
+    }
+
+    @ExceptionHandler(UserBadRequest.class)
+    public Mono<ProblemDetail> handleUserBadRequestException(UserBadRequest ex, ServerWebExchange exchange){
+
+        return Mono.just(ProblemDetailsUtils.problemDetail(HttpStatus.BAD_REQUEST, ex.getMessage(), "", exchange));
+    }
+
+    @ExceptionHandler(WrongEventException.class)
+    public Mono<ProblemDetail> handleWrongEventException(WrongEventException ex, ServerWebExchange exchange){
+
+        return Mono.just(ProblemDetailsUtils.problemDetail(HttpStatus.BAD_REQUEST, ex.getMessage(), "", exchange));
+    }
+
+    @ExceptionHandler(UserInternalError.class)
+    public Mono<ProblemDetail> handleUserInternalException(UserInternalError ex, ServerWebExchange exchange){
+
+        return Mono.just(ProblemDetailsUtils.problemDetail(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), "", exchange));
+    }
+
+    @ExceptionHandler(ForbiddenErrorException.class)
+    public Mono<ProblemDetail> handleForbiddenErrorException(ForbiddenErrorException ex, ServerWebExchange exchange){
+
+        return Mono.just(ProblemDetailsUtils.problemDetail(HttpStatus.FORBIDDEN, ex.getMessage(), "", exchange));
+    }
+
+    @ExceptionHandler(IllegalJsonFormatException.class)
+    public Mono<ProblemDetail> illegalJsonFormatExceptionHandler(IllegalJsonFormatException ex, ServerWebExchange request) {
+      return Mono.just(ProblemDetailsUtils.problemDetail(HttpStatus.BAD_REQUEST, "Not valid JSON format", "", request));
     }
 
     @ExceptionHandler(BadCredentialsException.class)

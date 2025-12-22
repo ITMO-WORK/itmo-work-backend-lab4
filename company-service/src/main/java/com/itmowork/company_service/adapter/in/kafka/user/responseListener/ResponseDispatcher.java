@@ -1,6 +1,7 @@
 package com.itmowork.company_service.adapter.in.kafka.user.responseListener;
 
 import com.itmowork.company_service.adapter.in.kafka.user.responseListener.dto.ResponseMessage;
+import com.itmowork.company_service.adapter.in.kafka.user.responseListener.mapper.ErrorToExceptionMapper;
 import com.itmowork.company_service.adapter.out.kafka.common.registry.CorrelationRegistry;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -12,7 +13,7 @@ import java.util.UUID;
 public class ResponseDispatcher {
 
     private final CorrelationRegistry correlationRegistry;
-//    private final ErrorToExceptionMapper errorToExceptionMapper;
+    private final ErrorToExceptionMapper errorToExceptionMapper;
 
     public void dispatch(ResponseMessage responseMessage) {
         UUID cid = responseMessage.correlationId();
@@ -26,7 +27,7 @@ public class ResponseDispatcher {
         }
 
 
-//        var exception = errorToExceptionMapper.toException(responseMessage.eventType(), responseMessage.errorPayload());
-//        correlationRegistry.fail(cid, exception);
+        var exception = errorToExceptionMapper.toException(responseMessage.eventType(), responseMessage.errorPayload());
+        correlationRegistry.fail(cid, exception);
     }
 }

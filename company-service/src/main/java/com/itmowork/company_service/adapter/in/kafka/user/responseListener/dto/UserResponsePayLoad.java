@@ -1,9 +1,11 @@
 package com.itmowork.company_service.adapter.in.kafka.user.responseListener.dto;
 
-import java.util.UUID;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import java.util.UUID;
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record UserResponsePayLoad(
-        UUID id,
-        String token
+        UUID userId
 ) {
 }
