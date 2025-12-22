@@ -8,7 +8,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Getter
 public enum ReplyTo {
-    COMPANY_RESPONSE("company.response");
+    COMPANY_RESPONSE("company.response"),
+    APPLICATION_RESPONSE("application.response"),
+    VACANCY_RESPONSE("vacancy.response");
 
     private final String value;
 
