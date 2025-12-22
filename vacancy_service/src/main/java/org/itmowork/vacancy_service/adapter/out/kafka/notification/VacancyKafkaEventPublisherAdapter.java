@@ -1,4 +1,4 @@
-package org.itmowork.vacancy_service.adapter.out.kafka;
+package org.itmowork.vacancy_service.adapter.out.kafka.notification;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;

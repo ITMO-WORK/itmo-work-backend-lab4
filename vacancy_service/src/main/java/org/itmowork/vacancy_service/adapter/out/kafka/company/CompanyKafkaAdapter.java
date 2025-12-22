@@ -2,10 +2,14 @@ package org.itmowork.vacancy_service.adapter.out.kafka.company;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.header.internals.RecordHeader;
+import java.nio.charset.StandardCharsets;
 import org.itmowork.vacancy_service.adapter.out.kafka.company.dto.CompanyEventType;
 import org.itmowork.vacancy_service.adapter.out.kafka.company.dto.CompanyRequestMessage;
 import org.itmowork.vacancy_service.adapter.out.kafka.company.dto.payload.CompanyExistsPayload;
 import org.itmowork.vacancy_service.adapter.out.kafka.company.dto.payload.CompanyValidateOwnershipPayload;
+import org.itmowork.vacancy_service.adapter.out.security.SecurityUtils;
 import org.itmowork.vacancy_service.application.port.out.CompanyPort;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
@@ -39,7 +43,7 @@ public class CompanyKafkaAdapter implements CompanyPort {
                 objectMapper.valueToTree(new CompanyExistsPayload(companyId))
         );
 
-        companyRequestKafkaTemplate.send(REQUEST_TOPIC, companyId.toString(), req);
+        sendWithAuthHeader(REQUEST_TOPIC, companyId.toString(), req);
 
         return awaitOrFalse(correlationId, future);
     }
@@ -56,9 +60,26 @@ public class CompanyKafkaAdapter implements CompanyPort {
                 objectMapper.valueToTree(new CompanyValidateOwnershipPayload(companyId, userId))
         );
 
-        companyRequestKafkaTemplate.send(REQUEST_TOPIC, companyId.toString(), req);
+        sendWithAuthHeader(REQUEST_TOPIC, companyId.toString(), req);
 
         return awaitOrFalse(correlationId, future);
+    }
+
+    private void sendWithAuthHeader(String topic, String key, CompanyRequestMessage message) {
+        ProducerRecord<String, CompanyRequestMessage> record =
+                new ProducerRecord<>(topic, key, message);
+
+        String token = SecurityUtils.getCurrentToken();
+        if (token != null && !token.isBlank()) {
+            String headerValue = token.startsWith("Bearer ") ? token : "Bearer " + token;
+
+            record.headers().add(new RecordHeader(
+                    "Authorization",
+                    headerValue.getBytes(StandardCharsets.UTF_8)
+            ));
+        }
+
+        companyRequestKafkaTemplate.send(record);
     }
 
     private boolean awaitOrFalse(UUID correlationId, CompletableFuture<Boolean> future) {
