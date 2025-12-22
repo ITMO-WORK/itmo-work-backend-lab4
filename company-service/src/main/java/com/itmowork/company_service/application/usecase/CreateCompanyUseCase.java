@@ -1,9 +1,9 @@
 package com.itmowork.company_service.application.usecase;
 
 import com.itmowork.company_service.adapter.in.web.dto.request.CompanyRequestDto;
-import com.itmowork.company_service.adapter.out.feign.user.dto.request.UserRequestDto;
+import com.itmowork.company_service.adapter.out.kafka.user.dto.UserRequestPayLoad;
 import com.itmowork.company_service.adapter.in.web.dto.response.CompanyResponseDto;
-import com.itmowork.company_service.adapter.out.feign.user.dto.response.UserResponseDto;
+import com.itmowork.company_service.adapter.in.kafka.user.responseListener.dto.UserResponsePayLoad;
 import com.itmowork.company_service.application.port.in.CreateCompanyPort;
 import com.itmowork.company_service.application.port.out.CompanyRepositoryPort;
 import com.itmowork.company_service.application.port.out.CompanyStatusRepositoryPort;
@@ -50,8 +50,8 @@ public class CreateCompanyUseCase implements CreateCompanyPort {
                                     findCompanyStatusByCompanyStatusName(CompanyStatusName.PENDING_VERIFICATION);
 
 
-                            Mono<UserResponseDto> userResponseDtoMono = createRemoteUser(
-                                    new UserRequestDto(
+                            Mono<UserResponsePayLoad> userResponseDtoMono = createRemoteUser(
+                                    new UserRequestPayLoad(
                                             companyRequestDto.ownerFullName(),
                                             companyRequestDto.ownerPassword(),
                                             companyRequestDto.ownerEmail()
@@ -63,20 +63,20 @@ public class CreateCompanyUseCase implements CreateCompanyPort {
                 )
                 .flatMap(tuple -> {
                     CompanyStatus companyStatus = tuple.getT1();
-                    UserResponseDto userResponseDto = tuple.getT2();
+                    UserResponsePayLoad userResponsePayLoad = tuple.getT2();
 
                     Company company = getCompany(companyRequestDto, companyStatus);
 
                     return companyRepositoryPort.save(company)
-                            .map(savedCompany -> Tuples.of(savedCompany, userResponseDto));
+                            .map(savedCompany -> Tuples.of(savedCompany, userResponsePayLoad));
                 })
                 .flatMap(tuple -> {
                     Company savedCompany = tuple.getT1();
-                    UserResponseDto userResponseDto = tuple.getT2();
+                    UserResponsePayLoad userResponsePayLoad = tuple.getT2();
 
                     UserCompany userCompany = new UserCompany();
                     userCompany.setCompanyId(savedCompany.getId());
-                    userCompany.setUserId(userResponseDto.id());
+                    userCompany.setUserId(userResponsePayLoad.id());
 
                     return userCompanyRepositoryPort.saveUserCompany(userCompany);
 
@@ -104,7 +104,7 @@ public class CreateCompanyUseCase implements CreateCompanyPort {
         );
     }
 
-    public Mono<UserResponseDto> createRemoteUser(UserRequestDto userRequestDto) {
+    public Mono<UserResponsePayLoad> createRemoteUser(UserRequestPayLoad userRequestPayLoad) {
         return Mono.deferContextual(ctx -> {
             String token = ctx.getOrDefault("authToken", null);
 
@@ -113,7 +113,7 @@ public class CreateCompanyUseCase implements CreateCompanyPort {
             if (token == null) return Mono.error(new BadCredentialsException("Not authorized"));
 
             return Mono.fromCallable(() -> {
-                        return userPort.registerCompanyOwner(userRequestDto, token);
+                        return userPort.registerCompanyOwner(userRequestPayLoad, token);
                     })
                     .subscribeOn(Schedulers.boundedElastic())
                     .transformDeferred(CircuitBreakerOperator.of(cb))
@@ -126,7 +126,7 @@ public class CreateCompanyUseCase implements CreateCompanyPort {
 
 
                         if (isInfrastructureError(e)) {
-                            return createUserFallback(userRequestDto, e);
+                            return createUserFallback(userRequestPayLoad, e);
                         }
 
 
@@ -136,7 +136,7 @@ public class CreateCompanyUseCase implements CreateCompanyPort {
         });
     }
 
-    public Mono<UserResponseDto> createUserFallback(UserRequestDto dto, Throwable e) {
+    public Mono<UserResponsePayLoad> createUserFallback(UserRequestPayLoad dto, Throwable e) {
         return Mono.error(new UserClientException(
                 "User service сейчас не доступен, создание юзера невозможно",
                 HttpStatus.SERVICE_UNAVAILABLE

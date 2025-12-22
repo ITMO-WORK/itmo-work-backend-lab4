@@ -1,10 +1,10 @@
 package com.itmowork.company_service.application.port.out;
 
-import com.itmowork.company_service.adapter.out.feign.user.dto.request.UserRequestDto;
-import com.itmowork.company_service.adapter.out.feign.user.dto.response.UserResponseDto;
+import com.itmowork.company_service.adapter.out.kafka.user.dto.UserRequestPayLoad;
+import com.itmowork.company_service.adapter.in.kafka.user.responseListener.dto.UserResponsePayLoad;
 
 
 public interface UserPort {
 
-    UserResponseDto registerCompanyOwner(UserRequestDto userRequestDto, String token);
+    UserResponsePayLoad registerCompanyOwner(UserRequestPayLoad userRequestPayLoad, String token);
 }

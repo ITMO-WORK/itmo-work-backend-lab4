@@ -24,6 +24,7 @@ dependencies {
 	implementation("org.springframework.cloud:spring-cloud-starter-config")
 	implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
 	implementation("org.liquibase:liquibase-core:5.0.1")
+	implementation("org.springframework.kafka:spring-kafka")
 	implementation("org.apache.commons:commons-lang3:3.18.0")
 	implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.13")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
