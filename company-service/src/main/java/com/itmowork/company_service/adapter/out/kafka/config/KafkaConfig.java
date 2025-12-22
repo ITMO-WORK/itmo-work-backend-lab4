@@ -1,6 +1,7 @@
 package com.itmowork.company_service.adapter.out.kafka.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itmowork.company_service.adapter.out.kafka.common.RequestMessage;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -64,6 +65,17 @@ public class KafkaConfig {
     }
 
     @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, RequestMessage>
+    requestMessageKafkaListenerContainerFactory(
+            ConsumerFactory<String, RequestMessage> requestMessageConsumerFactory
+    ) {
+        var factory = new ConcurrentKafkaListenerContainerFactory<String, RequestMessage>();
+        factory.setConsumerFactory(requestMessageConsumerFactory);
+        return factory;
+    }
+
+
+    @Bean
     public ConsumerFactory<String, ResponseMessage> responseMessageConsumerFactory(
             KafkaProperties kafkaProperties,
             ObjectMapper objectMapper
@@ -71,6 +83,23 @@ public class KafkaConfig {
         var props = kafkaProperties.buildConsumerProperties();
 
         var valueDeserializer = new JsonDeserializer<>(ResponseMessage.class, objectMapper);
+        valueDeserializer.addTrustedPackages("*");
+
+        return new DefaultKafkaConsumerFactory<>(
+                props,
+                new StringDeserializer(),
+                valueDeserializer
+        );
+    }
+
+    @Bean
+    public ConsumerFactory<String, RequestMessage> requestMessageConsumerFactory(
+            KafkaProperties kafkaProperties,
+            ObjectMapper objectMapper
+    ) {
+        var props = kafkaProperties.buildConsumerProperties();
+
+        var valueDeserializer = new JsonDeserializer<>(RequestMessage.class, objectMapper);
         valueDeserializer.addTrustedPackages("*");
 
         return new DefaultKafkaConsumerFactory<>(

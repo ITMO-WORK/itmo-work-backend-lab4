@@ -7,8 +7,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum RequestType {
 
+    UNKNOWN("unknown"),
     USER_CREATE_EVENT("user_create_event"),
-    USER_CREATE_RESPONSE_EVENT("user_create_response_event");
+    COMPANY_VALIDATE_OWNERSHIP("company_validate_ownership"),
+    COMPANY_EXISTS("company_exists");
 
     private final String name;
 }
