@@ -145,7 +145,7 @@
 ```json
 {
   "event_type": "COMPANY_EXISTS",
-  "correlation_id": "<id">,
+  "correlation_id": "<id>",
   "ok": true,
   "payload": {
       "company_id": "<company_id>",
@@ -160,7 +160,7 @@
 ```json
 {
   "event_type": "COMPANY_VALIDATE_OWNERSHIP",
-  "correlation_id": "<id">,
+  "correlation_id": "<id>",
   "ok": true,
   "payload": {
       "company_id": "<company_id>",
