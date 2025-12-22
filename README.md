@@ -284,3 +284,33 @@
 }
 ```
 
+## company.response:
+### 1. POST /api/auth/register-company-owner
+
+```json
+{
+  "event_type": "USER_CREATE_EVENT",
+  "correlation_id": "<id>",
+  "ok": true,
+  "payload": {
+      "company_id": "<company_id>"
+  },
+  "error_payload": null
+}
+```
+
+### 2. GET /api/user/{id}
+```json
+{
+  "event_type": "USER_EXISTS_EVENT",
+  "correlation_id": "<id>",
+  "ok": true,
+  "payload": {
+      "user_id": "<user_id>"
+      "owner_full_name": "<full_name>",
+      "owner_email": "<owner_email>"
+  },
+  "error_payload": null
+}
+```
+
