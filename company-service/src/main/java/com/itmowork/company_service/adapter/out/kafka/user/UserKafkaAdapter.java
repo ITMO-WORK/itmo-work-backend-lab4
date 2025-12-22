@@ -12,12 +12,14 @@ import com.itmowork.company_service.adapter.out.kafka.common.registry.Correlatio
 import com.itmowork.company_service.adapter.out.kafka.config.KafkaProps;
 import com.itmowork.company_service.application.port.out.UserPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class UserKafkaAdapter implements UserPort {
@@ -39,9 +41,11 @@ public class UserKafkaAdapter implements UserPort {
                 .payload(objectMapper.valueToTree(userRequestPayLoad))
                 .build();
 
+        log.info("Sending USER_CREATE_EVENT request with correlationId={}", correlationId);
+        log.info(requestMessage + "");
         Mono<UserResponsePayLoad> wait =
                 withTimeoutHandling(correlationRegistry.registerRequest(correlationId, kafkaProps.timeout(), UserResponsePayLoad.class), RequestType.USER_CREATE_EVENT.getName());
-
+        log.debug(wait.toString());
         return springKafkaProducer.send(kafkaProps.topics().userRequest(), requestMessage, KafkaHeaders.withJwt(token))
                 .then(wait)
                 .block();
