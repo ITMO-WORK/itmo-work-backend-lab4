@@ -279,9 +279,7 @@
   "correlation_id": "<id>",
   "reply_to": "application.response",
   "payload": {
-      "owner_full_name": "<full_name>",
-      "owner_email": "<owner_email>",
-      "owner_password": "<owner_password>",
+      "user_id": "<user_id>"
   }
 }
 ```
