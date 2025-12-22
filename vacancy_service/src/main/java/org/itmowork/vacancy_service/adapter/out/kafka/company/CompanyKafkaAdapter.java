@@ -9,6 +9,7 @@ import org.itmowork.vacancy_service.adapter.out.kafka.company.dto.CompanyEventTy
 import org.itmowork.vacancy_service.adapter.out.kafka.company.dto.CompanyRequestMessage;
 import org.itmowork.vacancy_service.adapter.out.kafka.company.dto.payload.CompanyExistsPayload;
 import org.itmowork.vacancy_service.adapter.out.kafka.company.dto.payload.CompanyValidateOwnershipPayload;
+import org.itmowork.vacancy_service.adapter.out.kafka.company.exceptions.CompanyRpcException;
 import org.itmowork.vacancy_service.adapter.out.security.SecurityUtils;
 import org.itmowork.vacancy_service.application.port.out.CompanyPort;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -17,7 +18,9 @@ import org.springframework.stereotype.Component;
 import java.time.Duration;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @Component
 @RequiredArgsConstructor
@@ -85,7 +88,19 @@ public class CompanyKafkaAdapter implements CompanyPort {
     private boolean awaitOrFalse(UUID correlationId, CompletableFuture<Boolean> future) {
         try {
             return future.get(TIMEOUT.toMillis(), TimeUnit.MILLISECONDS);
-        } catch (Exception e) {
+        } catch (ExecutionException ex) {
+            pending.remove(correlationId);
+            Throwable cause = ex.getCause();
+
+            if (cause instanceof CompanyRpcException cre) {
+                throw cre;
+            }
+
+            return false;
+        } catch (TimeoutException ex) {
+            pending.remove(correlationId);
+            throw new CompanyRpcException("INTERNAL_ERROR", "Timeout waiting company-service response");
+        } catch (Exception ex) {
             pending.remove(correlationId);
             return false;
         }
