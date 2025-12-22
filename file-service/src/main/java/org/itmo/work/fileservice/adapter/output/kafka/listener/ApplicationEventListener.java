@@ -27,8 +27,7 @@ public class ApplicationEventListener {
         try {
             eventMessage = objectMapper.readValue(rawMessage, EventMessage.class);
         } catch (JsonProcessingException ex){
-            log.warn("Invalid json in kafka message {} ", rawMessage, ex);
-            throw new IllegalJsonFormatException();
+            return;
         }
 
         EventType eventType = eventMessage.eventType();
