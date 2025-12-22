@@ -2,9 +2,9 @@ package org.itmowork.vacancy_service.adapter.out.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.itmowork.vacancy_service.adapter.out.kafka.dto.EventMessage;
-import org.itmowork.vacancy_service.adapter.out.kafka.dto.EventType;
-import org.itmowork.vacancy_service.adapter.out.kafka.dto.VacancyStatusChangePayload;
+import org.itmowork.vacancy_service.adapter.out.kafka.notification.dto.EventMessage;
+import org.itmowork.vacancy_service.adapter.out.kafka.notification.dto.EventType;
+import org.itmowork.vacancy_service.adapter.out.kafka.notification.dto.VacancyStatusChangePayload;
 import org.itmowork.vacancy_service.application.dto.event.VacancyStatusChangedEvent;
 import org.itmowork.vacancy_service.application.port.out.VacancyEventPublisherPort;
 import org.springframework.kafka.core.KafkaTemplate;
