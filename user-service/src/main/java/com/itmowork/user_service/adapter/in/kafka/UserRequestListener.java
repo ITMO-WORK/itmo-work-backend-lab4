@@ -85,7 +85,7 @@ public class UserRequestListener {
                                         msg.eventType(),
                                         msg.correlationId(),
                                         true,
-                                        objectMapper.valueToTree(new UserCreateResultPayload(result.id() /* или result.id() */)),
+                                        objectMapper.valueToTree(new UserCreateResultPayload(result.id())),
                                         null
                                 );
                                 return producer.send(msg.replyTo().getValue(), response);
@@ -157,7 +157,6 @@ public class UserRequestListener {
     }
 
     private Mono<Void> mapDomainErrorToResponse(RequestMessage msg, Throwable e) {
-        // подстрой под свои exception классы
         String name = e.getClass().getSimpleName();
 
         if (name.equals("UserAlreadyExistsException")) {
