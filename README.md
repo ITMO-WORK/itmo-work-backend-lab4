@@ -31,7 +31,7 @@
 | application-service  | Егор (+ мы поможем смотря какие там проблемы) | ❌          |
 | user-service         | Маша                                          | ❌          |
 | company-service      | Арслан                                        | ❌          |
-| vacancy-service      | Маша                                          | ❌          |
+| vacancy-service      | Маша                                          | ✅          |
 | notification-service | Арслан                                        | ❌          |
 
 ### 4. Написать тесты для каждого сервиса. Покрытие сервисов и контроллеров >70%
