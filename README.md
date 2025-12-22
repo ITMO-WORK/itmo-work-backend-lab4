@@ -138,7 +138,7 @@
 
 `UNAUTHORIZED` - токен не был указан 
 
-## vacancy.response (company-service -> vacancy.service):
+## vacancy.response/application.response (company-service -> vacancy.service/application.service):
 
 ### 1. GET /api/company/{companyId}
 
