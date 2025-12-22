@@ -1,4 +1,4 @@
-package com.itmowork.user_service.adapter.out.kafka.common;
+package com.itmowork.user_service.adapter.in.kafka.dto;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
@@ -8,10 +8,9 @@ import java.util.UUID;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record ResponseMessage(
-        UUID correlationId,
         RequestType eventType,
+        UUID correlationId,
         boolean ok,
         JsonNode payload,
         ErrorPayload errorPayload
-) {
-}
+) {}
