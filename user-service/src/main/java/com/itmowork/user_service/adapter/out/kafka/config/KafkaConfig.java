@@ -43,7 +43,6 @@ public class KafkaConfig {
         return new KafkaTemplate<>(producerFactory);
     }
 
-    // ✅ consumer для RequestMessage (важно!)
     @Bean
     public ConsumerFactory<String, RequestMessage> requestMessageConsumerFactory(
             KafkaProperties kafkaProperties,

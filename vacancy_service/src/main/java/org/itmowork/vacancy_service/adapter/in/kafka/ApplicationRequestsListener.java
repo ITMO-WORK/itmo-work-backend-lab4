@@ -54,7 +54,7 @@ public class ApplicationRequestsListener {
         switch (msg.eventType()) {
             case VACANCY_IS_PUBLISHED -> handleIsPublished(msg, key);
             case VACANCY_EXISTS -> handleExists(msg, key);
-            case VACANCY_TITLE -> handleTitle(msg, key, authorization);
+            case VACANCY_TITLE -> handleTitle(msg, key);
             case VACANCY_COMPANY_ID -> handleCompanyId(msg, key, authorization);
             default -> sendError(msg, "UNSUPPORTED_OPERATION", "Unsupported event_type: " + msg.eventType());
         }
@@ -96,30 +96,23 @@ public class ApplicationRequestsListener {
         }
     }
 
-    private void handleTitle(ApplicationRequestMessage msg, String key, String authorization) {
+    private void handleTitle(ApplicationRequestMessage msg, String key) {
         VacancyIdPayload payload = requireVacancyId(msg, key);
         if (payload == null) return;
 
-        runWithSecurityContextOrReplyError(msg, authorization, () -> {
-            if (!hasAnyAllowedRole()) {
-                sendError(msg, "FORBIDDEN", "Insufficient permissions");
-                return;
-            }
+        try {
+            String title = vacancyQueriesUseCase.getTitle(payload.vacancyId());
 
-            try {
-                String title = vacancyQueriesUseCase.getTitle(payload.vacancyId());
+            VacancyResponseMessage response = ok(msg,
+                    objectMapper.valueToTree(new VacancyTitleResultPayload(payload.vacancyId(), title)));
 
-                VacancyResponseMessage response = ok(msg,
-                        objectMapper.valueToTree(new VacancyTitleResultPayload(payload.vacancyId(), title)));
+            responseKafkaTemplate.send(resolveReplyTopic(msg), payload.vacancyId().toString(), response);
 
-                responseKafkaTemplate.send(resolveReplyTopic(msg), payload.vacancyId().toString(), response);
-
-            } catch (VacancyNotFoundException ex) {
-                sendError(msg, "BAD_REQUEST", "Given vacancy_id is not found");
-            } catch (Exception ex) {
-                sendError(msg, "INTERNAL_ERROR", "Unexpected error");
-            }
-        });
+        } catch (VacancyNotFoundException ex) {
+            sendError(msg, "BAD_REQUEST", "Given vacancy_id is not found");
+        } catch (Exception ex) {
+            sendError(msg, "INTERNAL_ERROR", "Unexpected error");
+        }
     }
 
     private void handleCompanyId(ApplicationRequestMessage msg, String key, String authorization) {
