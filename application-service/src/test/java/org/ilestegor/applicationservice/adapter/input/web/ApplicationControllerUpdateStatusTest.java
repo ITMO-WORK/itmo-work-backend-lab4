@@ -41,7 +41,6 @@ class ApplicationControllerUpdateStatusTest extends AbstractIntegrationTest {
     @Autowired
     JwtService jwtService;
 
-    // МОКИ из TestPortsConfig
     @Autowired
     UserPort userPort;
     @Autowired
@@ -51,15 +50,15 @@ class ApplicationControllerUpdateStatusTest extends AbstractIntegrationTest {
     @Autowired
     ApplicationEventPublisherPort applicationEventPublisherPort;
 
-    // РЕАЛЬНЫЕ репозитории (через БД)
+
     @Autowired
     ApplicationRepositoryPort applicationRepositoryPort;
     @Autowired
     ApplicationStatusRepositoryPort applicationStatusRepositoryPort;
 
     private UUID userId;
-    private String tokenManager; // роль проходит PreAuthorize
-    private String tokenUser;    // роль НЕ проходит PreAuthorize
+    private String tokenManager;
+    private String tokenUser;
 
     @BeforeEach
     void setUp() {
@@ -67,7 +66,7 @@ class ApplicationControllerUpdateStatusTest extends AbstractIntegrationTest {
         tokenManager = generateJwt(userId, "test@mail.com", "ROLE_MANAGER");
         tokenUser = generateJwt(userId, "test@mail.com", "ROLE_USER");
 
-        // дефолты, чтобы никогда не было NPE из-за unstubbed Mono
+
         when(applicationEventPublisherPort.publishStatusChanged(any())).thenReturn(Mono.empty());
 
         when(userPort.checkUserExists(any(), anyString()))
@@ -113,7 +112,7 @@ class ApplicationControllerUpdateStatusTest extends AbstractIntegrationTest {
         return applicationRepositoryPort.save(app).block();
     }
 
-    // ----------------------- TESTS -----------------------
+
 
     @Test
     void updateStatus_forbiddenForRoleUser_shouldReturn403() {
@@ -127,12 +126,12 @@ class ApplicationControllerUpdateStatusTest extends AbstractIntegrationTest {
     void updateStatus_success_asManager_shouldReturn200_updateDb_andPublishEvent() {
         UUID vacancyId = UUID.randomUUID();
 
-        // старый статус: берём любой существующий id
+
         Long oldStatusId = 1L;
         assertNotNull(oldStatusId);
 
-        // новый статус: лучше взять тот, который ТОЧНО есть в БД.
-        // если "REJECTED" не засеян — тест упадёт. Поэтому подстрахуемся:
+
+
         ApplicationStatus newStatus = Stream.of(
                         ApplicationStatusName.REJECTED,
                         ApplicationStatusName.NEW
