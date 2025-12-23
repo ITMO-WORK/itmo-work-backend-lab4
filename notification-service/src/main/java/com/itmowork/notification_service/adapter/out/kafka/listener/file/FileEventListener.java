@@ -26,6 +26,11 @@ public class FileEventListener {
     )
     public void listen(EventMessage message) {
 
+        if (message == null || message.eventType() == null || message.eventType() == EventType.UNKNOWN) {
+            log.warn("Skip event with unknown type, eventId={}", message != null ? message.eventId() : null);
+            return;
+        }
+
         log.info("Received event: type={}, id={}",
                 message.eventType(), message.eventId());
 
