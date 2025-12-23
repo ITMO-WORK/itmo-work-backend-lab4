@@ -56,7 +56,7 @@ class AuthControllerTest {
 
     @Container
     static final PostgreSQLContainer<?> POSTGRES =
-            new PostgreSQLContainer<>("postgres:17-alpine")
+            new PostgreSQLContainer<>("postgres:17")
                     .withDatabaseName("user-db")
                     .withUsername("postgres")
                     .withPassword("postgres");
