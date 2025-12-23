@@ -42,8 +42,8 @@
 | user-service         | Маша          | ✅          |
 | company-service      | Арслан        | ✅          |
 | vacancy-service      | Маша          | ✅          |
-| application-service  | Егор          | ❌          |
-| file-service         | Егор          | ❌          |
+| application-service  | Егор          | ✅          |
+| file-service         | Егор          | ✅          |
 | notification-service | Арслан        | ✅          |
 
 # Json-форматы 
