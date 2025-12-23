@@ -24,6 +24,7 @@ public class GetResumeFileUseCase implements GetResumeFilePort {
         StoredFile file = fileRepositoryPort.getResumeByApplicationId(applicationId)
                 .orElseThrow(ResumeNotFoundException::new);
 
+
         return fileStoragePort.getPresignedGetUrl(
                 file.getBucket(),
                 file.getObjectKey(),

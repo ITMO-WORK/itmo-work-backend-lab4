@@ -20,6 +20,7 @@ public class UpdateResumeUseCase implements UpdateResumePort {
     private final FileStoragePort fileStoragePort;
     private final FileStoragePropsPort fileStoragePropsPort;
     private final ApplicationRegistryPort applicationRegistryPort;
+    private final CurrentUserPort currentUserPort;
 
     @Override
     public UpdateResumeResponse updateResume(UUID applicationId, MultipartFile file) {
@@ -30,10 +31,18 @@ public class UpdateResumeUseCase implements UpdateResumePort {
 
         var resume = storedFileRepositoryPort.getResumeByApplicationId(applicationId).orElseThrow(ApplicationNotFoundException::new);
 
+
         UUID fileId = resume.getId();
 
         if (fileId == null)
             throw new ResumeNotFoundException();
+
+        UUID ownerId = resume.getOwnerId();
+        UUID currentUserId = currentUserPort.getCurrentUserId();
+
+        if (ownerId == null || !ownerId.equals(currentUserId)) {
+            throw new ApplicationNotFoundException();
+        }
 
         String bucket = fileStoragePropsPort.bucket();
         String objectKey = resume.getObjectKey();

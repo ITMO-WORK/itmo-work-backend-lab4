@@ -36,6 +36,10 @@ public class UploadResumeUseCase implements UploadResumePort {
         if (storedFileRepositoryPort.checkResumeAlreadyExists(applicationId))
             throw new ResumeAlreadyExistsException();
 
+        var resume = applicationRegistryPort.findApplicationRegistryByApplicationId(applicationId);
+        if (!resume.getOwnerId().equals(currentUserPort.getCurrentUserId()))
+            throw new ApplicationNotFoundException();
+
 
         String bucket = fileStoragePropsPort.bucket();
         String objectKey = "resume/" + UUID.randomUUID();
