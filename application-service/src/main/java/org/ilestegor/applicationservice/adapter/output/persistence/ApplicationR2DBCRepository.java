@@ -87,4 +87,9 @@ public class ApplicationR2DBCRepository implements ApplicationRepositoryPort {
     public Mono<Long> countApplicationsByUserId(UUID userId) {
         return applicationRepository.countApplicationsByUserId(userId);
     }
+
+    @Override
+    public Mono<Void> deleteAll() {
+        return applicationRepository.deleteAll();
+    }
 }

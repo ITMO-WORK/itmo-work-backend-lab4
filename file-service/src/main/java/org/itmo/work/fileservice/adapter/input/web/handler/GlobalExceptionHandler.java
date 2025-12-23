@@ -17,9 +17,9 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(ResumeAlreadyExistsException.class)
-    public ResponseEntity<ProblemDetail> resumeNotFoundExceptionHandler(ResumeAlreadyExistsException ex, HttpServletRequest request){
-        ProblemDetail body = ProblemDetailsUtils.problemDetail(HttpStatus.BAD_REQUEST, "Resume already exists for this application", "", request);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    public ResponseEntity<ProblemDetail> resumeAlreadyExistsExceptionHandler(ResumeAlreadyExistsException ex, HttpServletRequest request){
+        ProblemDetail body = ProblemDetailsUtils.problemDetail(HttpStatus.CONFLICT, "Resume already exists for this application", "", request);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
 
     @ExceptionHandler(IllegalJsonFormatException.class)
@@ -31,13 +31,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(ApplicationNotFoundException.class)
     public ResponseEntity<ProblemDetail> applicationNotFoundExceptionHandler(ApplicationNotFoundException ex, HttpServletRequest request){
-        ProblemDetail body = ProblemDetailsUtils.problemDetail(HttpStatus.BAD_REQUEST, "Application not found", ex.getMessage(), request);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+        ProblemDetail body = ProblemDetailsUtils.problemDetail(HttpStatus.NOT_FOUND, "Application not found", ex.getMessage(), request);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
 
     @ExceptionHandler(ResumeNotFoundException.class)
     public ResponseEntity<ProblemDetail> resumeNotFoundExceptionHandler(ResumeNotFoundException ex, HttpServletRequest request){
-        ProblemDetail body = ProblemDetailsUtils.problemDetail(HttpStatus.BAD_REQUEST, "Application not found", ex.getMessage(), request);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+        ProblemDetail body = ProblemDetailsUtils.problemDetail(HttpStatus.NOT_FOUND, "Application not found", ex.getMessage(), request);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
 }
