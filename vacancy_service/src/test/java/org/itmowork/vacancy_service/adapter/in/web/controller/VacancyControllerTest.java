@@ -57,7 +57,7 @@ class VacancyControllerTest {
 
     @Container
     private static final PostgreSQLContainer<?> POSTGRES =
-            new PostgreSQLContainer<>("postgres:17-alpine")
+            new PostgreSQLContainer<>("postgres:17")
                     .withDatabaseName("vacancy-db")
                     .withUsername("postgres")
                     .withPassword("postgres");
