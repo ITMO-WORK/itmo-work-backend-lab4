@@ -18,9 +18,7 @@ public class UpdateResumeUseCase implements UpdateResumePort {
 
     private final FileRepositoryPort storedFileRepositoryPort;
     private final FileStoragePort fileStoragePort;
-    private final FileEventPublisherPort fileEventPublisherPort;
     private final FileStoragePropsPort fileStoragePropsPort;
-    private final CurrentUserPort currentUserPort;
     private final ApplicationRegistryPort applicationRegistryPort;
 
     @Override

@@ -36,5 +36,7 @@ public interface ApplicationRepositoryPort {
 
     Mono<Long> countApplicationsByUserId(UUID userId);
 
+    Mono<Void> deleteAll();
+
 
 }

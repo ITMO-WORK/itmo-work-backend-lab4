@@ -19,7 +19,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class GetApplicationUseCase implements GetApplicationPort {
+public class GetApplicationsUseCase implements GetApplicationPort {
 
     private final CurrentUserPort currentUserPort;
     private final ApplicationPreconditions preconditions;
@@ -35,7 +35,7 @@ public class GetApplicationUseCase implements GetApplicationPort {
         return currentUserPort.getCurrentUser()
                 .flatMap(user ->
                         preconditions.checkUserExists(user.userId(), user.token())
-                                .then(fetchPage(user.userId(), pageable, user.token()))
+                                .then(Mono.defer(() -> fetchPage(user.userId(), pageable, user.token())))
                 );
     }
 
