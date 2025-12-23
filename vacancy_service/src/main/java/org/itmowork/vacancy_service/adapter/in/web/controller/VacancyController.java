@@ -36,7 +36,6 @@ public class VacancyController {
     private final UpdateVacancyAndChangeStatusUseCase updateVacancyAndChangeStatusUseCase;
     private final VacancyUpdateAndChangeStatusWebMapper vacancyUpdateAndChangeStatusWebMapper;
     private final GetPublishedVacanciesUseCase getPublishedVacanciesUseCase;
-    private final VacancyQueriesUseCase vacancyQueriesUseCase;
 
     @GetMapping
     public PagedModel<VacancyResponseDto> getAllPublishedVacancies(Pageable pageable) {
@@ -105,28 +104,6 @@ public class VacancyController {
         var command = vacancyCreateWebMapper.toCommand(request);
         var result = createVacancyUseCase.create(command, VacancyStatusName.DRAFT);
         return ResponseEntity.status(HttpStatus.CREATED).body(vacancyCreateWebMapper.toResponse(result));
-    }
-
-    @GetMapping("/{vacancyId}/company-id")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'COMPANY_OWNER', 'EMPLOYEE')")
-    public ResponseEntity<UUID> getCompanyIdByVacancy(@PathVariable UUID vacancyId) {
-        return ResponseEntity.ok(vacancyQueriesUseCase.getCompanyId(vacancyId));
-    }
-
-    @GetMapping("/{id}/title")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'COMPANY_OWNER', 'EMPLOYEE')")
-    public ResponseEntity<String> getVacancyTitle(@PathVariable UUID id) {
-        return ResponseEntity.ok(vacancyQueriesUseCase.getTitle(id));
-    }
-
-    @GetMapping("/{id}/is-published")
-    public ResponseEntity<Boolean> isVacancyPublished(@PathVariable UUID id) {
-        return ResponseEntity.ok(vacancyQueriesUseCase.isPublished(id));
-    }
-
-    @GetMapping("/{id}/exists")
-    public ResponseEntity<Boolean> exists(@PathVariable UUID id) {
-        return ResponseEntity.ok(vacancyQueriesUseCase.exists(id));
     }
 
 }
