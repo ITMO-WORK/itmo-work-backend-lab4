@@ -27,8 +27,6 @@ public class CompanyController {
     private final UpdateCompanyPort updateCompanyPort;
     private final DeleteCompanyPort deleteCompanyPort;
     private final GetAllCompaniesPort getAllCompaniesPort;
-    private final ExistsCompanyByIdPort existsCompanyByIdPort;
-    private final ValidateCompanyOwnershipPort validateCompanyOwnershipPort;
 
     @PostMapping("/register-company")
     @SecurityRequirement(name = "bearerAuth")
@@ -61,15 +59,5 @@ public class CompanyController {
         Pageable pageable = PageRequest.of(page, size);
         return getAllCompaniesPort.getAllCompanies(pageable);
 
-    }
-
-    @GetMapping("/{companyId}/{userId}")
-    public Mono<Boolean> validateCompanyOwnership(@PathVariable UUID companyId, @PathVariable UUID userId) {
-        return validateCompanyOwnershipPort.validateCompanyOwnership(companyId, userId);
-    }
-
-    @GetMapping("/{id}")
-    public Mono<Boolean> existsCompanyById(@PathVariable UUID id) {
-        return existsCompanyByIdPort.existsCompanyById(id);
     }
 }
