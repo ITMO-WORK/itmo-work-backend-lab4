@@ -15,23 +15,29 @@ public class KafkaConsumerConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, EventMessage>
-    kafkaListenerContainerFactory(ObjectMapper objectMapper,
-                                  KafkaProperties kafkaProperties) {
+    kafkaListenerContainerFactory(
+            ObjectMapper objectMapper,
+            KafkaProperties kafkaProperties
+    ) {
 
         var props = kafkaProperties.buildConsumerProperties();
 
-        var valueDeserializer =
+        JsonDeserializer<EventMessage> valueDeserializer =
                 new JsonDeserializer<>(EventMessage.class, objectMapper);
         valueDeserializer.addTrustedPackages("*");
+        valueDeserializer.setRemoveTypeHeaders(false);
+        valueDeserializer.setUseTypeMapperForKey(false);
 
-        var consumerFactory = new DefaultKafkaConsumerFactory<>(
-                props,
-                new StringDeserializer(),
-                valueDeserializer
-        );
+        DefaultKafkaConsumerFactory<String, EventMessage> consumerFactory =
+                new DefaultKafkaConsumerFactory<>(
+                        props,
+                        new StringDeserializer(),
+                        valueDeserializer
+                );
 
-        var factory =
-                new ConcurrentKafkaListenerContainerFactory<String, EventMessage>();
+        ConcurrentKafkaListenerContainerFactory<String, EventMessage> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+
         factory.setConsumerFactory(consumerFactory);
 
         return factory;
