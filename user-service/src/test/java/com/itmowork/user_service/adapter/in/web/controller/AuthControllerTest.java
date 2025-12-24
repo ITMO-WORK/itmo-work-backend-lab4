@@ -194,44 +194,6 @@ class AuthControllerTest {
     }
 
     @Test
-    @DisplayName("POST /api/auth/register-company-owner с ADMIN JWT -> 200 OK, ROLE_COMPANY_OWNER")
-    void registerCompanyOwner_shouldCreateCompanyOwner_andReturnToken() throws Exception {
-        String adminEmail = "admin@example.com";
-        UUID adminId = seedAdmin(adminEmail, "Admin", "does-not-matter");
-        String adminJwt = generateJwt(adminId, adminEmail, "ROLE_ADMIN");
-
-        Map<String, Object> body = Map.of(
-                "full_name", "Boss",
-                "email", "owner@example.com",
-                "password", "ownerPass"
-        );
-
-        byte[] bytes = webTestClient.post()
-                .uri("/api/auth/register-company-owner")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminJwt)
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(body)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.token").isNotEmpty()
-                .returnResult()
-                .getResponseBody();
-
-        assertThat(bytes).isNotNull();
-        UUID createdId = extractId(new String(bytes));
-
-        List<String> roles = jdbc.queryForList("""
-                select r.name
-                from roles r
-                join user_roles ur on ur.role_id = r.id
-                where ur.user_id = ?
-                """, String.class, createdId);
-
-        assertThat(roles).contains("ROLE_COMPANY_OWNER");
-    }
-
-    @Test
     @DisplayName("POST /api/auth/login -> 200 OK, returns token when credentials are valid")
     void login_shouldReturnToken_whenCredentialsValid() {
         String email = "john@example.com";
@@ -275,8 +237,6 @@ class AuthControllerTest {
                 // чаще всего будет 401, но если у тебя маппинг исключений другой — всё равно 4xx
                 .expectStatus().is4xxClientError();
     }
-
-
 
     private String generateJwt(UUID userId, String email, String... roles) {
         SecretKey key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(TEST_JWT_SECRET));

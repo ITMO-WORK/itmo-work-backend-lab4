@@ -36,14 +36,6 @@ public class AuthController {
                 .map(authWebMapper::toResponse);
     }
 
-    @PostMapping("/register-company-owner")
-    @SecurityRequirement(name = "bearerAuth")
-    public Mono<AuthResponseDto> registerCompanyOwner(@RequestBody @Valid Mono<UserRequestDto> userRequestDto) {
-        return userRequestDto
-                .map(authWebMapper::toRegisterCompanyOwnerCommand)
-                .flatMap(registerCompanyOwnerUseCase::registerCompanyOwner)
-                .map(authWebMapper::toResponse);
-    }
 
     @PostMapping("/login")
     public Mono<AuthResponseDto> login(@RequestBody @Valid Mono<LoginRequestDto> loginRequestDto) {
