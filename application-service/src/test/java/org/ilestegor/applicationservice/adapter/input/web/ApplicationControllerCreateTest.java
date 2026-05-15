@@ -10,6 +10,7 @@ import org.ilestegor.applicationservice.domain.ApplicationStatus;
 import org.ilestegor.applicationservice.domain.ApplicationStatusName;
 import org.ilestegor.applicationservice.security.interfaces.JwtService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
@@ -35,6 +36,7 @@ import static org.mockito.Mockito.*;
 
 @Import(TestPortsConfig.class)
 @AutoConfigureWebTestClient
+@Tag("integration")
 class ApplicationControllerCreateTest extends AbstractIntegrationTest {
 
     @Autowired

@@ -9,10 +9,7 @@ import org.ilestegor.applicationservice.application.port.output.UserPort;
 import org.ilestegor.applicationservice.application.port.output.VacancyPort;
 import org.ilestegor.applicationservice.domain.Application;
 import org.ilestegor.applicationservice.security.interfaces.JwtService;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
@@ -33,6 +30,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @Import(TestPortsConfig.class)
+@Tag("integration")
 class ApplicationControllerUpdateTest extends AbstractIntegrationTest {
 
     @Autowired

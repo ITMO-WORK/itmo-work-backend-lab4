@@ -10,6 +10,7 @@ import org.ilestegor.applicationservice.application.port.output.VacancyPort;
 import org.ilestegor.applicationservice.domain.Application;
 import org.ilestegor.applicationservice.security.interfaces.JwtService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
@@ -32,6 +33,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @Import(TestPortsConfig.class)
+@Tag("integration")
 class ApplicationControllerGetMyApplicationTest extends AbstractIntegrationTest {
 
     @Autowired

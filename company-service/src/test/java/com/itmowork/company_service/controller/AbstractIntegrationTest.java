@@ -3,6 +3,7 @@ package com.itmowork.company_service.controller;
 import com.itmowork.company_service.application.port.out.CompanyRepositoryPort;
 import com.itmowork.company_service.configuration.UserPrincipal;
 import com.itmowork.company_service.security.JwtService;
+import org.junit.jupiter.api.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,6 +28,7 @@ import java.util.UUID;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
+@Tag("integration")
 @AutoConfigureWebTestClient
 @TestPropertySource(properties = {
         "spring.cloud.discovery.enabled=false",

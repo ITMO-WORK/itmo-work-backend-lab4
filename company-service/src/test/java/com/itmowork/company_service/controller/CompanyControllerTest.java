@@ -8,6 +8,7 @@ import com.itmowork.company_service.adapter.in.web.dto.response.CompanyResponseD
 import com.itmowork.company_service.application.port.out.UserPort;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -18,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+@Tag("integration")
 public class CompanyControllerTest extends AbstractIntegrationTest{
 
     private static final UUID USER_ID = UUID.fromString("11111111-1111-1111-1111-111111111111");

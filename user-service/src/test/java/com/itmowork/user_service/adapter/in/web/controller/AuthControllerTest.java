@@ -38,6 +38,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
+@Tag("integration")
 @TestPropertySource(properties = {
         "spring.cloud.discovery.enabled=false",
         "eureka.client.enabled=false",
